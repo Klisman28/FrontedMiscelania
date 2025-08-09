@@ -1,0 +1,81 @@
+/* Archivo CSS (puedes agregarlo dentro de tu archivo global o usarlo en un archivo separado) */
+
+/* Contenedor de la tabla que hace el scroll horizontal en pantallas pequeñas */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsividad de la tabla */
+.table-responsive {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Estilo de las celdas */
+.table-responsive td,
+.table-responsive th {
+  padding: 8px 12px;
+  text-align: left;
+}
+
+/* Columna de descripción más pequeña en dispositivos pequeños */
+.table-responsive .description-column {
+  font-size: 12px;
+}
+
+/* Agregar un estilo de filas alternadas para mayor legibilidad */
+.table-responsive tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+/* Media Query para tabletas */
+@media (max-width: 768px) {
+  /* Hacer que la tabla se muestre como un contenedor de desplazamiento horizontal */
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Reducir el tamaño de las celdas en pantallas pequeñas */
+  .table-responsive td,
+  .table-responsive th {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  /* Hacer las columnas más pequeñas en dispositivos móviles */
+  .table-responsive .description-column {
+    font-size: 10px;
+  }
+
+  /* Hacer que las columnas de acciones y detalles se oculten en móviles */
+  .table-responsive .actions-column,
+  .table-responsive .cost-column,
+  .table-responsive .price-column,
+  .table-responsive .stock-column,
+  .table-responsive .status-column {
+    display: none;
+  }
+}
+
+/* Media Query para dispositivos móviles (menor que 480px) */
+@media (max-width: 480px) {
+  /* Ajustar la tabla a una vista más compacta */
+  .table-responsive {
+    font-size: 10px;
+  }
+
+  /* Reducir aún más los márgenes de la tabla */
+  .table-responsive td,
+  .table-responsive th {
+    padding: 4px 8px;
+  }
+
+  /* Cambiar la visualización de la columna 'Acciones' en dispositivos móviles */
+  .table-responsive .actions-column {
+    display: block;
+    text-align: center;
+  }
+}

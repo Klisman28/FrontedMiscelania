@@ -1,0 +1,69 @@
+/* Archivo styles.css */
+
+/* Ocultar la columna en pantallas pequeñas */
+.columna1 {
+    display: block; /* Visible por defecto */
+  }
+  
+  /* Ocultar en pantallas pequeñas */
+  @media (max-width: 767px) {
+    .columna1 {
+      display: none;
+    }
+  }
+  
+  /* Mostrar en pantallas medianas (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .columna1 {
+      display: none; /* La columna está oculta entre 766px y 1023px */
+    }
+  }
+  
+  /* Mostrar en pantallas grandes (1024px - 1279px) */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .columna1 {
+      display: block; /* La columna se muestra a partir de la laptop */
+    }
+  }
+  
+  /* Mostrar en pantallas muy grandes (pantallas mayores a 1280px) */
+  @media (min-width: 1280px) {
+    .columna1 {
+      display: block; /* La columna se muestra en pantallas de escritorio y más grandes */
+    }
+  }
+  
+  /* Archivo styles.css */
+
+/* Ancho para pantallas pequeñas (por defecto, 100% del ancho) */
+.formulario {
+    width: 100%; /* 100% en pantallas pequeñas por defecto */
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  /* Pantallas medianas (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .formulario {
+      width: 100%; /* En pantallas medianas, el formulario ocupa el 100% del ancho */
+    }
+  }
+  
+  /* Pantallas grandes (1024px - 1279px) */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .formulario {
+      width: 75%; /* En pantallas grandes, el formulario ocupa el 75% del ancho */
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+  
+  /* Pantallas extra grandes (1280px en adelante) */
+  @media (min-width: 1280px) {
+    .formulario {
+      width: 50%; /* En pantallas muy grandes, el formulario ocupa el 50% del ancho */
+      padding-left: 4rem;
+      padding-right: 4rem;
+    }
+  }
+  
