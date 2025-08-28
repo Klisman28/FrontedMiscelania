@@ -147,4 +147,10 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/notes/NoteFields')),
         authority: [],
     },
+     {
+        key: 'report',
+        path: '/report',
+        component: React.lazy(() => import('views/notes/NoteFields')),
+        authority: [],
+    },
 ]
