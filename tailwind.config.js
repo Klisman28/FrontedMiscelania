@@ -1,15 +1,16 @@
-const flattenColorPalette = require('tailwindcss/lib/util/flattenColorPalette').default;
-const safeListFile = 'safelist.txt';
+// tailwind.config.js
+const flattenColorPalette =
+  require('tailwindcss/lib/util/flattenColorPalette').default
 
+const safeListFile = 'safelist.txt'
+
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  mode: 'jit',
+  // mode: 'jit', // <- innecesario en Tailwind v3
   content: [
-    "./src/**/*.html",
-    "./src/**/*.js",
-    "./src/**/*.jsx",
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    './safelist.txt'
+    './src/**/*.html',
+    './src/**/*.{js,jsx,ts,tsx}',
+    './safelist.txt',
   ],
   darkMode: 'class',
   theme: {
@@ -43,17 +44,20 @@ module.exports = {
         'monospace',
       ],
     },
+    // Usa los breakpoints estándar y vuelve a incluir 2xl
     screens: {
       xs: '576px',
       sm: '640px',
       md: '768px',
       lg: '1024px',
       xl: '1280px',
-     xxl: '1536px',
+      '2xl': '1536px',
+      // (Opcional) alias si quieres seguir usando xxl en tu JSX
+      // xxl: '1600px',
     },
     extend: {
       animation: {
-        rotateCube: 'rotateCube 5s infinite linear', // Animación de rotación del cubo
+        rotateCube: 'rotateCube 5s infinite linear',
       },
       keyframes: {
         rotateCube: {
@@ -61,14 +65,8 @@ module.exports = {
           '100%': { transform: 'rotateY(360deg)' },
         },
       },
-      transform: {
-        'rotate-y-180': 'rotateY(180deg)',
-        'rotate-x-90': 'rotateX(90deg)',
-        '-rotate-x-90': 'rotateX(-90deg)',
-        'rotate-y-90': 'rotateY(90deg)',
-        '-rotate-y-90': 'rotateY(-90deg)',
-        translateZ: 'translateZ',
-      },
+      // Nota: "transform" no es una llave soportada en theme.extend;
+      // si necesitas utilidades, agrégalas con addUtilities en plugins.
       typography: (theme) => ({
         DEFAULT: {
           css: {
@@ -84,22 +82,41 @@ module.exports = {
       }),
     },
   },
+
+  // --- Safelist explícito para valores arbitrarios que usas en el layout ---
+  safelist: [
+    // basis fijos por breakpoint para la columna derecha
+    'sm:basis-[320px]',
+    'lg:basis-[360px]',
+    'xl:basis-[400px]',
+    '2xl:basis-[420px]',
+
+    // grids con columnas arbitrarias (productos + resumen)
+    'lg:grid-cols-[minmax(0,1fr)_320px]',
+    'xl:grid-cols-[minmax(0,1fr)_360px]',
+
+    // utilidades personalizadas que nombraste
+    'hide-on-print',
+    'receipt-layout',
+  ],
+
   plugins: [
-    ({ addUtilities, e, theme, variants }) => {
-      const colors = flattenColorPalette(theme('borderColor'));
-      delete colors['default'];
-
-      const colorMap = Object.keys(colors)
-        .map(color => ({
-          [`.border-t-${color}`]: { borderTopColor: colors[color] },
-          [`.border-r-${color}`]: { borderRightColor: colors[color] },
-          [`.border-b-${color}`]: { borderBottomColor: colors[color] },
-          [`.border-l-${color}`]: { borderLeftColor: colors[color] },
-        }));
-      const utilities = Object.assign({}, ...colorMap);
-
-      addUtilities(utilities, variants('borderColor'));
+    // border-* por lado
+    ({ addUtilities, theme, variants }) => {
+      const colors = flattenColorPalette(theme('borderColor'))
+      delete colors.default
+      const colorMap = Object.keys(colors).map((color) => ({
+        [`.border-t-${color}`]: { borderTopColor: colors[color] },
+        [`.border-r-${color}`]: { borderRightColor: colors[color] },
+        [`.border-b-${color}`]: { borderBottomColor: colors[color] },
+        [`.border-l-${color}`]: { borderLeftColor: colors[color] },
+      }))
+      const utilities = Object.assign({}, ...colorMap)
+      addUtilities(utilities, variants('borderColor'))
     },
+
+    // Puedes mantener tu generador si te sirve para otros patrones,
+    // pero recuerda que NO genera arbitrary values como basis-[360px]
     require('tailwind-safelist-generator')({
       path: safeListFile,
       patterns: [
@@ -125,6 +142,7 @@ module.exports = {
         'w-{width}',
       ],
     }),
-    require('@tailwindcss/typography')
+
+    require('@tailwindcss/typography'),
   ],
 }
