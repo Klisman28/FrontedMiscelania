@@ -1,11 +1,9 @@
-// postcss.config.cjs
-const isProd = process.env.NODE_ENV === 'production'
-
 module.exports = {
   plugins: [
+    require('postcss-import'),
     require('tailwindcss/nesting'),
     require('tailwindcss'),
-    require('autoprefixer'),
-    ...(isProd ? [require('cssnano')({ preset: 'default' })] : []),
-  ],
+    require('postcss-preset-env'),
+    require('cssnano'),
+  ]
 }
