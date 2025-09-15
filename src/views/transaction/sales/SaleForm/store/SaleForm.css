@@ -1,0 +1,83 @@
+/* === contenedor general === */
+.sale-form {
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 0;
+}
+
+/* === layout 2 columnas a partir de 1024px === */
+.sf-layout {
+  display: block;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .sf-layout {
+    display: flex;
+    gap: 24px;
+  }
+}
+
+/* === tarjeta izquierda === */
+.sf-left-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+}
+
+/* buscador ancho completo */
+.sf-search { width: 100%; }
+
+/* bloque central (tabla + otras cosas) ocupa alto disponible */
+.sf-content {
+  flex: 1 1 auto;   /* <- esto empuja al subtotal-row hacia el fondo */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+@media (min-width: 1024px) {
+  .sf-content { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* tabla de productos */
+.sf-products-list {
+  min-height: 225px;
+  width: 100%;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+.sf-products-list table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+.sf-products-list thead th {
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: .02em;
+  padding: 12px 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.sf-products-list tbody td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+.sf-products-list .cell-actions { text-align: right; }
+
+/* === bloque que siempre va abajo === */
+.sf-subtotal-row {
+  margin-top: auto;            /* asegura que se pegue al fondo */
+  display: flex;
+  justify-content: flex-end; /* alineado a la izquierda */
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
