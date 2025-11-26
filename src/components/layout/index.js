@@ -36,17 +36,20 @@ const Layout = () => {
 		return lazy(() => import('./AuthLayout'))
 	}, [layoutType, authenticated])
 
-	return (
-		<Suspense 
-			fallback={
-				<div className="flex flex-auto flex-col h-[100vh]">
-					<Loading loading={true} />
-				</div>
-			}
-		>
-			<AppLayout />
-		</Suspense>
-	)
+	 return (
+    <Suspense 
+      fallback={
+        <div className="flex flex-auto flex-col h-[100vh]">
+          <Loading loading={true} />
+        </div>
+      }
+    >
+      {/* 👇 envolvemos AppLayout en un contenedor a pantalla completa */}
+      <div className="min-h-screen flex flex-col">
+        <AppLayout />
+      </div>
+    </Suspense>
+  )
 }
 
 export default memo(Layout)
