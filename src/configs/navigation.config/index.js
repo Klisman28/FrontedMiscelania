@@ -36,6 +36,16 @@ const navigationConfig = [
                 subMenu: []
             },
             {
+                key: 'warehouseMenu.transfers',
+                path: '/inventory/transfers',
+                title: 'Transferencias',
+                translateKey: 'nav.warehouseMenu.transfers',
+                icon: 'productsIcon', // Using existing icon or a generic one
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
                 key: 'warehouseMenu.purchases',
                 path: '/almacen/compras',
                 title: 'Compras',

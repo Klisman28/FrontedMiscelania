@@ -95,6 +95,24 @@ export const protectedRoutes = [
         authority: [],
     },
     {
+        key: 'inventory.transfers',
+        path: '/inventory/transfers',
+        component: React.lazy(() => import('views/inventory/transfers/TransfersListPage')),
+        authority: [],
+    },
+    {
+        key: 'inventory.transfers.new',
+        path: '/inventory/transfers/new',
+        component: React.lazy(() => import('views/inventory/transfers/TransferCreatePage')),
+        authority: [],
+    },
+    {
+        key: 'inventory.transfers.detail',
+        path: '/inventory/transfers/:id',
+        component: React.lazy(() => import('views/inventory/transfers/TransferDetailPage')),
+        authority: [],
+    },
+    {
         key: 'warehouseMenu.purchases',
         path: '/almacen/compras',
         component: React.lazy(() => import('views/transaction/purchases/PurchasList')),
