@@ -1,7 +1,7 @@
 import React from 'react'
 import {
-    HiOutlineColorSwatch, 
-	HiOutlineDesktopComputer,
+    HiOutlineColorSwatch,
+    HiOutlineDesktopComputer,
     HiOutlineTemplate,
     HiOutlineViewGridAdd,
     HiOutlineHome,
@@ -21,9 +21,10 @@ import {
     HiOutlineCog,
     HiArchive,
     HiUserGroup,
-    HiOfficeBuilding, 
+    HiOfficeBuilding,
     HiCurrencyDollar,
     HiCollection,
+    HiOutlineTruck,
 
 } from 'react-icons/hi'
 // import {} from 'react-icons/hi'
@@ -35,12 +36,13 @@ const navigationIcon = {
     groupSingleMenu: <HiOutlineDesktopComputer />,
     groupCollapseMenu: <HiOutlineColorSwatch />,
     //warehouseMenu
+    warehouseIcon: <HiOutlineTruck />,
     purchasesIcon: <HiOutlineShoppingBag />,
-    cashiersIcon: <HiOutlineDesktopComputer/>,
+    cashiersIcon: <HiOutlineDesktopComputer />,
     // transactionMenu
-    openingsIcon: <HiOutlineLockOpen/>,
-    salesOpeningIcon: <HiOutlineShoppingCart/>,
-    salesOpeningNewIcon: <HiOutlineDocumentAdd/>,
+    openingsIcon: <HiOutlineLockOpen />,
+    salesOpeningIcon: <HiOutlineShoppingCart />,
+    salesOpeningNewIcon: <HiOutlineDocumentAdd />,
     salesReportIcon: <HiOutlineCollection />,
     configsIcon: <HiOutlineCog />,
 
@@ -52,7 +54,7 @@ const navigationIcon = {
     customersIcon: <HiOutlineUserGroup />,
     enterprisesIcon: <HiOutlineOfficeBuilding />,
     groupsIcon: <HiOutlineShoppingBag />,
-    supplierIcon: <HiArchive/>,
+    supplierIcon: <HiArchive />,
     employeesIcon: <HiOutlineUsers />,
     suppliersIcon: <HiOutlineLibrary />,
     transactionIcon: <HiCurrencyDollar />,

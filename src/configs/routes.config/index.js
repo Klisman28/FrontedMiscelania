@@ -81,6 +81,19 @@ export const protectedRoutes = [
         authority: [],
     },
     //TRANSACTION ROUTES
+    //WAREHOUSE ROUTES
+    {
+        key: 'warehouseMenu.warehouses',
+        path: '/warehouses',
+        component: React.lazy(() => import('views/warehouses/WarehouseListPage')),
+        authority: [],
+    },
+    {
+        key: 'warehouseMenu.warehouses.stock',
+        path: '/warehouses/:id/stock',
+        component: React.lazy(() => import('views/warehouses/WarehouseStockPage')),
+        authority: [],
+    },
     {
         key: 'warehouseMenu.purchases',
         path: '/almacen/compras',
@@ -147,7 +160,7 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/notes/NoteFields')),
         authority: [],
     },
-     {
+    {
         key: 'report',
         path: '/report',
         component: React.lazy(() => import('views/notes/NoteFields')),

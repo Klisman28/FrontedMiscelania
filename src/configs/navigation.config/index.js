@@ -26,6 +26,16 @@ const navigationConfig = [
         authority: ['ADMIN'],
         subMenu: [
             {
+                key: 'warehouseMenu.warehouses',
+                path: '/warehouses',
+                title: 'Bodegas',
+                translateKey: 'nav.warehouseMenu.warehouses',
+                icon: 'warehouseIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
                 key: 'warehouseMenu.purchases',
                 path: '/almacen/compras',
                 title: 'Compras',
@@ -64,7 +74,7 @@ const navigationConfig = [
         translateKey: 'nav.home',
         icon: 'transactionIcon',
         type: NAV_ITEM_TYPE_TITLE,
-        authority: ['CAJERO','ADMIN'],
+        authority: ['CAJERO', 'ADMIN'],
         subMenu: [
             {
                 key: 'transactionMenu.openings',
@@ -73,7 +83,7 @@ const navigationConfig = [
                 translateKey: 'nav.catalogueMenu.products',
                 icon: 'openingsIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['CAJERO','ADMIN'],
+                authority: ['CAJERO', 'ADMIN'],
                 subMenu: []
             },
             {
@@ -83,7 +93,7 @@ const navigationConfig = [
                 translateKey: 'nav.catalogueMenu.products',
                 icon: 'salesOpeningIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['CAJERO','ADMIN'],
+                authority: ['CAJERO', 'ADMIN'],
                 subMenu: []
             },
             {
@@ -93,7 +103,7 @@ const navigationConfig = [
                 translateKey: 'nav.catalogueMenu.products',
                 icon: 'salesOpeningNewIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['CAJERO','ADMIN'],
+                authority: ['CAJERO', 'ADMIN'],
                 subMenu: []
             },
             {
@@ -251,7 +261,7 @@ const navigationConfig = [
             }
         ]
     },
-    
+
 ]
 
 export default navigationConfig
