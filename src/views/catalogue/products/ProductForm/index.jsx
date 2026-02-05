@@ -34,7 +34,7 @@ const validationSchema = Yup.object().shape({
         .notRequired()
         .max(500, 'La descripción no puede exceder los 500 caracteres'),
     hasExpiration: Yup.boolean().notRequired(),
-    expirationDate: Yup.string()
+    expirationDate: Yup.string().nullable()
         .when('hasExpiration', {
             is: true,
             then: (s) =>
