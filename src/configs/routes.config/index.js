@@ -33,19 +33,19 @@ export const protectedRoutes = [
     {
         key: 'catalogueMenu.categories',
         path: '/catalogo/categorias',
-        component: React.lazy(() => import('views/catalogue/categories/CategoryList')),
+        component: React.lazy(() => import('views/catalogue/Hub')),
         authority: [],
     },
     {
         key: 'catalogueMenu.subcategories',
         path: '/catalogo/subcategorias',
-        component: React.lazy(() => import('views/catalogue/subcategories/SubcategoryList')),
+        component: React.lazy(() => import('views/catalogue/Hub')),
         authority: [],
     },
     {
         key: 'catalogueMenu.brands',
         path: '/catalogo/marcas',
-        component: React.lazy(() => import('views/catalogue/brands/BrandList')),
+        component: React.lazy(() => import('views/catalogue/Hub')),
         authority: [],
     },
     //ORGANIZATION ROUTES
@@ -110,6 +110,12 @@ export const protectedRoutes = [
         key: 'inventory.transfers.detail',
         path: '/inventory/transfers/:id',
         component: React.lazy(() => import('views/inventory/transfers/TransferDetailPage')),
+        authority: [],
+    },
+    {
+        key: 'warehouseMenu.stockIn',
+        path: '/inventory/in',
+        component: React.lazy(() => import('views/inventory/StockInPage')),
         authority: [],
     },
     {
