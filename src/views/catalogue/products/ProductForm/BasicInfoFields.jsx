@@ -174,30 +174,41 @@ const BasicInfoFields = (props) => {
                 </div>
 
                 {/* Expiración Switch */}
-                <div className="col-span-12 flex justify-end pt-2 border-t border-gray-50 border-dashed">
-                    <div className="flex flex-col items-end gap-2">
+                <div className="col-span-12 mt-2 pt-4 border-t border-gray-100 border-dashed">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-gray-700">¿El producto expira?</span>
+                            <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-gray-900">Control de Vencimiento</span>
+                                <span className="text-xs text-gray-500">Habilita esta opción si el producto caduca</span>
+                            </div>
                             <Field name="hasExpiration">
                                 {({ field, form }) => (
-                                    <Switcher
-                                        name="hasExpiration"
-                                        onChange={(val) => {
-                                            form.setFieldValue('hasExpiration', val);
-                                            if (!val) {
-                                                form.setFieldValue('expirationDate', '');
-                                            }
-                                        }}
-                                        checkedContent=""
-                                        unCheckedContent=""
-                                    />
+                                    <div className="ml-2">
+                                        <Switcher
+                                            name="hasExpiration"
+                                            onChange={(val) => {
+                                                form.setFieldValue('hasExpiration', val);
+                                                if (!val) {
+                                                    form.setFieldValue('expirationDate', '');
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 )}
                             </Field>
                         </div>
+
                         {values.hasExpiration && (
-                            <div className="flex items-center gap-3 w-full justify-end">
+                            <div className="flex items-start gap-4 animate-fadeIn">
                                 <FormItem
-                                    className="mb-0 w-40"
+                                    label="Fecha de Vencimiento"
+                                    className="w-full md:w-48"
+                                    layout="vertical"
                                     invalid={errors.expirationDate && touched.expirationDate}
                                     errorMessage={errors.expirationDate}
                                 >
@@ -207,28 +218,26 @@ const BasicInfoFields = (props) => {
                                                 {...field}
                                                 ref={dateRef}
                                                 type="date"
-                                                size="sm"
-                                                placeholder="YYYY‑MM‑DD"
+                                                size="md"
+                                                className="font-medium"
                                                 onChange={(e) =>
                                                     form.setFieldValue('expirationDate', e.target.value)
                                                 }
-                                                className={`${statusExpiration === 'Vencido'
-                                                    ? 'border-red-500'
-                                                    : 'border-emerald-500'
-                                                    }`}
                                             />
                                         )}
                                     </Field>
                                 </FormItem>
                                 {statusExpiration && (
-                                    <Badge
-                                        className={`px-2 py-1 flex items-center justify-center text-xs font-bold rounded-md ${statusExpiration === 'Vencido'
-                                            ? 'bg-red-100 text-red-600'
-                                            : 'bg-emerald-100 text-emerald-600'
-                                            }`}
-                                    >
-                                        {statusExpiration}
-                                    </Badge>
+                                    <div className="mt-8">
+                                        <Badge
+                                            className={`px-3 py-1.5 flex items-center justify-center text-xs font-bold uppercase tracking-wider rounded-md border ${statusExpiration === 'Vencido'
+                                                ? 'bg-red-50 text-red-600 border-red-200'
+                                                : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                                }`}
+                                        >
+                                            {statusExpiration}
+                                        </Badge>
+                                    </div>
                                 )}
                             </div>
                         )}
