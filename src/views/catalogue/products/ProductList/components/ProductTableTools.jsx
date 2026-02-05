@@ -6,29 +6,31 @@ import { Link } from 'react-router-dom'
 const ProductTableTools = () => {
 
 	return (
-		<div className="flex flex-col md:flex-row md:justify-between lg:items-center">
+		<div className="flex flex-row items-center gap-3">
 			<Link
-				className="block lg:inline-block mb-4 md:mb-0 lg:mx-2"
+				className="block lg:inline-block"
 				to="/data/product-list.csv"
 				target="_blank"
 				download
 			>
 				<Button
 					block
-					size="sm"
-					icon={<HiDownload />}
+					size="md"
+					className="flex items-center gap-2 h-10 rounded-xl"
+					icon={<HiDownload className="text-lg" />}
 				>
 					Exportar
 				</Button>
 			</Link>
-			<Link 
-            to="nuevo"
-            className="block lg:inline-block mb-4 md:mb-0" >
+			<Link
+				to="nuevo"
+				className="block lg:inline-block" >
 				<Button
 					block
 					variant="solid"
-					size="sm"
-					icon={<HiPlusCircle />}
+					size="md"
+					className="flex items-center gap-2 h-10 rounded-xl"
+					icon={<HiPlusCircle className="text-lg" />}
 				>
 					Nuevo Producto
 				</Button>

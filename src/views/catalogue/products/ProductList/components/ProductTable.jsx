@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
-import { Avatar, Badge } from 'components/ui'
-import { DataTableSimple } from 'components/shared'
+import { Avatar, Badge, Tooltip } from 'components/ui'
+import ProductDataTable from './ProductDataTable'
 import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { FiPackage } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,9 +12,9 @@ import { ProductTableTools } from './ProductTableTools'
 import { useNavigate } from 'react-router-dom'
 
 const inventoryStatusColor = {
-	0: { label: 'En Stock', dotClass: 'bg-emerald-500', textClass: 'text-emerald-500' },
-	1: { label: 'Limitado', dotClass: 'bg-amber-500', textClass: 'text-amber-500' },
-	2: { label: 'Agotado', dotClass: 'bg-red-500', textClass: 'text-red-500' },
+	0: { label: 'En Stock', dotClass: 'bg-emerald-500', textClass: 'text-emerald-600 bg-emerald-100' },
+	1: { label: 'Limitado', dotClass: 'bg-amber-500', textClass: 'text-amber-600 bg-amber-100' },
+	2: { label: 'Agotado', dotClass: 'bg-red-500', textClass: 'text-red-600 bg-red-100' },
 }
 
 const ActionColumn = ({ row }) => {
@@ -33,49 +33,62 @@ const ActionColumn = ({ row }) => {
 	}
 
 	return (
-		<div className="flex justify-end text-lg">
-			<span className={`cursor-pointer p-2 hover:${textTheme}`} onClick={onEdit}>
-				<HiOutlinePencil />
-			</span>
-			<span className="cursor-pointer p-2 hover:text-red-500" onClick={onDelete}>
-				<HiOutlineTrash />
-			</span>
+		<div className="flex justify-end items-center gap-2">
+			<Tooltip title="Editar">
+				<button
+					className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-gray-600 transition-colors"
+					onClick={onEdit}
+				>
+					<HiOutlinePencil className="text-lg" />
+				</button>
+			</Tooltip>
+			<Tooltip title="Eliminar">
+				<button
+					className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-red-50 text-gray-600 hover:text-red-500 transition-colors"
+					onClick={onDelete}
+				>
+					<HiOutlineTrash className="text-lg" />
+				</button>
+			</Tooltip>
 		</div>
 	)
 }
 
 const CategoryColumn = ({ row }) => {
 
-	const avatar = row.imageUrl ? <Avatar src={row.imageUrl} /> : <Avatar icon={<FiPackage />} />
+	const avatar = row.imageUrl ?
+		<Avatar src={row.imageUrl} className="rounded-lg h-10 w-10 shadown-sm border border-gray-100" /> :
+		<Avatar icon={<FiPackage />} className="rounded-lg h-10 w-10 bg-gray-100 text-gray-400" />
 
 	return (
-		<div className="flex items-center">
-			{avatar}
-			<span className={`ml-2 rtl:mr-2 font-semibold`}>
-				{row.name}
-			</span>
+		<div className="flex items-center gap-3">
+			<div className="flex-shrink-0 w-10 h-10">
+				{avatar}
+			</div>
+			<div className="flex flex-col">
+				<span className="font-semibold text-gray-900 line-clamp-1" title={row.name}>
+					{row.name}
+				</span>
+				<span className="text-xs text-gray-400 font-medium">{row.sku}</span>
+			</div>
 		</div>
 	)
 }
 
 
-// 1. Crea esta función auxiliar
 const getStockBadge = (stock, stockMin) => {
-	// Si no hay unidades
 	if (stock === 0) {
 		return {
 			label: `0`,
-			className: 'bg-red-100 text-red-600' // Ajusta tus clases de color
+			className: 'bg-red-100 text-red-600'
 		}
 	}
-	// Si el stock está por debajo de stockMin
 	if (stock < stockMin) {
 		return {
 			label: ` (${stock}/${stockMin})`,
 			className: 'bg-amber-100 text-amber-600'
 		}
 	}
-	// Caso contrario: suficiente stock
 	return {
 		label: ` (${stock}/${stockMin})`,
 		className: 'bg-emerald-100 text-emerald-600'
@@ -89,8 +102,6 @@ const ProductTable = () => {
 	const { initialPageIndex, initialPageSize, total } = useSelector((state) => state.products.data.tableData)
 	const loading = useSelector((state) => state.products.data.loading)
 	const data = useSelector((state) => state.products.data.productList)
-
-
 
 	useEffect(() => {
 		fetchData()
@@ -111,7 +122,6 @@ const ProductTable = () => {
 			Header: 'Producto',
 			accessor: 'name',
 			sortable: true,
-
 			Cell: props => {
 				const row = props.row.original
 				return <CategoryColumn row={row} />
@@ -120,33 +130,41 @@ const ProductTable = () => {
 		{
 			Header: 'SKU',
 			accessor: 'sku',
+			// Hiding duplicate SKU since it's now in the product column, or keeping as secondary info
+			// User requested "Mantener EXACTAMENTE las mismas columnas", so I keep it but maybe styled subtle
+			Cell: props => <span className="text-gray-600 font-medium tabular-nums">{props.value}</span>
 		},
 		{
 			Header: 'Descripción',
-			accessor: 'description', // Columna de descripción agregada
+			accessor: 'description',
 			Cell: props => {
 				const { description } = props.row.original
 				return (
-					<div className="text-xs text-gray-600">{description}</div>
+					<div className="text-xs text-gray-500 max-w-xs truncate" title={description}>{description}</div>
 				)
 			}
 		},
 		{
 			Header: 'Marca',
 			accessor: 'brand.name',
+			Cell: props => <span className="text-gray-700 font-medium">{props.value}</span>
 		},
 		{
 			Header: 'Subcategoría',
 			accessor: 'subcategory.name',
+			Cell: props => <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+				{props.value}
+			</span>
 		},
 		{
 			Header: 'Costo',
 			accessor: 'cost',
+			alignRight: true, // For custom header
 			Cell: props => {
 				const { cost } = props.row.original
 				return (
-					<div className='flex items-center'>
-						<span className='text-xs'> Q </span> {cost}
+					<div className='flex items-center justify-end font-medium text-gray-700 tabular-nums'>
+						<span className='text-xs text-gray-400 mr-1'>Q</span>{parseFloat(cost).toFixed(2)}
 					</div>
 				)
 			}
@@ -154,11 +172,12 @@ const ProductTable = () => {
 		{
 			Header: 'Ganancia',
 			accessor: 'utility',
+			alignRight: true,
 			Cell: props => {
 				const { utility } = props.row.original
 				return (
-					<div className='flex items-center'>
-						<span className='text-xs'> Q </span> {utility}
+					<div className='flex items-center justify-end font-medium text-gray-700 tabular-nums'>
+						<span className='text-xs text-gray-400 mr-1'>Q</span>{parseFloat(utility).toFixed(2)}
 					</div>
 				)
 			}
@@ -166,11 +185,12 @@ const ProductTable = () => {
 		{
 			Header: 'Precio',
 			accessor: 'price',
+			alignRight: true,
 			Cell: props => {
 				const { price } = props.row.original
 				return (
-					<div className='flex items-center'>
-						<span className='text-xs'> Q  </span> {price}
+					<div className='flex items-center justify-end font-bold text-gray-900 tabular-nums'>
+						<span className='text-xs text-gray-400 mr-1'>Q</span>{parseFloat(price).toFixed(2)}
 					</div>
 				)
 			}
@@ -178,17 +198,15 @@ const ProductTable = () => {
 		{
 			Header: 'Stock',
 			accessor: 'stock',
+			alignRight: true, // Numbers aligned right usually better
 			Cell: (props) => {
 				const { stock, stockMin } = props.row.original
-				// 2. Llamas a la función y obtienes la etiqueta y clases
 				const stockBadge = getStockBadge(stock, stockMin)
-
-				// 3. Renderizas tu Badge con la etiqueta y color
 				return (
-					<div
-						className={`rounded-md font-semibold flex items-center justify-center ${stockBadge.className}`}
-					>
-						{stockBadge.label}
+					<div className="flex justify-end">
+						<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${stockBadge.className}`}>
+							{stockBadge.label}
+						</span>
 					</div>
 				)
 			},
@@ -196,58 +214,41 @@ const ProductTable = () => {
 
 		{
 			Header: 'Status',
-			accessor: 'status', // O puedes dejarlo vacío, no hay problema
+			accessor: 'status',
 			sortable: true,
 			Cell: (props) => {
 				const { stock, stockMin } = props.row.original
-
-				// Calcula el status según stock actual vs stock mínimo
 				let computedStatus = 0
-				if (stock === 0) {
-					computedStatus = 2 // Agotado
-				} else if (stock < stockMin) {
-					computedStatus = 1 // Limitado
-				} else {
-					computedStatus = 0 // En Stock
-				}
+				if (stock === 0) computedStatus = 2
+				else if (stock < stockMin) computedStatus = 1
 
-				// Usa computedStatus en inventoryStatusColor
 				const { label, dotClass, textClass } = inventoryStatusColor[computedStatus]
 
 				return (
-					<div className="flex items-center gap-2">
-						<Badge className={dotClass} />
-						<span className={`capitalize font-semibold ${textClass}`}>
-							{label}
+					<div className="flex items-center">
+						<span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${textClass.replace('text-', 'bg-opacity-20 ')}`}>
+							<span className={`h-1.5 w-1.5 rounded-full ${dotClass}`}></span>
+							<span className={textClass.split(' ')[0]}>{label}</span>
 						</span>
 					</div>
 				)
 			},
 		},
 		{
-			Header: 'Fecha Vencimiento',
+			Header: 'Vencimiento',
 			accessor: 'expirationDate',
 			Cell: (props) => {
 				const { expirationDate, hasExpiration } = props.row.original
+				if (!hasExpiration) return <span className="text-gray-300 text-center block">-</span>
 
-				// Si el producto no requiere fecha de vencimiento
-				if (!hasExpiration) {
-					return ''
-				}
-
-				// Convertir la fecha a objeto Date
 				const dateValue = new Date(expirationDate)
-				// Fecha actual (solo día, mes, año):
 				const today = new Date()
 				today.setHours(0, 0, 0, 0)
-
-				// Revisar si está vencido
 				const isExpired = dateValue < today
 
-				// Clases Tailwind para darle estilo
-				const baseClasses = 'px-2 py-1 rounded-md font-semibold'
-				const expiredClasses = 'text-red-600 bg-red-100'
-				const validClasses = 'text-green-600 bg-green-100'
+				const baseClasses = 'px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap'
+				const expiredClasses = 'text-red-700 bg-red-50 ring-1 ring-red-600/20'
+				const validClasses = 'text-gray-600 bg-gray-50'
 
 				return (
 					<span className={`${baseClasses} ${isExpired ? expiredClasses : validClasses}`}>
@@ -256,8 +257,6 @@ const ProductTable = () => {
 				)
 			}
 		},
-
-
 		{
 			Header: 'Acciones',
 			id: 'action',
@@ -267,8 +266,8 @@ const ProductTable = () => {
 	], [])
 
 	return (
-		<>
-			<DataTableSimple
+		<div className="h-full">
+			<ProductDataTable
 				columns={columns}
 				data={data}
 				skeletonAvatarColumns={[0]}
@@ -277,10 +276,9 @@ const ProductTable = () => {
 				pagingData={tableData}
 				tableTools={<ProductTableTools />}
 				title="Productos"
-				className="table"
 			/>
 			<ProductDeleteConfirmation />
-		</>
+		</div>
 	)
 }
 
