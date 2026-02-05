@@ -210,22 +210,30 @@ const BasicInfoFields = (props) => {
                                     className="w-full md:w-48"
                                     layout="vertical"
                                     invalid={errors.expirationDate && touched.expirationDate}
-                                    errorMessage={errors.expirationDate}
                                 >
-                                    <Field name="expirationDate">
-                                        {({ field, form }) => (
-                                            <Input
-                                                {...field}
-                                                ref={dateRef}
-                                                type="date"
-                                                size="md"
-                                                className="font-medium"
-                                                onChange={(e) =>
-                                                    form.setFieldValue('expirationDate', e.target.value)
-                                                }
-                                            />
-                                        )}
-                                    </Field>
+                                    <div className="flex flex-col">
+                                        <Field name="expirationDate">
+                                            {({ field, form }) => (
+                                                <Input
+                                                    {...field}
+                                                    ref={dateRef}
+                                                    type="date"
+                                                    size="md"
+                                                    className="font-medium"
+                                                    onChange={(e) =>
+                                                        form.setFieldValue('expirationDate', e.target.value)
+                                                    }
+                                                />
+                                            )}
+                                        </Field>
+                                        <div className="mt-1 min-h-[20px]">
+                                            {errors.expirationDate && touched.expirationDate && (
+                                                <p className="text-xs text-red-500 leading-4 mb-0 text-left">
+                                                    {errors.expirationDate}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </FormItem>
                                 {statusExpiration && (
                                     <div className="mt-8">
