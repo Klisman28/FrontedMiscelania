@@ -1,19 +1,12 @@
 import React from 'react'
-import { AdaptableCard } from 'components/shared'
 import { Input, FormItem } from 'components/ui'
 import { NumericFormat } from 'react-number-format'
 import { Field } from 'formik'
 
-/**
- * Input con prefijo de moneda.
- */
 const CurrencyInput = (props) => {
-  return <Input {...props} value={props.field.value} prefix="Q " />
+  return <Input {...props} value={props.field.value} prefix="Q " className="tabular-nums text-right" />
 }
 
-/**
- * Wrapper para formatear números con react-number-format.
- */
 const NumberFormatInput = ({ onValueChange, ...rest }) => {
   return (
     <NumericFormat
@@ -29,10 +22,6 @@ const NumberFormatInput = ({ onValueChange, ...rest }) => {
 const PricingFields = (props) => {
   const { touched, errors } = props
 
-  /**
-   * Función para recalcular el precio
-   * a partir de costo y utilidad.
-   */
   const calculatePrice = (form, value, field) => {
     if (field === 'cost') {
       const cost = parseFloat(value)
@@ -43,7 +32,6 @@ const PricingFields = (props) => {
         form.setFieldValue('price', '')
       }
     } else {
-      // field === 'utility'
       const utility = parseFloat(value)
       const cost = parseFloat(form.values.cost)
       if (!isNaN(cost) && !isNaN(utility)) {
@@ -55,19 +43,19 @@ const PricingFields = (props) => {
   }
 
   return (
-    <AdaptableCard className="mb-4" divider>
-                  <p className='mb-6 text-lg italic font-semibold text-dark dark:text-light'>Información de Precios </p>
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+      <div className="mb-6">
+        <h4 className="text-lg font-bold text-gray-900">Precios</h4>
+        <p className="text-sm text-gray-500 mt-1">Costos y márgenes</p>
+      </div>
 
-
-      {/*
-        Usamos una sola fila con 3 columnas (md:grid-cols-3) para
-        alinear Costo, Utilidad y Precio de manera más clara.
-      */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         {/* Campo: Costo */}
-        <div>
+        <div className="col-span-1">
           <FormItem
             label="Costo *"
+            className="mb-0"
+            labelClass="text-xs font-semibold uppercase tracking-wide text-gray-500"
             invalid={errors.cost && touched.cost}
             errorMessage={errors.cost}
           >
@@ -76,7 +64,7 @@ const PricingFields = (props) => {
                 <NumberFormatInput
                   form={form}
                   field={field}
-                  placeholder="Ej. 100.00"
+                  placeholder="0.00"
                   customInput={CurrencyInput}
                   onValueChange={(e) => {
                     form.setFieldValue(field.name, e.value)
@@ -89,9 +77,11 @@ const PricingFields = (props) => {
         </div>
 
         {/* Campo: Utilidad */}
-        <div>
+        <div className="col-span-1">
           <FormItem
             label="Utilidad *"
+            className="mb-0"
+            labelClass="text-xs font-semibold uppercase tracking-wide text-gray-500"
             invalid={errors.utility && touched.utility}
             errorMessage={errors.utility}
           >
@@ -100,7 +90,7 @@ const PricingFields = (props) => {
                 <NumberFormatInput
                   form={form}
                   field={field}
-                  placeholder="Ej. 20.00"
+                  placeholder="0.00"
                   customInput={CurrencyInput}
                   onValueChange={(e) => {
                     form.setFieldValue(field.name, e.value)
@@ -113,9 +103,11 @@ const PricingFields = (props) => {
         </div>
 
         {/* Campo: Precio (calculado automáticamente, deshabilitado) */}
-        <div>
+        <div className="col-span-1">
           <FormItem
-            label="Precio (calculado)"
+            label="Precio"
+            className="mb-0"
+            labelClass="text-xs font-semibold uppercase tracking-wide text-gray-500"
             invalid={errors.price && touched.price}
             errorMessage={errors.price}
           >
@@ -125,7 +117,8 @@ const PricingFields = (props) => {
                   form={form}
                   field={field}
                   disabled
-                  placeholder="Automático"
+                  placeholder="0.00"
+                  className="bg-slate-50 text-slate-500 cursor-not-allowed border-dashed tabular-nums text-right font-bold"
                   customInput={CurrencyInput}
                   onValueChange={(e) => {
                     form.setFieldValue(field.name, e.value)
@@ -136,7 +129,7 @@ const PricingFields = (props) => {
           </FormItem>
         </div>
       </div>
-    </AdaptableCard>
+    </div>
   )
 }
 

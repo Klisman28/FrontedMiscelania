@@ -1,13 +1,10 @@
 import React, { forwardRef, useEffect } from 'react'
 import { FormContainer, Button } from 'components/ui'
-import { StickyFooter } from 'components/shared'
 import { Form, Formik } from 'formik'
 import BasicInfoFields from './BasicInfoFields'
 import PricingFields from './PricingFields'
 import OrganizationFields from './OrganizationFields'
 import ProductImages from './ProductImages'
-// import cloneDeep from 'lodash/cloneDeep'
-// import { HiOutlineTrash } from 'react-icons/hi'
 import { AiOutlineSave } from 'react-icons/ai'
 import * as Yup from 'yup'
 import { useDispatch } from 'react-redux'
@@ -33,7 +30,7 @@ const validationSchema = Yup.object().shape({
     stock: Yup.number()
         .required('Stock es requerido')
         .integer('Por favor ingrese un número entero'),
-    description: Yup.string()  // Nueva validación para la descripción
+    description: Yup.string()
         .notRequired()
         .max(500, 'La descripción no puede exceder los 500 caracteres'),
     hasExpiration: Yup.boolean().notRequired(),
@@ -74,79 +71,75 @@ const ProductForm = forwardRef((props, ref) => {
     }, [dispatch])
 
     return (
-        <>
-            <Formik
-                innerRef={ref}
-                initialValues={{
-                    ...initialData
-                }}
+        <Formik
+            innerRef={ref}
+            initialValues={{
+                ...initialData
+            }}
 
-                validationSchema={validationSchema}
-                onSubmit={(values, { setSubmitting }) => {
-                    if (values.typeAction === 'create' && values.imgList.length > 0) {
-                        values.imageUrl = values.imgList[0].img
-                    }
-                    if (typeAction === 'edit') {
-                        delete values.id
-                    }
-                    onFormSubmit?.(values, setSubmitting)
-                }}
-            // onSubmit={(values, { setSubmitting }) => {
-            //     const formData = cloneDeep(values)
-            //     formData.tags = formData.tags.map(tag => tag.value)
-            //     if (type === 'new') {
-            //         if (formData.imgList.length > 0) {
-            //             formData.img = formData.imgList[0].img
-            //         }
-            //     }
-            //     onFormSubmit?.(formData, setSubmitting)
-            // }}
-            >
-                {({ values, touched, errors }) => (
-                    <Form>
-                        <FormContainer>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                <div className="lg:col-span-2">
+            validationSchema={validationSchema}
+            onSubmit={(values, { setSubmitting }) => {
+                if (values.typeAction === 'create' && values.imgList.length > 0) {
+                    values.imageUrl = values.imgList[0].img
+                }
+                if (typeAction === 'edit') {
+                    delete values.id
+                }
+                onFormSubmit?.(values, setSubmitting)
+            }}
+        >
+            {({ values, touched, errors }) => (
+                <Form>
+                    <FormContainer>
+                        <div className="max-w-7xl mx-auto px-6 py-6 font-sans">
+                            {/* Header */}
+                            <div className="flex flex-col mb-8">
+                                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Producto</h2>
+                                <p className="text-slate-500 text-sm mt-1">Completa la información para guardar el producto</p>
+                            </div>
+
+                            <div className="grid grid-cols-12 gap-6 pb-20">
+                                {/* Columna Izquierda: Info General + Categorías */}
+                                <div className="col-span-12 lg:col-span-8 space-y-6">
                                     <BasicInfoFields touched={touched} errors={errors} values={values} />
-                                    <PricingFields touched={touched} errors={errors} values={values} />
                                     <OrganizationFields touched={touched} errors={errors} values={values} />
                                 </div>
-                                <div className="lg:col-span-1">
+
+                                {/* Columna Derecha: Precios + Imagenes */}
+                                <div className="col-span-12 lg:col-span-4 space-y-6">
+                                    <PricingFields touched={touched} errors={errors} values={values} />
                                     <ProductImages touched={touched} errors={errors} values={values} />
                                 </div>
                             </div>
-                            <StickyFooter
-                                className="-mx-8 px-8 flex items-center justify-end py-0"
-                                stickyClass="border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                            >
-                                {/* <div>
-                                    {type === 'edit' && <DeleteProductButton onDelete={onDelete} />}
-                                </div> */}
-                                <div className="md:flex items-center ">
-                                    <Button
-                                        size="md"
-                                        className="ltr:mr-3 rtl:ml-3"
-                                        onClick={() => onDiscard?.()}
-                                        type="button"
-                                    >
-                                        Descartar
-                                    </Button>
-                                    <Button
-                                        size="md"
-                                        variant="solid"
-                                        loading={false}
-                                        icon={<AiOutlineSave />}
-                                        type="submit"
-                                    >
-                                        {(typeAction === 'create') ? ' Guardar' : 'Actualizar'}
-                                    </Button>
-                                </div>
-                            </StickyFooter>
-                        </FormContainer>
-                    </Form>
-                )}
-            </Formik>
-        </>
+                        </div>
+
+                        {/* Sticky Footer */}
+                        <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t border-slate-200 py-4 px-8 z-50">
+                            <div className="flex items-center justify-end max-w-7xl mx-auto gap-3">
+                                <Button
+                                    size="md"
+                                    className="rounded-xl px-6 font-medium text-gray-600 hover:bg-slate-50 transition-colors"
+                                    onClick={() => onDiscard?.()}
+                                    type="button"
+                                >
+                                    Descartar
+                                </Button>
+                                <Button
+                                    size="md"
+                                    variant="solid"
+                                    loading={false}
+                                    icon={<AiOutlineSave className="text-xl" />}
+                                    className="rounded-xl px-6 font-medium shadow-lg shadow-indigo-500/20"
+                                    type="submit"
+                                >
+                                    {(typeAction === 'create') ? ' Guardar' : 'Actualizar'}
+                                </Button>
+                            </div>
+                        </div>
+                    </FormContainer>
+                </Form>
+            )}
+        </Formik>
     )
 })
 
@@ -165,12 +158,9 @@ ProductForm.defaultProps = {
         brandId: '',
         unitId: '',
         imageUrl: '',
-        hasExpiration: false,      // ← booleano
-        expirationDate: '',        // ← string ISO (YYYY‑MM‑DD) o ''
-        description: '',  // Agregado
-
-        
-
+        hasExpiration: false,
+        expirationDate: '',
+        description: '',
     },
     typeAction: 'create'
 }
