@@ -118,8 +118,8 @@ const BrandTable = ({ globalFilter }) => {
 		},
 		useFilters,
 		useGlobalFilter,
+		useSortBy, // FIX: Placed before pagination
 		usePagination,
-		useSortBy,
 	)
 
 	useEffect(() => {

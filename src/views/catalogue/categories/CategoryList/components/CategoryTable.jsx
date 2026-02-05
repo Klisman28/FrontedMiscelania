@@ -123,8 +123,8 @@ const CategoryTable = ({ globalFilter, onSelect, selectedId, compact }) => {
 		},
 		useFilters,
 		useGlobalFilter,
+		useSortBy, // FIX: Placed before pagination
 		usePagination,
-		useSortBy,
 	)
 
 	// Sync global filter from prop

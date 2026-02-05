@@ -130,8 +130,8 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 		},
 		useFilters,
 		useGlobalFilter,
+		useSortBy, // FIX: Moved before pagination
 		usePagination,
-		useSortBy,
 	)
 
 	useEffect(() => {
