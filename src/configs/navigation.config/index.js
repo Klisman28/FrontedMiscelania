@@ -17,73 +17,12 @@ const navigationConfig = [
         subMenu: []
     },
     {
-        key: 'warehouseMenu',
-        path: '',
-        title: 'Almacén',
-        translateKey: 'nav.home',
-        icon: 'supplierIcon',
-        type: NAV_ITEM_TYPE_TITLE,
-        authority: ['ADMIN'],
-        subMenu: [
-            {
-                key: 'warehouseMenu.warehouses',
-                path: '/warehouses',
-                title: 'Bodegas',
-                translateKey: 'nav.warehouseMenu.warehouses',
-                icon: 'warehouseIcon',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
-                subMenu: []
-            },
-            {
-                key: 'warehouseMenu.transfers',
-                path: '/inventory/transfers',
-                title: 'Transferencias',
-                translateKey: 'nav.warehouseMenu.transfers',
-                icon: 'productsIcon', // Using existing icon or a generic one
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
-                subMenu: []
-            },
-            {
-                key: 'warehouseMenu.purchases',
-                path: '/almacen/compras',
-                title: 'Compras',
-                translateKey: 'nav.catalogueMenu.products',
-                icon: 'purchasesIcon',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
-                subMenu: []
-            },
-            {
-                key: 'warehouseMenu.cashiers',
-                path: '/almacen/cajas',
-                title: 'Cajas',
-                translateKey: 'nav.catalogueMenu.products',
-                icon: 'cashiersIcon',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
-                subMenu: []
-            },
-            // {
-            //     key: 'warehouseMenu.kardex',
-            //     path: '/almacen/kardex',
-            //     title: 'Kardex',
-            //     translateKey: 'nav.catalogueMenu.products',
-            //     icon: 'groupSingleMenu',
-            //     type: NAV_ITEM_TYPE_ITEM,
-            //     authority: [],
-            //     subMenu: []
-            // },
-        ]
-    },
-    {
         key: 'transactionMenu',
-        path: '',
+        path: '/transacciones',
         title: 'Transacciones',
-        translateKey: 'nav.home',
+        translateKey: 'nav.transactions',
         icon: 'transactionIcon',
-        type: NAV_ITEM_TYPE_TITLE,
+        type: NAV_ITEM_TYPE_COLLAPSE,
         authority: ['CAJERO', 'ADMIN'],
         subMenu: [
             {
@@ -97,21 +36,21 @@ const navigationConfig = [
                 subMenu: []
             },
             {
-                key: 'transactionMenu.sales.opening',
-                path: '/transacciones/mis-ventas',
-                title: 'Mis Ventas',
-                translateKey: 'nav.catalogueMenu.products',
-                icon: 'salesOpeningIcon',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['CAJERO', 'ADMIN'],
-                subMenu: []
-            },
-            {
                 key: 'transactionMenu.sales.opening.new',
                 path: '/transacciones/nueva-venta',
                 title: 'Nueva Venta',
                 translateKey: 'nav.catalogueMenu.products',
                 icon: 'salesOpeningNewIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['CAJERO', 'ADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'transactionMenu.sales.opening',
+                path: '/transacciones/mis-ventas',
+                title: 'Mis Ventas',
+                translateKey: 'nav.catalogueMenu.products',
+                icon: 'salesOpeningIcon',
                 type: NAV_ITEM_TYPE_ITEM,
                 authority: ['CAJERO', 'ADMIN'],
                 subMenu: []
@@ -139,12 +78,94 @@ const navigationConfig = [
         ]
     },
     {
-        key: 'catalogueMenu',
+        key: 'warehouseMenu.cashiers',
+        path: '/almacen/cajas',
+        title: 'Cajas',
+        translateKey: 'nav.catalogueMenu.products',
+        icon: 'cashiersIcon',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['ADMIN'],
+        subMenu: []
+    },
+    {
+        key: 'warehouseMenu',
+        path: '/almacen',
+        title: 'Almacén',
+        translateKey: 'nav.warehouse',
+        icon: 'supplierIcon',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['ADMIN'],
+        subMenu: [
+            {
+                key: 'warehouseMenu.warehouses',
+                path: '/warehouses',
+                title: 'Bodegas',
+                translateKey: 'nav.warehouseMenu.warehouses',
+                icon: 'warehouseIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'warehouseMenu.stockIn',
+                path: '/inventory/in',
+                title: 'Recargar Stock',
+                translateKey: 'nav.warehouseMenu.stockIn',
+                icon: 'stockInIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'warehouseMenu.transfers',
+                path: '/inventory/transfers',
+                title: 'Transferencias',
+                translateKey: 'nav.warehouseMenu.transfers',
+                icon: 'productsIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+        ]
+    },
+    {
+        key: 'purchasesMenu',
         path: '',
+        title: 'Compras',
+        translateKey: 'nav.purchases',
+        icon: 'purchasesIcon',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['ADMIN'],
+        subMenu: [
+            {
+                key: 'warehouseMenu.purchases.new',
+                path: '/almacen/compras/registrar',
+                title: 'Nueva Compra',
+                translateKey: 'nav.warehouseMenu.purchases.new',
+                icon: 'salesOpeningNewIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'warehouseMenu.purchases',
+                path: '/almacen/compras',
+                title: 'Compras',
+                translateKey: 'nav.catalogueMenu.products',
+                icon: 'purchasesIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+        ]
+    },
+    {
+        key: 'catalogueMenu',
+        path: '/catalogo',
         title: 'Catálogo',
-        translateKey: 'nav.groupMenu.groupMenu',
+        translateKey: 'nav.catalogue',
         icon: 'catalogueIcon',
-        type: NAV_ITEM_TYPE_TITLE,
+        type: NAV_ITEM_TYPE_COLLAPSE,
         authority: ['ADMIN'],
         subMenu: [
             {
@@ -191,11 +212,11 @@ const navigationConfig = [
     },
     {
         key: 'clientMenu',
-        path: '',
+        path: '/clientes',
         title: 'Clientes',
-        translateKey: 'nav.groupMenu.groupMenu',
+        translateKey: 'nav.clients',
         icon: 'groupsIcon',
-        type: NAV_ITEM_TYPE_TITLE,
+        type: NAV_ITEM_TYPE_COLLAPSE,
         authority: ['ADMIN'],
         subMenu: [
             {
@@ -222,13 +243,23 @@ const navigationConfig = [
     },
     {
         key: 'organizationMenu',
-        path: '',
+        path: '/organizacion',
         title: 'Organización',
-        translateKey: 'nav.groupMenu.groupMenu',
+        translateKey: 'nav.organization',
         icon: 'bisIcon',
-        type: NAV_ITEM_TYPE_TITLE,
+        type: NAV_ITEM_TYPE_COLLAPSE,
         authority: ['ADMIN'],
         subMenu: [
+            {
+                key: 'organizationMenu.users',
+                path: '/organizacion/usuarios',
+                title: 'Usuarios',
+                translateKey: 'nav.catalogueMenu.categories',
+                icon: 'usersIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
             {
                 key: 'organizationMenu.employees',
                 path: '/organizacion/empleados',
@@ -251,16 +282,6 @@ const navigationConfig = [
             },
             {
                 key: 'organizationMenu.users',
-                path: '/organizacion/usuarios',
-                title: 'Usuarios',
-                translateKey: 'nav.catalogueMenu.categories',
-                icon: 'usersIcon',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
-                subMenu: []
-            },
-            {
-                key: 'organizationMenu.users',
                 path: '/notes',
                 title: 'Notas',
                 translateKey: 'nav.catalogueMenu.categories',
@@ -271,7 +292,6 @@ const navigationConfig = [
             }
         ]
     },
-
 ]
 
 export default navigationConfig
