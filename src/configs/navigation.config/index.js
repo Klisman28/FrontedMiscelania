@@ -121,7 +121,7 @@ const navigationConfig = [
                 path: '/inventory/transfers',
                 title: 'Transferencias',
                 translateKey: 'nav.warehouseMenu.transfers',
-                icon: 'productsIcon',
+                icon: 'transfersIcon',
                 type: NAV_ITEM_TYPE_ITEM,
                 authority: ['ADMIN'],
                 subMenu: []
@@ -285,7 +285,7 @@ const navigationConfig = [
                 path: '/notes',
                 title: 'Notas',
                 translateKey: 'nav.catalogueMenu.categories',
-                icon: 'salesOpeningNewIcon',
+                icon: 'notesIcon',
                 type: NAV_ITEM_TYPE_ITEM,
                 authority: ['ADMIN'],
                 subMenu: []
