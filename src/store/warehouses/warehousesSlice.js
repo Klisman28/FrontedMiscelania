@@ -50,6 +50,16 @@ const initialState = {
     selectedWarehouse: null,
     error: null,
     total: 0,
+    tableData: {
+        pageIndex: 1,
+        pageSize: 10,
+        sort: {
+            order: '',
+            key: ''
+        },
+        query: '',
+        total: 0
+    },
     wsTotal: 0
 }
 
@@ -57,6 +67,9 @@ const warehousesSlice = createSlice({
     name: SLICE_NAME,
     initialState,
     reducers: {
+        setTableData: (state, action) => {
+            state.tableData = { ...state.tableData, ...action.payload }
+        },
         setSelectedWarehouse: (state, action) => {
             state.selectedWarehouse = action.payload
         },
@@ -69,13 +82,16 @@ const warehousesSlice = createSlice({
             })
             .addCase(getWarehouses.fulfilled, (state, action) => {
                 state.loading = false
-                state.warehouses = action.payload.data || action.payload // handle different response structures
-                state.total = action.payload.total || 0
+                state.warehouses = action.payload.data || action.payload
+                const total = action.payload.total || action.payload.meta?.total || (action.payload.data ? action.payload.data.length : 0)
+                state.total = total
+                state.tableData.total = total
             })
             .addCase(getWarehouses.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message
             })
+            // ... (rest of cases)
             .addCase(getWarehouseStock.pending, (state) => {
                 state.loading = true
                 state.error = null
@@ -110,9 +126,19 @@ const warehousesSlice = createSlice({
                 state.loading = false
                 state.error = action.error.message
             })
+            .addCase(deleteWarehouse.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(deleteWarehouse.fulfilled, (state) => {
+                state.loading = false
+            })
+            .addCase(deleteWarehouse.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.error.message
+            })
     },
 })
 
-export const { setSelectedWarehouse } = warehousesSlice.actions
+export const { setSelectedWarehouse, setTableData } = warehousesSlice.actions
 
 export default warehousesSlice.reducer

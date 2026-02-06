@@ -6,10 +6,10 @@ import { AuthorityCheck } from 'components/shared'
 
 const { MenuItem, MenuCollapse } = Menu
 
-const DefaultItem = ({nav, onLinkClick, userAuthority}) => {
+const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
 	return (
-		<AuthorityCheck 
-			userAuthority={userAuthority} 
+		<AuthorityCheck
+			userAuthority={userAuthority}
 			authority={nav.authority}
 		>
 			<MenuCollapse
@@ -21,37 +21,38 @@ const DefaultItem = ({nav, onLinkClick, userAuthority}) => {
 						</span>
 					</>
 				}
-				key={nav.key} 
-				eventKey={nav.key} 
-				expanded={false} 
-				className="mb-2"
+				key={nav.key}
+				eventKey={nav.key}
+				expanded={false}
+				className=""
 			>
 				{
 					nav.subMenu.map(subNav => (
-						<AuthorityCheck 
-							userAuthority={userAuthority} 
+						<AuthorityCheck
+							userAuthority={userAuthority}
 							authority={subNav.authority}
 							key={subNav.key}
 						>
-							<MenuItem eventKey={subNav.key}> 
-								{subNav.path 
-									? 
-									<Link 
-										className="h-full w-full flex items-center" 
+							<MenuItem eventKey={subNav.key}>
+								{subNav.path
+									?
+									<Link
+										className="h-full w-full flex items-center"
 										onClick={() => onLinkClick?.(
 											{
 												key: subNav.key,
 												title: subNav.title,
 												path: subNav.path,
 											}
-										)} 
+										)}
 										to={subNav.path}
 									>
+										<VerticalMenuIcon icon={subNav.icon} />
 										<span>
 											{subNav.title}
 										</span>
 									</Link>
-									: 
+									:
 									<span>
 										{subNav.title}
 									</span>
@@ -65,46 +66,47 @@ const DefaultItem = ({nav, onLinkClick, userAuthority}) => {
 	)
 }
 
-const CollapsedItem = ({nav, onLinkClick, userAuthority}) => {
+const CollapsedItem = ({ nav, onLinkClick, userAuthority }) => {
 
 	const menuItem = (
-		<MenuItem key={nav.key} eventKey={nav.key} className="mb-2">
+		<MenuItem key={nav.key} eventKey={nav.key} className="">
 			<VerticalMenuIcon icon={nav.icon} />
 		</MenuItem>
 	)
 
 	return (
-		<AuthorityCheck 
-			userAuthority={userAuthority} 
+		<AuthorityCheck
+			userAuthority={userAuthority}
 			authority={nav.authority}
 		>
 			<Dropdown trigger="hover" renderTitle={menuItem} placement="middle-start-top">
 				{
 					nav.subMenu.map(subNav => (
-						<AuthorityCheck 
-							userAuthority={userAuthority} 
+						<AuthorityCheck
+							userAuthority={userAuthority}
 							authority={subNav.authority}
 							key={subNav.key}
 						>
-							<Dropdown.Item eventKey={subNav.key}> 
-								{subNav.path 
-									? 
-									<Link 
-										className="h-full w-full flex items-center" 
+							<Dropdown.Item eventKey={subNav.key}>
+								{subNav.path
+									?
+									<Link
+										className="h-full w-full flex items-center"
 										onClick={() => onLinkClick?.(
 											{
 												key: subNav.key,
 												title: subNav.title,
 												path: subNav.path,
 											}
-										)} 
+										)}
 										to={subNav.path}
 									>
+										<VerticalMenuIcon icon={subNav.icon} />
 										<span>
 											{subNav.title}
 										</span>
 									</Link>
-									: 
+									:
 									<span>
 										{subNav.title}
 									</span>
@@ -118,7 +120,7 @@ const CollapsedItem = ({nav, onLinkClick, userAuthority}) => {
 	)
 }
 
-const VerticalCollapsedMenuItem = ({sideCollapsed, ...rest}) => {
+const VerticalCollapsedMenuItem = ({ sideCollapsed, ...rest }) => {
 
 	return sideCollapsed ? <CollapsedItem {...rest} /> : <DefaultItem {...rest} />
 }

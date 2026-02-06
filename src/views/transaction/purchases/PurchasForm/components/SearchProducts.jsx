@@ -9,7 +9,7 @@ import Highlighter from 'react-highlight-words'
 import { useDispatch, useSelector } from 'react-redux'
 import { FiPackage, FiAlertTriangle } from 'react-icons/fi'
 
-export const SearchProducts = ({ handleAppendProduct }) => {
+export const SearchProducts = ({ handleAppendProduct, children }) => {
 
     const [searchDialogOpen, setSearchDialogOpen] = useState(false)
     const productList = useSelector((state) => state.purchasForm.data.productList)
@@ -57,12 +57,16 @@ export const SearchProducts = ({ handleAppendProduct }) => {
 
     return (
         <>
-            <div
-                className="text-2xl bg-slate-200 py-2 px-4 rounded-full flex items-center"
-                onClick={handleSearchOpen}
-            >
-                <HiOutlineSearch />
-                <span className='text-sm pl-4'>Buscar Producto...</span>
+            {/* Botón de búsqueda */}
+            <div onClick={handleSearchOpen}>
+                {children || (
+                    <div
+                        className="text-2xl bg-slate-200 py-2 px-4 rounded-full flex items-center cursor-pointer hover:bg-slate-300"
+                    >
+                        <HiOutlineSearch />
+                        <span className='text-sm pl-4'>Buscar Producto...</span>
+                    </div>
+                )}
             </div>
             <Dialog
                 contentClassName="p-0"

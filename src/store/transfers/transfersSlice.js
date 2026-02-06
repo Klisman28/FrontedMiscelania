@@ -7,11 +7,9 @@ export const fetchTransfers = createAsyncThunk(
     SLICE_NAME + '/fetchTransfers',
     async (params) => {
         const response = await inventoryService.getTransfers(params)
-        console.log('fetchTransfers response:', response)
         return response.data
     }
 )
-
 export const fetchTransferById = createAsyncThunk(
     SLICE_NAME + '/fetchTransferById',
     async (id) => {
@@ -61,7 +59,7 @@ const transfersSlice = createSlice({
     initialState,
     reducers: {
         setTableData: (state, action) => {
-            state.tableData = action.payload
+            state.tableData = { ...state.tableData, ...action.payload }
         },
         resetCreateState: (state) => {
             state.creating = false
@@ -79,8 +77,10 @@ const transfersSlice = createSlice({
             .addCase(fetchTransfers.fulfilled, (state, action) => {
                 state.loadingList = false
                 state.list = action.payload.data || action.payload
-                state.tableData.total = action.payload.total || (action.payload.data ? action.payload.data.length : 0)
-                state.total = action.payload.total || 0
+                // Handle various backend response structures for total count
+                const totalCount = action.payload.total || action.payload.meta?.total || (action.payload.data ? action.payload.data.length : 0)
+                state.tableData.total = totalCount
+                state.total = totalCount
             })
             .addCase(fetchTransfers.rejected, (state, action) => {
                 state.loadingList = false

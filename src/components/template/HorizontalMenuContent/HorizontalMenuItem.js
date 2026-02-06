@@ -3,18 +3,18 @@ import navigationIcon from 'configs/navigation-icon.config'
 import { MenuItem } from 'components/ui'
 import HorizontalMenuNavLink from './HorizontalMenuNavLink'
 
-const HorizontalMenuItem = ({nav, isLink, manuVariant}) => {
+const HorizontalMenuItem = ({ nav, isLink, manuVariant }) => {
 
 	const { title, icon, path } = nav
 
-
 	const itemTitle = title
-	
+	const IconComponent = icon ? navigationIcon[icon] : null
+
 	return (
 		<MenuItem variant={manuVariant}>
-			{icon && (
+			{IconComponent && (
 				<span className="text-2xl">
-					{navigationIcon[icon]}
+					<IconComponent />
 				</span>
 			)}
 			{(path && isLink)
@@ -22,7 +22,7 @@ const HorizontalMenuItem = ({nav, isLink, manuVariant}) => {
 				<HorizontalMenuNavLink path={path}>
 					{itemTitle}
 				</HorizontalMenuNavLink>
-				: 
+				:
 				<span>{itemTitle}</span>
 			}
 		</MenuItem>

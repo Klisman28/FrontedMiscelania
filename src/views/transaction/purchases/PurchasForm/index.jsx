@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from 'react'
+import React, { forwardRef, useEffect, useRef } from 'react'
 import { FormContainer, Button } from 'components/ui'
 import { StickyFooter, Container } from 'components/shared'
 import BasicInfoFields from './BasicInfoFields'
@@ -10,6 +10,8 @@ import { injectReducer } from 'store/index'
 import reducer from './store'
 import { getSuppliers } from './store/formSlice'
 import SearchProduct from './components/SearchProducts'
+import ProductQuickAddBar from './components/ProductQuickAddBar'
+import KeyboardShortcutsHelper from './components/KeyboardShortcutsHelper'
 import PaymentSummary from './components/PaymentSummary'
 import OptionsFields from './OptionsFields'
 
@@ -30,6 +32,7 @@ const productsSchema = Yup.object({
 });
 
 const validationSchema = Yup.object().shape({
+    warehouseId: Yup.number().required("Seleccione una bodega"),
     supplier: Yup.object({
         value: Yup.string().required("El proveedor es requerido"),
         label: Yup.string().required("El proveedor es requerido")
@@ -42,7 +45,7 @@ const validationSchema = Yup.object().shape({
 const PurchasForm = forwardRef((props, ref) => {
 
     const { typeAction, initialData, onFormSubmit, onDiscard } = props
-
+    const formRef = useRef(null)
     const dispatch = useDispatch()
 
     const {
@@ -107,6 +110,18 @@ const PurchasForm = forwardRef((props, ref) => {
         dispatch(getSuppliers())
     }, [dispatch])
 
+    // Atajo de teclado Ctrl+Enter para guardar
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault()
+                formRef.current?.requestSubmit()
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [])
+
     return (
         <Container className="h-full">
             <div className="mb-4">
@@ -116,26 +131,47 @@ const PurchasForm = forwardRef((props, ref) => {
                     </h3>
                 </div>
             </div>
-            <form onSubmit={handleSubmit(onFormSubmit)} ref={ref}>
+            <form onSubmit={handleSubmit(onFormSubmit)} ref={formRef}>
                 <FormContainer>
                     <div className="xl:flex gap-4">
                         <div className="w-full">
-                            <div>
-                                <SearchProduct handleAppendProduct={handleAppendProduct} />
+                            {/* Helper de atajos de teclado */}
+                            <KeyboardShortcutsHelper />
+
+                            {/* Barra de búsqueda/escaneo tipo POS (nuevo flujo principal) */}
+                            <div className="mb-4">
+                                <ProductQuickAddBar
+                                    handleAppendProduct={handleAppendProduct}
+                                    currentProducts={fields}
+                                    warehouseId={watch('warehouseId')}
+                                    autoFocus={true}
+                                />
+                                {/* Modal de búsqueda avanzada (fallback opcional) */}
+                                <div className="mt-2">
+                                    <SearchProduct handleAppendProduct={handleAppendProduct}>
+                                        <Button
+                                            size="sm"
+                                            variant="plain"
+                                            className="w-full text-sm"
+                                        >
+                                            o buscar con filtros avanzados...
+                                        </Button>
+                                    </SearchProduct>
+                                </div>
                             </div>
                             <div className="mb-4 text-black" style={{ minHeight: '225px' }}>
 
-                            <OrderProducts
-                                errors={errors}
-                                fields={fields}
-                                remove={remove}
-                                control={control}
-                                watch={watch}
-                                setValue={setValue}
-                                getValues={getValues}
-                                handleChangeQuantity={handleChangeQuantity}
-                            />
-                                                        </div>
+                                <OrderProducts
+                                    errors={errors}
+                                    fields={fields}
+                                    remove={remove}
+                                    control={control}
+                                    watch={watch}
+                                    setValue={setValue}
+                                    getValues={getValues}
+                                    handleChangeQuantity={handleChangeQuantity}
+                                />
+                            </div>
 
                             <div className="xl:grid grid-cols-2 gap-4">
                                 <OptionsFields control={control} />
@@ -179,6 +215,7 @@ const PurchasForm = forwardRef((props, ref) => {
 
 PurchasForm.defaultProps = {
     initialData: {
+        warehouseId: null,
         supplier: {},
         dateIssue: '',
         products: [],

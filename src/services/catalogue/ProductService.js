@@ -64,3 +64,13 @@ export async function apiSearchProducts(query) {
 
     return res
 }
+
+export async function apiCreateProduct(data) {
+    const res = ApiService.fetchData({
+        url: '/products',
+        method: 'post',
+        data: data
+    })
+
+    return res
+}

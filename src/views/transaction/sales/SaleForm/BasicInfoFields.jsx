@@ -5,6 +5,7 @@ import 'dayjs/locale/es'
 import { Controller } from 'react-hook-form'
 import { getCustomers, getEnterprises, getConfig } from './store/formSlice'
 import { useDispatch } from 'react-redux'
+import { getWarehouses } from 'store/warehouses/warehousesSlice'
 
 const { Addon } = InputGroup
 
@@ -17,6 +18,7 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
 
     const enterpriseList = useSelector((state) => state.saleForm.data.enterpriseList)
     const configData = useSelector((state) => state.saleForm.data.configData)
+    const warehouseList = useSelector((state) => state.warehouses?.warehouses || [])
 
     const watchType = watch('type', 'Ticket')
 
@@ -34,7 +36,18 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
         }
     })
 
-      const mergedOptions = [...customerOptions, ...enterpriseOptions]
+    const mergedOptions = [...customerOptions, ...enterpriseOptions]
+
+    const warehouseOptions = warehouseList.map((warehouse) => {
+        return {
+            value: warehouse.id,
+            label: warehouse.name
+        }
+    })
+
+    useEffect(() => {
+        dispatch(getWarehouses())
+    }, [dispatch])
 
 
     useEffect(() => {
@@ -69,6 +82,24 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
     return (
         <Card>
             <h5 className="mb-4">Información Básica</h5>
+            <FormItem
+                label="Bodega"
+                invalid={errors.warehouseId}
+                errorMessage={errors.warehouseId?.message}
+            >
+                <Controller
+                    control={control}
+                    name="warehouseId"
+                    render={({ field: { onChange, value } }) => (
+                        <Select
+                            placeholder="Seleccione una bodega..."
+                            options={warehouseOptions}
+                            value={warehouseOptions.find(option => option.value === value)}
+                            onChange={(option) => onChange(option?.value)}
+                        />
+                    )}
+                />
+            </FormItem>
             <FormItem
                 label="Tipo Comprobante"
                 invalid={errors.type}
@@ -166,7 +197,7 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
                         render={({ field: { onChange, value } }) => (
                             <Select
                                 placeholder="Seleccione un cliente..."
-                                options={watchType === 'Factura' ? mergedOptions :  enterpriseOptions}
+                                options={watchType === 'Factura' ? mergedOptions : enterpriseOptions}
                                 value={value}
                                 onChange={onChange}
                             />

@@ -44,7 +44,7 @@ const ListItem = (props) => {
     const { icon, label, url = '', isLast, keyWord, onNavigate } = props
 
     const { textTheme } = useThemeClass()
-    
+
     return (
         <Link to={url} onClick={onNavigate}>
             <div className={
@@ -54,7 +54,7 @@ const ListItem = (props) => {
                     !isLast && 'mb-3'
                 )}>
                 <div className="flex items-center">
-                    <div 
+                    <div
                         className={
                             classNames(
                                 'mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm text-xl group-hover:shadow h-6 w-6 flex items-center justify-center bg-white dark:bg-gray-700',
@@ -63,7 +63,7 @@ const ListItem = (props) => {
                             )
                         }
                     >
-                        {icon && navigationIcon[icon]}
+                        {icon && React.createElement(navigationIcon[icon])}
                     </div>
                     <div className="text-gray-900 dark:text-gray-300">
                         <Highlighter
@@ -82,9 +82,9 @@ const ListItem = (props) => {
 
 export const Search = ({ className }) => {
 
-    const [ searchDialogOpen, setSearchDialogOpen ] = useState(false)
-    const [ searchResult, setSearchResult ] = useState(recommendedSearch)
-    const [ noResult, setNoResult ] = useState(false)
+    const [searchDialogOpen, setSearchDialogOpen] = useState(false)
+    const [searchResult, setSearchResult] = useState(recommendedSearch)
+    const [noResult, setNoResult] = useState(false)
 
     const inputRef = useRef()
 
@@ -95,22 +95,22 @@ export const Search = ({ className }) => {
 
     const handleSearchOpen = () => {
         setSearchDialogOpen(true)
-	}
+    }
 
-    const handleSearchClose =() => {
+    const handleSearchClose = () => {
         setSearchDialogOpen(false)
         if (noResult) {
             setTimeout(() => {
                 handleReset()
             }, 300)
         }
-	}
- 
+    }
+
     const debounceFn = debounce(handleDebounceFn, 200)
 
-	async function handleDebounceFn(query) {
+    async function handleDebounceFn(query) {
 
-        if(!query) {
+        if (!query) {
             setSearchResult(recommendedSearch)
             return
         }
@@ -118,18 +118,18 @@ export const Search = ({ className }) => {
         if (noResult) {
             setNoResult(false)
         }
-        const respond = await apiGetSearchResult({query})
+        const respond = await apiGetSearchResult({ query })
         if (respond.data) {
             if (respond.data.length === 0) {
                 setNoResult(true)
             }
             setSearchResult(respond.data)
         }
-	}
+    }
 
-	const handleSearch = (e) => {
-		debounceFn(e.target.value)
-	}
+    const handleSearch = (e) => {
+        debounceFn(e.target.value)
+    }
 
     useEffect(() => {
         if (searchDialogOpen) {
@@ -143,10 +143,10 @@ export const Search = ({ className }) => {
     const handleNavigate = () => {
         handleSearchClose()
     }
-    
-	return (
+
+    return (
         <>
-            <div 
+            <div
                 className={classNames(className, 'text-2xl')}
                 onClick={handleSearchOpen}
             >
@@ -162,7 +162,7 @@ export const Search = ({ className }) => {
                     <div className="px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600">
                         <div className="flex items-center">
                             <HiOutlineSearch className="text-xl" />
-                            <input 
+                            <input
                                 ref={inputRef}
                                 className="ring-0 outline-none block w-full p-4 text-base bg-transparent text-gray-900 dark:text-gray-100"
                                 placeholder="Search..."
@@ -203,7 +203,7 @@ export const Search = ({ className }) => {
                 </div>
             </Dialog>
         </>
-	)
+    )
 }
 
-export default  withHeaderItem(Search)
+export default withHeaderItem(Search)

@@ -26,10 +26,12 @@ const FormItem = React.forwardRef((props, ref) => {
 
     const formContext = useForm()
     const { controlSize } = useConfig()
-    
-    const formItemLabelHeight = size || formContext.size || controlSize
-    const formItemLabelWidth = labelWidth || formContext.labelWidth
-    const formItemLayout = layout || formContext.layout
+
+
+    const formItemLabelHeight = size || formContext?.size || controlSize
+    const formItemLabelWidth = labelWidth || formContext?.labelWidth
+    const formItemLayout = layout || formContext?.layout
+
 
     const getFormLabelLayoutClass = () => {
         switch (formItemLayout) {
@@ -45,9 +47,9 @@ const FormItem = React.forwardRef((props, ref) => {
     }
 
     const formItemClass = classNames(
-        'form-item', 
-        formItemLayout, 
-        className, 
+        'form-item',
+        formItemLayout,
+        className,
         invalid ? 'invalid' : ''
     )
 
@@ -59,20 +61,20 @@ const FormItem = React.forwardRef((props, ref) => {
 
     const formLabelStyle = () => {
         if (formItemLayout === LAYOUT.HORIZONTAL) {
-            return {...style, ...{minWidth: formItemLabelWidth} }
+            return { ...style, ...{ minWidth: formItemLabelWidth } }
         }
 
-        return {...style}
+        return { ...style }
     }
 
-    const enterStyle = { opacity: 1, marginTop: 3, bottom: -21}
-	const exitStyle = { opacity: 0, marginTop: -10}
-	const initialStyle =  exitStyle
+    const enterStyle = { opacity: 1, marginTop: 3, bottom: -21 }
+    const exitStyle = { opacity: 0, marginTop: -10 }
+    const initialStyle = exitStyle
 
     return (
         <div ref={ref} className={formItemClass}>
-            <label 
-                htmlFor={htmlFor} 
+            <label
+                htmlFor={htmlFor}
                 className={formLabelClass}
                 style={formLabelStyle()}
             >
@@ -84,18 +86,18 @@ const FormItem = React.forwardRef((props, ref) => {
             <div className={formItemLayout === LAYOUT.HORIZONTAL ? 'w-full flex flex-col justify-center relative' : ''}>
                 {children}
                 <AnimatePresence exitBeforeEnter>
-					{invalid && (
-						<motion.div
+                    {invalid && (
+                        <motion.div
                             className="form-explain"
-							initial={initialStyle}
-							animate={enterStyle}
-							exit={exitStyle}
-							transition={{ duration: 0.15, type: 'tween' }}
-						>
-							{errorMessage}
-						</motion.div>
-					)}
-				</AnimatePresence>
+                            initial={initialStyle}
+                            animate={enterStyle}
+                            exit={exitStyle}
+                            transition={{ duration: 0.15, type: 'tween' }}
+                        >
+                            {errorMessage}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     )
@@ -103,19 +105,19 @@ const FormItem = React.forwardRef((props, ref) => {
 
 
 FormItem.propTypes = {
-	layout: PropTypes.oneOf([LAYOUT.HORIZONTAL, LAYOUT.VERTICAL, LAYOUT.INLINE]),
+    layout: PropTypes.oneOf([LAYOUT.HORIZONTAL, LAYOUT.VERTICAL, LAYOUT.INLINE]),
     size: PropTypes.oneOf([SIZES.LG, SIZES.SM, SIZES.MD]),
     labelWidth: PropTypes.oneOfType([
-		PropTypes.string,
-		PropTypes.number
-	]),
+        PropTypes.string,
+        PropTypes.number
+    ]),
     errorMessage: PropTypes.string,
     invalid: PropTypes.bool,
     asterisk: PropTypes.bool,
-    extra:PropTypes.oneOfType([
-		PropTypes.string,
-		PropTypes.node
-	]),
+    extra: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.node
+    ]),
     htmlFor: PropTypes.string,
     labelClass: PropTypes.string
 }

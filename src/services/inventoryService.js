@@ -21,6 +21,20 @@ const inventoryService = {
             data
         })
     },
+    addStock: async (data) => {
+        return ApiService.fetchData({
+            url: '/inventory/in',
+            method: 'post',
+            data
+        })
+    },
+    stockIn: async (data) => {
+        return ApiService.fetchData({
+            url: '/inventory/in',
+            method: 'post',
+            data
+        })
+    },
 }
 
 export default inventoryService

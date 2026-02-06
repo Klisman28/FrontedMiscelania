@@ -17,6 +17,11 @@ const WarehouseStockPage = () => {
     const { stock, loading, wsTotal } = useSelector((state) => state.warehouses)
     const [warehouseName, setWarehouseName] = useState('')
     const [search, setSearch] = useState('')
+    const [tableData, setTableData] = useState({
+        pageIndex: 1,
+        pageSize: 10,
+        sort: { order: '', key: '' }
+    })
 
     useEffect(() => {
         if (id) {
@@ -24,10 +29,18 @@ const WarehouseStockPage = () => {
             fetchWarehouseDetails()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id, search])
+    }, [id, search, tableData.pageIndex, tableData.pageSize, tableData.sort])
 
     const fetchStock = () => {
-        dispatch(getWarehouseStock({ id, params: { search } }))
+        dispatch(getWarehouseStock({
+            id,
+            params: {
+                search,
+                pageIndex: tableData.pageIndex,
+                pageSize: tableData.pageSize,
+                sort: tableData.sort
+            }
+        }))
     }
 
     const fetchWarehouseDetails = async () => {
@@ -43,6 +56,18 @@ const WarehouseStockPage = () => {
 
     const onSearchChange = (e) => {
         setSearch(e.target.value)
+    }
+
+    const onPaginationChange = (page) => {
+        setTableData(prev => ({ ...prev, pageIndex: page }))
+    }
+
+    const onSelectChange = (value) => {
+        setTableData(prev => ({ ...prev, pageSize: Number(value), pageIndex: 1 }))
+    }
+
+    const onSort = (sort) => {
+        setTableData(prev => ({ ...prev, sort }))
     }
 
     const handleBack = () => {
@@ -67,8 +92,9 @@ const WarehouseStockPage = () => {
             sortable: true,
             Cell: props => {
                 const row = props.row.original
+                console.log('🔍 Stock row data:', row)
                 return (
-                    <span>{row.sku || row.product?.code || '-'}</span>
+                    <span>{row.sku || row.product?.code || row.product?.sku || row.barcode || '-'}</span>
                 )
             }
         },
@@ -87,8 +113,14 @@ const WarehouseStockPage = () => {
         },
     ], [])
 
+    const pagingData = useMemo(() => ({
+        total: wsTotal,
+        pageIndex: tableData.pageIndex,
+        pageSize: tableData.pageSize
+    }), [wsTotal, tableData.pageIndex, tableData.pageSize])
+
     return (
-        <AdaptableCard className="h-full" bodyClass="h-full">
+        <AdaptableCard>
             <div className="lg:flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 mb-4 lg:mb-0">
                     <Button
@@ -114,16 +146,10 @@ const WarehouseStockPage = () => {
                 columns={columns}
                 data={stock}
                 loading={loading}
-                pagingData={{ total: wsTotal, pageIndex: 1, pageSize: 10 }}
-                onPaginationChange={(page) => {
-                    // implement pagination logic
-                }}
-                onSelectChange={(option) => {
-                    // implement page size change
-                }}
-                onSort={(sort) => {
-                    // implement sort
-                }}
+                pagingData={pagingData}
+                onPaginationChange={onPaginationChange}
+                onSelectChange={onSelectChange}
+                onSort={onSort}
             />
         </AdaptableCard>
     )

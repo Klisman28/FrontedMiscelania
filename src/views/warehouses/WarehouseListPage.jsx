@@ -3,12 +3,12 @@ import { Card, Button, Input } from 'components/ui'
 import { AdaptableCard, DataTable } from 'components/shared'
 import { HiPlus, HiSearch } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
-import reducer, { getWarehouses, setSelectedWarehouse } from 'store/warehouses/warehousesSlice'
+import reducer, { getWarehouses, setSelectedWarehouse, setTableData } from 'store/warehouses/warehousesSlice'
 import { injectReducer } from 'store/index'
 import WarehouseFormModal from 'components/warehouses/WarehouseFormModal'
 import { HiPencil, HiOutlineCube } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 injectReducer('warehouses', reducer)
 
@@ -16,17 +16,21 @@ const WarehouseListPage = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [modalIsOpen, setModalIsOpen] = useState(false)
-    const { warehouses, loading, total } = useSelector((state) => state.warehouses)
+    const { warehouses, loading, tableData = { pageIndex: 1, pageSize: 10, sort: { order: '', key: '' }, query: '', total: 0 } } = useSelector((state) => state.warehouses)
     const [search, setSearch] = useState('')
 
     useEffect(() => {
         fetchData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search])
+    }, [search, tableData.pageIndex, tableData.pageSize, tableData.sort])
 
     const fetchData = () => {
-        // If your backend supports search/pagination via params, pass them here
-        dispatch(getWarehouses({ search }))
+        dispatch(getWarehouses({
+            search,
+            pageIndex: tableData.pageIndex,
+            pageSize: tableData.pageSize,
+            sort: tableData.sort
+        }))
     }
 
     const openModal = () => {
@@ -48,6 +52,25 @@ const WarehouseListPage = () => {
 
     const onSearchChange = (e) => {
         setSearch(e.target.value)
+    }
+
+    const onPaginationChange = (page) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.pageIndex = page
+        dispatch(setTableData(newTableData))
+    }
+
+    const onSelectChange = (value) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.pageSize = Number(value)
+        newTableData.pageIndex = 1
+        dispatch(setTableData(newTableData))
+    }
+
+    const onSort = (sort) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.sort = sort
+        dispatch(setTableData(newTableData))
     }
 
     const columns = useMemo(() => [
@@ -110,9 +133,11 @@ const WarehouseListPage = () => {
         },
     ], [])
 
-    // Simple client-side filtering if backend search isn't rigorous or just as fallback
-    // But ideally dispatch(getWarehouses({ search })) handles it
-    // For now we just pass 'warehouses' to DataTable
+    const pagingData = useMemo(() => ({
+        total: tableData.total,
+        pageIndex: tableData.pageIndex,
+        pageSize: tableData.pageSize
+    }), [tableData])
 
     return (
         <AdaptableCard className="h-full" bodyClass="h-full">
@@ -140,19 +165,10 @@ const WarehouseListPage = () => {
                 columns={columns}
                 data={warehouses}
                 loading={loading}
-                pagingData={{ total, pageIndex: 1, pageSize: 10 }} // Mock paging data if not fully implemented in slice/backend response
-                onPaginationChange={(page) => {
-                    // implement pagination logic if API supports it
-                    // dispatch(getWarehouses({ page }))
-                }}
-                onSelectChange={(option) => {
-                    // implement page size change
-                    // dispatch(getWarehouses({ size: option }))
-                }}
-                onSort={(sort) => {
-                    // implement sort
-                    // dispatch(getWarehouses({ sort }))
-                }}
+                pagingData={pagingData}
+                onPaginationChange={onPaginationChange}
+                onSelectChange={onSelectChange}
+                onSort={onSort}
             />
             <WarehouseFormModal
                 isOpen={modalIsOpen}

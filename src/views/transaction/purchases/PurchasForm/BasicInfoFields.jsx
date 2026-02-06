@@ -1,14 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Input, FormItem, Select, Card, DatePicker } from 'components/ui'
 import { Field } from 'formik'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import 'dayjs/locale/es'
 import { Controller } from 'react-hook-form'
+import { getWarehouses } from 'store/warehouses/warehousesSlice'
 
 
 const BasicInfoFields = ({ control, errors, setValue }) => {
 
+    const dispatch = useDispatch()
     const supplierList = useSelector((state) => state.purchasForm.data.supplierList)
+    const warehouseList = useSelector((state) => state.warehouses?.warehouses || [])
 
     const supplierOptions = supplierList.map((suplier) => {
         return {
@@ -17,10 +20,39 @@ const BasicInfoFields = ({ control, errors, setValue }) => {
         }
     })
 
+    const warehouseOptions = warehouseList.map((warehouse) => {
+        return {
+            value: warehouse.id,
+            label: warehouse.name
+        }
+    })
+
+    useEffect(() => {
+        dispatch(getWarehouses())
+    }, [dispatch])
+
 
     return (
         <Card>
             <h5 className="mb-4">Información Básica</h5>
+            <FormItem
+                label="Bodega"
+                invalid={errors.warehouseId}
+                errorMessage={errors.warehouseId?.message}
+            >
+                <Controller
+                    control={control}
+                    name="warehouseId"
+                    render={({ field: { onChange, value } }) => (
+                        <Select
+                            placeholder="Seleccione una bodega..."
+                            options={warehouseOptions}
+                            value={warehouseOptions.find(option => option.value === value)}
+                            onChange={(option) => onChange(option?.value)}
+                        />
+                    )}
+                />
+            </FormItem>
             <FormItem
                 label="Fecha"
                 invalid={errors.dateIssue}

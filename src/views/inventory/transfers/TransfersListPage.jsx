@@ -16,7 +16,7 @@ injectReducer('warehouses', warehousesReducer)
 const TransfersListPage = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const { list, loadingList, total, tableData = { pageIndex: 1, pageSize: 10, sort: { order: '', key: '' }, query: '', total: 0 } } = useSelector((state) => state.transfers)
+    const { list, loadingList, tableData = { pageIndex: 1, pageSize: 10, sort: { order: '', key: '' }, query: '', total: 0 } } = useSelector((state) => state.transfers)
     const { warehouses } = useSelector((state) => state.warehouses)
     const [search, setSearch] = useState('')
 
@@ -68,109 +68,117 @@ const TransfersListPage = () => {
         setSearch(e.target.value)
     }
 
-    const timelineStatus = {
-        'PENDIENTE': 'bg-amber-100 text-amber-600',
-        'COMPLETADO': 'bg-emerald-100 text-emerald-600',
-        'CANCELADO': 'bg-red-100 text-red-600'
-    }
+    const columns = useMemo(() => {
+        const timelineStatus = {
+            'PENDIENTE': 'bg-amber-100 text-amber-600',
+            'COMPLETADO': 'bg-emerald-100 text-emerald-600',
+            'CANCELADO': 'bg-red-100 text-red-600'
+        }
 
-    const columns = useMemo(() => [
-        {
-            Header: 'Id',
-            accessor: 'id',
-            sortable: true,
-            Cell: props => <span className="font-semibold">#{props.row.original.id}</span>
-        },
-        {
-            Header: 'Fecha',
-            accessor: 'createdAt',
-            sortable: true,
-            Cell: props => {
-                const row = props.row.original
-                // Handle different date field names
-                const date = row.createdAt || row.created_at || row.date
-                return (
-                    <span>{date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-'}</span>
-                )
-            }
-        },
-        {
-            Header: 'Origen',
-            accessor: 'fromWarehouseId',
-            sortable: true,
-            Cell: props => {
-                const row = props.row.original
-                // Try nested object, then snake_case, then camelCase ID lookup
-                const name = row.fromWarehouse?.name
-                    || warehouseMap[row.from_warehouse_id]
-                    || warehouseMap[row.fromWarehouseId]
-                    || row.from_warehouse_id
-                    || row.fromWarehouseId
-                    || '-'
-                return <span>{name}</span>
-            }
-        },
-        {
-            Header: 'Destino',
-            accessor: 'toWarehouseId',
-            sortable: true,
-            Cell: props => {
-                const row = props.row.original
-                const name = row.toWarehouse?.name
-                    || warehouseMap[row.to_warehouse_id]
-                    || warehouseMap[row.toWarehouseId]
-                    || row.to_warehouse_id
-                    || row.toWarehouseId
-                    || '-'
-                return <span>{name}</span>
-            }
-        },
-        {
-            Header: '# Items',
-            accessor: 'items',
-            Cell: props => {
-                const row = props.row.original
-                return <span>{row.items?.length || 0}</span>
-            }
-        },
-        {
-            Header: 'Estado',
-            accessor: 'status',
-            Cell: props => {
-                const row = props.row.original
-                const status = row.status || 'PENDIENTE'
-                return (
-                    <Tag className={timelineStatus[status] || 'bg-gray-100 text-gray-600'}>
-                        {status}
-                    </Tag>
-                )
-            }
-        },
-        {
-            Header: 'Observación',
-            accessor: 'observation',
-            Cell: props => <span className="truncate max-w-xs block">{props.row.original.observation || '-'}</span>
-        },
-        {
-            Header: '',
-            id: 'action',
-            accessor: (row) => row,
-            Cell: (props) => {
-                const row = props.row.original
-                return (
-                    <div className="flex justify-end text-lg">
-                        <span
-                            className="cursor-pointer p-2 hover:text-indigo-600"
-                            onClick={() => navigate(`/inventory/transfers/${row.id}`)}
-                            title="Ver Detalle"
-                        >
-                            <HiOutlineEye />
-                        </span>
-                    </div>
-                )
+        return [
+            {
+                Header: 'Id',
+                accessor: 'id',
+                sortable: true,
+                Cell: props => <span className="font-semibold">#{props.row.original.id}</span>
             },
-        },
-    ], [navigate, warehouseMap, timelineStatus])
+            {
+                Header: 'Fecha',
+                accessor: 'createdAt',
+                sortable: true,
+                Cell: props => {
+                    const row = props.row.original
+                    // Handle different date field names
+                    const date = row.createdAt || row.created_at || row.date
+                    return (
+                        <span>{date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-'}</span>
+                    )
+                }
+            },
+            {
+                Header: 'Origen',
+                accessor: 'fromWarehouseId',
+                sortable: true,
+                Cell: props => {
+                    const row = props.row.original
+                    // Try nested object, then snake_case, then camelCase ID lookup
+                    const name = row.fromWarehouse?.name
+                        || warehouseMap[row.from_warehouse_id]
+                        || warehouseMap[row.fromWarehouseId]
+                        || row.from_warehouse_id
+                        || row.fromWarehouseId
+                        || '-'
+                    return <span>{name}</span>
+                }
+            },
+            {
+                Header: 'Destino',
+                accessor: 'toWarehouseId',
+                sortable: true,
+                Cell: props => {
+                    const row = props.row.original
+                    const name = row.toWarehouse?.name
+                        || warehouseMap[row.to_warehouse_id]
+                        || warehouseMap[row.toWarehouseId]
+                        || row.to_warehouse_id
+                        || row.toWarehouseId
+                        || '-'
+                    return <span>{name}</span>
+                }
+            },
+            {
+                Header: '# Items',
+                accessor: 'items',
+                Cell: props => {
+                    const row = props.row.original
+                    return <span>{row.items?.length || 0}</span>
+                }
+            },
+            {
+                Header: 'Estado',
+                accessor: 'status',
+                Cell: props => {
+                    const row = props.row.original
+                    const status = row.status || 'PENDIENTE'
+                    return (
+                        <Tag className={timelineStatus[status] || 'bg-gray-100 text-gray-600'}>
+                            {status}
+                        </Tag>
+                    )
+                }
+            },
+            {
+                Header: 'Observación',
+                accessor: 'observation',
+                Cell: props => <span className="truncate max-w-xs block">{props.row.original.observation || '-'}</span>
+            },
+            {
+                Header: '',
+                id: 'action',
+                accessor: (row) => row,
+                Cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <div className="flex justify-end text-lg">
+                            <span
+                                className="cursor-pointer p-2 hover:text-indigo-600"
+                                onClick={() => navigate(`/inventory/transfers/${row.id}`)}
+                                title="Ver Detalle"
+                            >
+                                <HiOutlineEye />
+                            </span>
+                        </div>
+                    )
+                },
+            },
+        ]
+    }, [navigate, warehouseMap])
+
+    const pagingData = useMemo(() => ({
+        total: tableData.total,
+        pageIndex: tableData.pageIndex,
+        pageSize: tableData.pageSize
+    }), [tableData])
 
     return (
         <AdaptableCard className="h-full" bodyClass="h-full">
@@ -197,7 +205,7 @@ const TransfersListPage = () => {
                 columns={columns}
                 data={list}
                 loading={loadingList}
-                pagingData={tableData}
+                pagingData={pagingData}
                 onPaginationChange={onPaginationChange}
                 onSelectChange={onSelectChange}
                 onSort={onSort}

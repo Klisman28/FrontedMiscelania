@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { FormContainer, Button, Card } from 'components/ui'
 import { StickyFooter } from 'components/shared'
 import { AiOutlineSave } from 'react-icons/ai'
@@ -11,6 +11,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import BasicInfoFields from './BasicInfoFields'
 import OrderProducts from './OrderProducts'
 import SearchProduct from './components/SearchProducts'
+import ProductQuickAddBar from './components/ProductQuickAddBar'
+import KeyboardShortcutsHelper from './components/KeyboardShortcutsHelper'
 import PaymentSummary from './components/PaymentSummary'
 import ReceiptPrintView from '../shared/PrintBoleta'
 import SaleFormC from '../SaleForm/store/SaleForm.css'
@@ -38,6 +40,7 @@ const productsSchema = Yup.object({
 
 // Esquema de validación general
 const validationSchema = Yup.object().shape({
+    warehouseId: Yup.number().required("Seleccione una bodega"),
     serie: Yup.string().when('type', {
         is: (val) => val !== 'Ticket',
         then: Yup.string()
@@ -67,6 +70,7 @@ const validationSchema = Yup.object().shape({
 const SaleForm = (props) => {
     const { typeAction, initialData, onFormSubmit, onDiscard } = props
     const printRef = useRef(null)
+    const formRef = useRef(null)
     const [printData, setPrintData] = useState(null)
 
     // Creamos la ref local para apuntar al <form> que se va a imprimir
@@ -94,6 +98,18 @@ const SaleForm = (props) => {
         resolver: yupResolver(validationSchema),
         defaultValues: initialData
     })
+
+    // Atajo de teclado Ctrl+Enter para guardar
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault()
+                formRef.current?.requestSubmit()
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [])
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -188,7 +204,7 @@ const SaleForm = (props) => {
 
 
     return (
-        <form onSubmit={handleSubmit(handleSaveAndIncrement)} >
+        <form ref={formRef} onSubmit={handleSubmit(handleSaveAndIncrement)} >
             <FormContainer className="sale-form">
                 {/* Contenedor principal con varias columnas */}
                 <div className="sf-layout">
@@ -196,9 +212,30 @@ const SaleForm = (props) => {
                     {/* Panel lateral (opcional) */}
                     {/* <ProductsSidebar handleAppendProduct={handleAppendProduct} /> */}
 
-                    <Card className="sf-left-card">                        {/* Búsqueda rápida de productos */}
-                        <div className="sf-search">
-                            <SearchProduct handleAppendProduct={handleAppendProduct} />
+                    <Card className="sf-left-card">
+                        {/* Helper de atajos de teclado */}
+                        <KeyboardShortcutsHelper />
+
+                        {/* Barra de búsqueda/escaneo tipo POS (nuevo flujo principal) */}
+                        <div className="sf-search mb-4">
+                            <ProductQuickAddBar
+                                handleAppendProduct={handleAppendProduct}
+                                currentProducts={fields}
+                                warehouseId={watch('warehouseId')}
+                                autoFocus={true}
+                            />
+                            {/* Modal de búsqueda avanzada (fallback opcional) */}
+                            <div className="mt-2">
+                                <SearchProduct handleAppendProduct={handleAppendProduct}>
+                                    <Button
+                                        size="sm"
+                                        variant="plain"
+                                        className="w-full text-sm"
+                                    >
+                                        o buscar con filtros avanzados...
+                                    </Button>
+                                </SearchProduct>
+                            </div>
                         </div>
                         <div className="sf-content">
                             {/* Lista de productos en la orden */}
@@ -216,10 +253,10 @@ const SaleForm = (props) => {
                             </div>
 
                             {/* Opciones de IGV / Resumen de pago */}
-            <div className="sf-subtotal-row">
+                            <div className="sf-subtotal-row">
                                 <PaymentSummary control={control} watch={watch} />
                             </div>
-                            
+
                         </div>
                     </Card>
 
@@ -284,6 +321,7 @@ const SaleForm = (props) => {
 // Valores por defecto
 SaleForm.defaultProps = {
     initialData: {
+        warehouseId: null,
         serie: '001',
         number: '000001',
         type: 'Ticket',
