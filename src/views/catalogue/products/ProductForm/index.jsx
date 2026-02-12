@@ -7,7 +7,8 @@ import OrganizationFields from './OrganizationFields'
 import ProductImages from './ProductImages'
 import { AiOutlineSave } from 'react-icons/ai'
 import * as Yup from 'yup'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { Loading } from 'components/shared'
 import { injectReducer } from 'store/index'
 import reducer from './store'
 import { getSubategories, getBrands, getProductUnits, getCategories } from './store/formSlice'
@@ -62,6 +63,11 @@ const ProductForm = forwardRef((props, ref) => {
 
     const dispatch = useDispatch();
 
+    const unitList = useSelector((state) => state.productForm?.data?.unitList ?? [])
+    const subcategoryList = useSelector((state) => state.productForm?.data?.subcategoryList ?? [])
+    const brandList = useSelector((state) => state.productForm?.data?.brandList ?? [])
+    const loadingData = useSelector((state) => state.productForm?.data?.loading ?? false)
+
     useEffect(() => {
         dispatch(getSubategories())
         dispatch(getBrands())
@@ -69,6 +75,10 @@ const ProductForm = forwardRef((props, ref) => {
         dispatch(getCategories())
 
     }, [dispatch])
+
+    if (loadingData || !unitList.length || !subcategoryList.length || !brandList.length) {
+        return <Loading loading={true} />
+    }
 
     return (
         <Formik

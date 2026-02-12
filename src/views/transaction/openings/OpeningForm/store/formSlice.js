@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { apiGetCashiersAvailable } from 'services/transaction/CashierService'
+import { apiGetCashiers } from 'services/transaction/CashierService'
 
-export const getCashiersAvailable = createAsyncThunk(
-    'transaction/openings/getCashiersAvailable',
+export const getCashiers = createAsyncThunk(
+    'transaction/openings/getCashiers',
     async () => {
-        const response = await apiGetCashiersAvailable()
+        const response = await apiGetCashiers()
         return response.data
     }
 )
@@ -16,8 +16,8 @@ const formSlice = createSlice({
     },
     reducers: {},
     extraReducers: {
-        [getCashiersAvailable.fulfilled]: (state, action) => {
-            state.cashierList = action.payload.data
+        [getCashiers.fulfilled]: (state, action) => {
+            state.cashierList = action.payload.data.cashiers
         }
     }
 })

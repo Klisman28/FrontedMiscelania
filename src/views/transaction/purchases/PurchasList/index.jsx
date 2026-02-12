@@ -8,9 +8,7 @@ injectReducer('purchasList', reducer)
 
 const PurchasList = () => {
 	return (
-		<AdaptableCard className="h-full" bodyClass="h-full">
-			<PurchasTable />
-		</AdaptableCard>
+		<PurchasTable />
 	)
 }
 

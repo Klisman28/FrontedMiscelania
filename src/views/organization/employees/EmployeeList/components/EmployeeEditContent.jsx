@@ -5,8 +5,9 @@ import { setDrawerClose, setSelectedEmployee } from '../store/stateSlice'
 import EmployeeForm from '../../EmployeeForm'
 import { toast, Notification } from 'components/ui'
 
-const EmployeeEditContent = forwardRef((_, ref) => {
+const EmployeeEditContent = forwardRef((props, ref) => {
 
+    const { onDiscard } = props
     const dispatch = useDispatch()
 
     const employee = useSelector((state) => state.employeeList.state.selectedEmployee)
@@ -67,6 +68,7 @@ const EmployeeEditContent = forwardRef((_, ref) => {
         <EmployeeForm
             ref={ref}
             onFormSubmit={onFormSubmit}
+            onDiscard={onDiscard}
             employee={employee}
         />
     )

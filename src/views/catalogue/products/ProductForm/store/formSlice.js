@@ -31,10 +31,10 @@ export const getProductUnits = createAsyncThunk(
 export const getCategories = createAsyncThunk(
     'catalogue/products/getCategories',
     async () => {
-      const response = await apiGetCategories()
-      return response.data
+        const response = await apiGetCategories()
+        return response.data
     }
-  )
+)
 
 const newSlice = createSlice({
     name: 'catalogue/products/data',
@@ -42,23 +42,53 @@ const newSlice = createSlice({
         subcategoryList: [],
         brandList: [],
         unitList: [],
-        categoryList: [], // <-- Nuevo array donde guardarás las categorías
-
+        categoryList: [],
+        loading: false,
     },
     reducers: {},
     extraReducers: {
+        [getSubategories.pending]: (state) => {
+            state.loading = true
+        },
         [getSubategories.fulfilled]: (state, action) => {
-            state.subcategoryList = action.payload.data.subcategories
+            state.subcategoryList = action.payload.data?.subcategories || action.payload.subcategories || action.payload || []
+            state.loading = false
         },
-        [getBrands.fulfilled]: (state, action) => {
-            state.brandList = action.payload.data.brands
-        },
-        [getProductUnits.fulfilled]: (state, action) => {
-            state.unitList = action.payload.data
+        [getSubategories.rejected]: (state) => {
+            state.loading = false
         },
 
+        [getBrands.pending]: (state) => {
+            state.loading = true
+        },
+        [getBrands.fulfilled]: (state, action) => {
+            state.brandList = action.payload.data?.brands || action.payload.brands || action.payload || []
+            state.loading = false
+        },
+        [getBrands.rejected]: (state) => {
+            state.loading = false
+        },
+
+        [getProductUnits.pending]: (state) => {
+            state.loading = true
+        },
+        [getProductUnits.fulfilled]: (state, action) => {
+            state.unitList = action.payload.data || action.payload || []
+            state.loading = false
+        },
+        [getProductUnits.rejected]: (state) => {
+            state.loading = false
+        },
+
+        [getCategories.pending]: (state) => {
+            state.loading = true
+        },
         [getCategories.fulfilled]: (state, action) => {
-            state.categoryList = action.payload.data.categories 
+            state.categoryList = action.payload.data?.categories || action.payload.categories || action.payload || []
+            state.loading = false
+        },
+        [getCategories.rejected]: (state) => {
+            state.loading = false
         },
     }
 })

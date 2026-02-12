@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import reducer from './store'
+import openingFormReducer from '../OpeningForm/store'
 import { injectReducer } from 'store/index'
 import { Card, Button, Tag, Alert } from 'components/ui'
 import { HiDesktopComputer, HiInformationCircle } from 'react-icons/hi'
 import { TiLockClosed } from 'react-icons/ti'
 import { useSelector, useDispatch } from 'react-redux'
-import { getOpeningCurrent } from './store/dataSlice'
-import { getCashiersAvailable } from '../OpeningForm/store/formSlice'
+import { getOpeningCurrent, getOpeningSummary } from './store/dataSlice'
+import { getCashiers } from '../OpeningForm/store/formSlice'
 import isEmpty from 'lodash/isEmpty'
 import dayjs from 'dayjs'
 import 'dayjs/locale/es'
@@ -16,21 +17,30 @@ import QuickActions from './components/QuickActions'
 import RecentActivity from './components/RecentActivity'
 import OpeningStatistic from './components/OpeningStatistics'
 import OpeningEditConfirmation from './components/OpeningEditConfirmation'
+import CashMovementModal from './components/cash/CashMovementModal'
 import { toggleDeleteConfirmation } from './store/stateSlice'
+import { useState } from 'react'
 
 dayjs.locale('es')
 
 injectReducer('openings', reducer)
+injectReducer('openingForm', openingFormReducer)
 
 const OpeningList = () => {
 	const dispatch = useDispatch()
+	const [isCashModalOpen, setIsCashModalOpen] = useState(false)
 
 	const openingData = useSelector((state) => state.openings.data.openingData)
+	const openingSummary = useSelector((state) => state.openings.data.openingSummary)
 	const cashierList = useSelector((state) => state.openingForm?.data?.cashierList || [])
 
 	const fetchData = () => {
-		dispatch(getOpeningCurrent())
-		dispatch(getCashiersAvailable())
+		dispatch(getOpeningCurrent()).then((action) => {
+			if (action.payload && action.payload.data && action.payload.data.id) {
+				dispatch(getOpeningSummary(action.payload.data.id))
+			}
+		})
+		dispatch(getCashiers())
 	}
 
 	useEffect(() => {
@@ -42,18 +52,37 @@ const OpeningList = () => {
 		dispatch(toggleDeleteConfirmation(true))
 	}
 
+	const handleCashMovement = () => {
+		setIsCashModalOpen(true)
+	}
+
 	const isOpeningActive = !isEmpty(openingData)
 
-	// Extraer datos de ventas para actividad reciente
-	const recentActivities = isOpeningActive && openingData.sales?.length > 0
-		? openingData.sales.slice(0, 5).map(sale => ({
-			id: sale.id,
-			type: 'sale',
-			title: `Venta ${sale.serie ? `${sale.serie}-` : ''}${sale.number}`,
-			description: `Cliente: ${sale.client?.label || 'Consumidor Final'}`,
-			datetime: sale.createdAt || new Date(),
-			amount: parseFloat(sale.total).toFixed(2)
-		}))
+	// Extraer datos de ventas y movimientos para actividad reciente
+	// Combinar sales y cashMovements si existen
+	const sales = openingData.sales?.map(sale => ({
+		id: `sale-${sale.id}`,
+		type: 'sale',
+		title: `Venta ${sale.serie ? `${sale.serie}-` : ''}${sale.number}`,
+		description: `Cliente: ${sale.client?.label || 'Consumidor Final'}`,
+		datetime: sale.createdAt || new Date(),
+		amount: parseFloat(sale.total).toFixed(2)
+	})) || []
+
+	const movements = openingData.cashMovements?.map(mov => ({
+		id: `mov-${mov.id}`,
+		type: mov.type === 'CASH_IN' ? 'deposit' : 'withdrawal',
+		title: mov.type === 'CASH_IN' ? 'Ingreso (Fondo)' : 'Retiro de Efectivo',
+		description: mov.description,
+		datetime: mov.createdAt || new Date(),
+		amount: parseFloat(mov.amount).toFixed(2)
+	})) || []
+
+	// Combinar y ordenar
+	const recentActivities = isOpeningActive
+		? [...sales, ...movements]
+			.sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+			.slice(0, 5)
 		: []
 
 	return (
@@ -163,7 +192,10 @@ const OpeningList = () => {
 				// Vista con apertura: Acciones + Actividad + KPIs
 				<div className="space-y-6">
 					{/* Acciones Rápidas */}
-					<QuickActions isOpeningActive={true} />
+					<QuickActions
+						isOpeningActive={true}
+						onCashMovementClick={handleCashMovement}
+					/>
 
 					{/* Actividad Reciente */}
 					<RecentActivity
@@ -174,13 +206,21 @@ const OpeningList = () => {
 					{/* KPIs / Estadísticas */}
 					<div>
 						<h5 className="mb-4">Resumen de Caja</h5>
-						<OpeningStatistic data={openingData} />
+						<OpeningStatistic data={openingData} summary={openingSummary} />
 					</div>
 				</div>
 			)}
 
 			{/* Modales */}
 			<OpeningEditConfirmation />
+
+			{isOpeningActive && (
+				<CashMovementModal
+					isOpen={isCashModalOpen}
+					onClose={() => setIsCashModalOpen(false)}
+					openingId={openingData.id}
+				/>
+			)}
 		</div>
 	)
 }

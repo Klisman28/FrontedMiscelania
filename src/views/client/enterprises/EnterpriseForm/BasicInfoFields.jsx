@@ -19,14 +19,16 @@ const NumberFormatInput = ({ onValueChange, ...rest }) => {
     )
 }
 
+const optional = (<span className="ml-1 text-gray-400 text-xs font-normal">(Opcional)</span>)
+
 const BasicInfoFields = props => {
 
     const { touched, errors } = props
 
     return (
-        <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormItem
-                label="Nombre"
+                label="Nombre de la Empresa"
                 invalid={errors.name && touched.name}
                 errorMessage={errors.name}
             >
@@ -34,16 +36,16 @@ const BasicInfoFields = props => {
                     type="text"
                     autoComplete="off"
                     name="name"
-                    placeholder="Nombre"
+                    placeholder="Ej: Valle Banets"
                     component={Input}
                 />
             </FormItem>
-           
-            
+
             <FormItem
                 label="NIT"
                 invalid={errors.ruc && touched.ruc}
                 errorMessage={errors.ruc}
+                extra={optional}
             >
                 <Field name="ruc">
                     {({ field, form }) => {
@@ -51,7 +53,7 @@ const BasicInfoFields = props => {
                             <NumberFormatInput
                                 form={form}
                                 field={field}
-                                placeholder="NIT"
+                                placeholder="100282115"
                                 customInput={NumberInput}
                                 onValueChange={e => {
                                     form.setFieldValue(field.name, e.value)
@@ -61,7 +63,7 @@ const BasicInfoFields = props => {
                     }}
                 </Field>
             </FormItem>
-        </>
+        </div>
     )
 }
 

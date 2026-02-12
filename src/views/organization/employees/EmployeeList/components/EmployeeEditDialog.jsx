@@ -4,15 +4,6 @@ import EmployeeEditContent from './EmployeeEditContent'
 import { useDispatch, useSelector } from 'react-redux'
 import { setDrawerClose, setSelectedEmployee } from '../store/stateSlice'
 
-const DrawerFooter = ({onSaveClick, onCancel}) => {
-	return (
-		<div className="text-right w-full">
-			<Button size="sm" className="mr-2" onClick={onCancel}>Cancelar</Button>
-			<Button size="sm" variant="solid" onClick={onSaveClick}>Guardar</Button>
-		</div>
-	)
-}
-
 const EmployeeEditDialog = () => {
 	const dispatch = useDispatch()
 	const drawerOpen = useSelector((state) => state.employeeList.state.drawerOpen)
@@ -35,9 +26,8 @@ const EmployeeEditDialog = () => {
 			onRequestClose={onDrawerClose}
 			closable={false}
 			bodyClass="p-0"
-			footer={<DrawerFooter onCancel={onDrawerClose} onSaveClick={formSubmit} />}
 		>
-			<EmployeeEditContent ref={formikRef} />
+			<EmployeeEditContent ref={formikRef} onDiscard={onDrawerClose} />
 		</Drawer>
 	)
 }

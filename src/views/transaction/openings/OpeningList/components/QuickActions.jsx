@@ -17,20 +17,20 @@ const QuickActionCard = ({ icon, title, description, onClick, disabled = false }
         <Card
             clickable
             className={`hover:shadow-lg transition-all duration-200 ${disabled
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'cursor-pointer hover:-translate-y-1'
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer hover:-translate-y-1'
                 }`}
             bodyClass="p-6"
             onClick={disabled ? null : onClick}
         >
             <div className="flex flex-col items-center text-center  space-y-3">
                 <div className={`p-4 rounded-full ${disabled
-                        ? 'bg-gray-100 dark:bg-gray-700'
-                        : 'bg-indigo-50 dark:bg-indigo-900/30'
+                    ? 'bg-gray-100 dark:bg-gray-700'
+                    : 'bg-indigo-50 dark:bg-indigo-900/30'
                     }`}>
                     <div className={`text-4xl ${disabled
-                            ? 'text-gray-400 dark:text-gray-500'
-                            : 'text-indigo-600 dark:text-indigo-400'
+                        ? 'text-gray-400 dark:text-gray-500'
+                        : 'text-indigo-600 dark:text-indigo-400'
                         }`}>
                         {icon}
                     </div>
@@ -46,7 +46,7 @@ const QuickActionCard = ({ icon, title, description, onClick, disabled = false }
     )
 }
 
-const QuickActions = ({ isOpeningActive = false }) => {
+const QuickActions = ({ isOpeningActive = false, onCashMovementClick }) => {
     const navigate = useNavigate()
 
     const actions = [
@@ -61,8 +61,9 @@ const QuickActions = ({ isOpeningActive = false }) => {
             icon: <HiCash />,
             title: 'Retiro/Fondo',
             description: 'Agregar o retirar efectivo',
-            path: null, // TODO: Agregar ruta cuando esté disponible
-            disabled: true
+            path: null,
+            disabled: !isOpeningActive,
+            action: onCashMovementClick
         },
         {
             icon: <HiClock />,
@@ -84,7 +85,13 @@ const QuickActions = ({ isOpeningActive = false }) => {
                         title={action.title}
                         description={action.description}
                         disabled={action.disabled}
-                        onClick={() => action.path && navigate(action.path)}
+                        onClick={() => {
+                            if (action.action) {
+                                action.action()
+                            } else if (action.path) {
+                                navigate(action.path)
+                            }
+                        }}
                     />
                 ))}
             </div>

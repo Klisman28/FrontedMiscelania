@@ -6,7 +6,7 @@ import BasicInfoForm from './BasicInfoForm'
 import { injectReducer } from 'store/index'
 import reducer from './store'
 import { useDispatch } from 'react-redux'
-import { getCashiersAvailable } from './store/formSlice'
+import { getCashiers } from './store/formSlice'
 
 const validationSchema = Yup.object().shape({
     initBalance: Yup.number()
@@ -27,7 +27,7 @@ const OpeningForm = forwardRef((props, ref) => {
     const { onFormSubmit } = props
 
     useEffect(() => {
-        dispatch(getCashiersAvailable())
+        dispatch(getCashiers())
     }, [dispatch])
 
     return (
@@ -53,7 +53,7 @@ const OpeningForm = forwardRef((props, ref) => {
                             </TabList>
                             <div className="p-6">
                                 <TabContent value="basicInfo">
-                                    <BasicInfoForm touched={touched} errors={errors} values={values}/>
+                                    <BasicInfoForm touched={touched} errors={errors} values={values} />
                                 </TabContent>
                             </div>
                         </Tabs>

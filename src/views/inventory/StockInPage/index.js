@@ -167,6 +167,8 @@ const StockInPage = () => {
                                                 {...field}
                                                 options={warehouseOptions}
                                                 placeholder="Seleccione bodega"
+                                                onChange={(option) => field.onChange(option?.value)}
+                                                value={warehouseOptions.find(opt => opt.value === field.value)}
                                             />
                                         )}
                                     />

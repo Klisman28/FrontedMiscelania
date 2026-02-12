@@ -28,37 +28,57 @@ const StatisticCard = ({ data = {}, label, valuePrefix, icon }) => {
     )
 }
 
-const OpeningStatistic = ({data}) => {
+const OpeningStatistic = ({ data, summary = {} }) => {
 
-    // const startDate = useSelector((state) => state.salesDashboard.state.startDate)
-    const saleBalance = data.sales?.reduce((sum, element) => sum + parseFloat(element.total), 0)
-	const totalAmount = parseFloat(data.initBalance) + saleBalance
+    const initBalance = summary.initBalance !== undefined
+        ? parseFloat(summary.initBalance)
+        : parseFloat(data.initBalance || 0)
+
+    const saleBalance = summary.totalSales !== undefined
+        ? parseFloat(summary.totalSales)
+        : (data.sales?.reduce((sum, element) => sum + parseFloat(element.total), 0) || 0)
+
+    // Calculate cash movements
+    const deposits = summary.totalCashIn !== undefined
+        ? parseFloat(summary.totalCashIn)
+        : (data.cashMovements?.filter(m => m.type === 'CASH_IN').reduce((sum, m) => sum + parseFloat(m.amount), 0) || 0)
+
+    const withdrawals = summary.totalCashOut !== undefined
+        ? parseFloat(summary.totalCashOut)
+        : (data.cashMovements?.filter(m => m.type === 'CASH_OUT').reduce((sum, m) => sum + parseFloat(m.amount), 0) || 0)
+
+    const movementsBalance = deposits - withdrawals
+
+    // totalTheoretical comes from backend usually, but we can fallback to calculation
+    const totalAmount = summary.theoreticalBalance !== undefined
+        ? parseFloat(summary.theoreticalBalance)
+        : (initBalance + saleBalance + movementsBalance)
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <StatisticCard
-                data={{ value: data.initBalance }}
+                data={{ value: initBalance }}
                 valuePrefix="Q"
                 label="Saldo Inicial"
-                tagSuffix="%"
-                // date={startDate}
-                icon={<GiReceiveMoney className='w-12 h-12'/>}
+                icon={<GiReceiveMoney className='w-12 h-12' />}
             />
             <StatisticCard
                 data={{ value: saleBalance }}
                 valuePrefix="Q "
                 label="Mis Ventas"
-                tagSuffix="%"
-            // date={startDate}
-            icon={<GiTakeMyMoney className='w-12 h-12'/>}
+                icon={<GiTakeMyMoney className='w-12 h-12' />}
+            />
+            <StatisticCard
+                data={{ value: movementsBalance }}
+                valuePrefix="Q "
+                label="Movimientos"
+                icon={<GiPayMoney className='w-12 h-12' />}
             />
             <StatisticCard
                 data={{ value: totalAmount }}
                 valuePrefix="Q "
                 label="Total a Rendir"
-                tagSuffix="%"
-            // date={startDate}
-            icon={<GiPayMoney className='w-12 h-12'/>}
+                icon={<GiPayMoney className='w-12 h-12' />}
             />
         </div>
     )

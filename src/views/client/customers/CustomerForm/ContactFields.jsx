@@ -19,14 +19,14 @@ const NumberFormatInput = ({ onValueChange, ...rest }) => {
     )
 }
 
-const optional = (<span className="ml-1 opacity-60">(opcional)</span>)
+const optional = (<span className="text-gray-400 text-xs font-normal ml-1">(Opcional)</span>)
 
 const ContactFields = props => {
 
     const { touched, errors } = props
 
     return (
-        <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormItem
                 label="Email"
                 invalid={errors.email && touched.email}
@@ -34,13 +34,14 @@ const ContactFields = props => {
                 extra={optional}
             >
                 <Field
-                    type="text"
+                    type="email"
                     autoComplete="off"
                     name="email"
-                    placeholder="Correo Electrónico"
+                    placeholder="juan@example.com"
                     component={Input}
                 />
             </FormItem>
+
             <FormItem
                 label="Teléfono"
                 invalid={errors.telephone && touched.telephone}
@@ -53,7 +54,7 @@ const ContactFields = props => {
                             <NumberFormatInput
                                 form={form}
                                 field={field}
-                                placeholder="Teléfono"
+                                placeholder="555-1234"
                                 customInput={NumberInput}
                                 onValueChange={e => {
                                     form.setFieldValue(field.name, e.value)
@@ -63,21 +64,23 @@ const ContactFields = props => {
                     }}
                 </Field>
             </FormItem>
+
             <FormItem
                 label="Dirección"
                 invalid={errors.address && touched.address}
                 errorMessage={errors.address}
                 extra={optional}
+                className="col-span-1 md:col-span-2"
             >
                 <Field
                     type="text"
                     autoComplete="off"
                     name="address"
-                    placeholder="Dirección"
+                    placeholder="Calle Principal 123, Zona 1"
                     component={Input}
                 />
             </FormItem>
-        </>
+        </div>
     )
 }
 

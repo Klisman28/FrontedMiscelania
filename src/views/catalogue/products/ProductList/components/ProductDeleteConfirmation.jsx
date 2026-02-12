@@ -8,8 +8,8 @@ import { deleteProduct, getProducts } from '../store/dataSlice'
 const ProductDeleteConfirmation = () => {
 
     const dispatch = useDispatch()
-    const dialogOpen = useSelector((state) => state.products.state.deleteConfirmation)
-    const selectedProduct = useSelector((state) => state.products.state.selectedProduct)
+    const dialogOpen = useSelector((state) => state.productList.state.deleteConfirmation)
+    const selectedProduct = useSelector((state) => state.productList.state.selectedProduct)
 
     const onDialogClose = () => {
         dispatch(toggleDeleteConfirmation(false))
@@ -56,7 +56,7 @@ const ProductDeleteConfirmation = () => {
             confirmButtonColor="red-600"
         >
             <p>
-                ¿Está seguro de que desea eliminar este producto?<br/>
+                ¿Está seguro de que desea eliminar este producto?<br />
                 {/* Todos los registros relacionados con este producto también se eliminarán. */}
                 Esta acción no se puede deshacer.
             </p>

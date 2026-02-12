@@ -6,6 +6,7 @@ import {
     apiPutOpening,
     apiGetOpeningCurrent
 } from 'services/transaction/OpeningService'
+import { apiCreateCashMovement, apiGetOpeningSummary } from 'services/cash/CashMovementService'
 
 export const getOpenings = createAsyncThunk(
     'transaction/openings/getOpenings',
@@ -17,9 +18,16 @@ export const getOpenings = createAsyncThunk(
 
 export const getOpeningCurrent = createAsyncThunk(
     'transaction/openings/getOpeningCurrent',
-    async () => {
-        const response = await apiGetOpeningCurrent()
-        return response.data
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await apiGetOpeningCurrent()
+            return response.data
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                return null
+            }
+            return rejectWithValue(error.response.data)
+        }
     }
 )
 
@@ -59,11 +67,36 @@ export const deleteOpening = createAsyncThunk(
     }
 )
 
+export const getOpeningSummary = createAsyncThunk(
+    'transaction/openings/getOpeningSummary',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await apiGetOpeningSummary(id)
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+export const createCashMovement = createAsyncThunk(
+    'transaction/openings/createCashMovement',
+    async ({ openingId, ...data }, { rejectWithValue }) => {
+        try {
+            const response = await apiCreateCashMovement(openingId, data)
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
 const dataSlice = createSlice({
     name: 'transaction/openings/data',
     initialState: {
         loading: false,
-        openingData: {}
+        openingData: {},
+        openingSummary: {}
     },
     reducers: {
         setLoading: (state, action) => {
@@ -72,11 +105,16 @@ const dataSlice = createSlice({
         },
         resetOpeningData: (state) => {
             state.openingData = {}
+            state.openingSummary = {}
         }
     },
     extraReducers: {
         [getOpeningCurrent.fulfilled]: (state, action) => {
-            state.openingData = action.payload.data
+            if (action.payload === null) {
+                state.openingData = {}
+            } else {
+                state.openingData = action.payload.data
+            }
             state.loading = false
         },
         [getOpeningCurrent.pending]: (state) => {
@@ -91,6 +129,18 @@ const dataSlice = createSlice({
         [postOpening.rejected]: (state) => {
             state.loading = false
         },
+        [createCashMovement.fulfilled]: (state) => {
+            state.loading = false
+        },
+        [createCashMovement.pending]: (state) => {
+            state.loading = true
+        },
+        [createCashMovement.rejected]: (state) => {
+            state.loading = false
+        },
+        [getOpeningSummary.fulfilled]: (state, action) => {
+            state.openingSummary = action.payload.data || action.payload
+        }
     }
 })
 

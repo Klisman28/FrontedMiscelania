@@ -19,27 +19,29 @@ const NumberFormatInput = ({ onValueChange, ...rest }) => {
     )
 }
 
-const optional = (<span className="ml-1 opacity-60">(opcional)</span>)
+const optional = (<span className="text-gray-400 text-xs font-normal ml-1">(Opcional)</span>)
 
 const ContactFields = props => {
 
     const { touched, errors } = props
 
     return (
-        <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormItem
                 label="Email"
                 invalid={errors.email && touched.email}
                 errorMessage={errors.email}
+                extra={optional}
             >
                 <Field
-                    type="text"
+                    type="email"
                     autoComplete="off"
                     name="email"
-                    placeholder="Correo Electrónico"
+                    placeholder="correo@empresa.com"
                     component={Input}
                 />
             </FormItem>
+
             <FormItem
                 label="Teléfono"
                 invalid={errors.telephone && touched.telephone}
@@ -51,7 +53,7 @@ const ContactFields = props => {
                             <NumberFormatInput
                                 form={form}
                                 field={field}
-                                placeholder="Teléfono"
+                                placeholder="+502 5555-5555"
                                 customInput={NumberInput}
                                 onValueChange={e => {
                                     form.setFieldValue(field.name, e.value)
@@ -61,6 +63,7 @@ const ContactFields = props => {
                     }}
                 </Field>
             </FormItem>
+
             <FormItem
                 label="Sitio Web"
                 invalid={errors.website && touched.website}
@@ -71,10 +74,11 @@ const ContactFields = props => {
                     type="text"
                     autoComplete="off"
                     name="website"
-                    placeholder="Sitio Web"
+                    placeholder="https://empresa.com"
                     component={Input}
                 />
             </FormItem>
+
             <FormItem
                 label="Dirección"
                 invalid={errors.address && touched.address}
@@ -85,11 +89,11 @@ const ContactFields = props => {
                     type="text"
                     autoComplete="off"
                     name="address"
-                    placeholder="Dirección"
+                    placeholder="Colonia..., Ciudad..."
                     component={Input}
                 />
             </FormItem>
-        </>
+        </div>
     )
 }
 

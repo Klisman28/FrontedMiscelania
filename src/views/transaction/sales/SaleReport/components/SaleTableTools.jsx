@@ -6,28 +6,28 @@ import { Link } from 'react-router-dom'
 const SaleTableTools = () => {
 
 	return (
-		<div className="flex flex-col md:flex-row md:justify-between lg:items-center">
+		<div className="flex flex-col md:flex-row gap-3">
 			<Link
-				className="block lg:inline-block mb-4 md:mb-0 lg:mx-2"
+				className="block lg:inline-block"
 				to="/data/product-list.csv"
 				target="_blank"
 				download
 			>
 				<Button
 					block
-					size="sm"
+					className="h-11"
 					icon={<HiDownload />}
 				>
 					Exportar
 				</Button>
 			</Link>
-			<Link 
-            to="/transacciones/nueva-venta"
-            className="block lg:inline-block mb-4 md:mb-0" >
+			<Link
+				to="/transacciones/nueva-venta"
+				className="block lg:inline-block" >
 				<Button
 					block
 					variant="solid"
-					size="sm"
+					className="h-11"
 					icon={<HiPlusCircle />}
 				>
 					Nueva Venta

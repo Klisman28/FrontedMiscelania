@@ -61,12 +61,11 @@ const OpeningFormCard = ({ cashiers = [] }) => {
         try {
             const values = {
                 initBalance: parseFloat(initBalance),
-                cashierId: selectedCashier,
-                observation: observation || ''
+                cashierId: selectedCashier
             }
 
             const res = await dispatch(postOpening(values))
-            const { message, type } = res.payload
+            const { message, type } = res.payload || {}
 
             if (type === 'success') {
                 await dispatch(getOpeningCurrent())
@@ -148,7 +147,7 @@ const OpeningFormCard = ({ cashiers = [] }) => {
                         <option value="">Seleccione una caja...</option>
                         {cashierList.map((cashier) => (
                             <option key={cashier.id} value={cashier.id}>
-                                {cashier.name} (#{cashier.code})
+                                {cashier.name} ({cashier.code})
                             </option>
                         ))}
                     </select>

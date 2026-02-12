@@ -22,7 +22,7 @@ const BasicInfoFields = (props) => {
     const { values, touched, errors } = props
 
     /* Unidades desde Redux */
-    const unitList = useSelector((state) => state.productForm.data.unitList)
+    const unitList = useSelector((state) => state.productForm?.data?.unitList ?? [])
     const unitOptions = unitList.map((u) => ({
         value: u.id,
         label: `${u.name} (${u.symbol})`

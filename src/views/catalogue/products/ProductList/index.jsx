@@ -4,7 +4,7 @@ import { injectReducer } from 'store/index'
 import { AdaptableCard } from 'components/shared'
 import ProductTable from './components/ProductTable'
 
-injectReducer('products', reducer)
+injectReducer('productList', reducer)
 
 const ProductList = () => {
 	return (

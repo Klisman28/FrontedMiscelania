@@ -1,78 +1,122 @@
 import React, { forwardRef } from 'react'
-import { Tabs, FormContainer, } from 'components/ui'
+import { FormContainer } from 'components/ui'
 import { Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import BasicInfoFields from './BasicInfoFields'
 import ContactFields from './ContactFields'
 
-
+// Schema de validación
 const validationSchema = Yup.object().shape({
-    name: Yup.string()
+    firstName: Yup.string()
         .required('Nombre es requerido')
-        .min(3, '¡Demasiado corto!'),
-    firstLastname: Yup.string()
-        .required('Primer apellido es requerido')
-        .min(3, '¡Demasiado corto!'),
-    secondLastname: Yup.string(),
-    dni: Yup.string(),
-    email: Yup.string().email("Email debe ser un correo electrónico válido"),
-    telephone: Yup.string().notRequired(),
-    address: Yup.string()
+        .min(2, 'Mínimo 2 caracteres'),
+    lastName: Yup.string()
+        .required('Apellidos son requeridos')
+        .min(2, 'Mínimo 2 caracteres'),
+    isFinalConsumer: Yup.boolean(),
+    nit: Yup.string().when('isFinalConsumer', {
+        is: false,
+        then: (schema) => schema.nullable().matches(/^[0-9-]+$/, 'Solo números y guiones').min(5, 'NIT inválido'),
+        otherwise: (schema) => schema.nullable()
+    }),
+    email: Yup.string()
+        .email("Email inválido")
+        .nullable(),
+    telephone: Yup.string().nullable(),
+    address: Yup.string().nullable()
 })
-
-const { TabNav, TabList, TabContent } = Tabs
 
 const CustomerForm = forwardRef((props, ref) => {
 
     const { customer, onFormSubmit } = props
 
+    // Mapper para compatibilidad con backend viejo/nuevo
+    const getInitialValues = (data) => {
+        // Nuevo formato
+        if (data?.firstName) {
+            return {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                isFinalConsumer: data.isFinalConsumer || false,
+                nit: data.nit || '',
+                email: data.email || '',
+                telephone: data.telephone || '',
+                address: data.address || '',
+            }
+        }
+        // Viejo formato (fallback)
+        if (data?.name) {
+            return {
+                firstName: data.name || '',
+                lastName: `${data.firstLastname || ''} ${data.secondLastname || ''}`.trim(),
+                isFinalConsumer: false,
+                nit: data.dni || '',
+                email: data.email || '',
+                telephone: data.telephone || '',
+                address: data.address || '',
+            }
+        }
+        // Default (Nuevo)
+        return {
+            firstName: '',
+            lastName: '',
+            isFinalConsumer: false,
+            nit: '',
+            email: '',
+            telephone: '',
+            address: '',
+        }
+    }
+
     return (
         <Formik
             innerRef={ref}
-            initialValues={{
-                name: customer?.name || '',
-                firstLastname: customer?.firstLastname || '',
-                secondLastname: customer?.secondLastname || '',
-                dni: customer?.dni || '',
-                email: customer?.email || '',
-                telephone: customer?.telephone || '',
-                address: customer?.address || '',
-            }}
+            initialValues={getInitialValues(customer)}
             validationSchema={validationSchema}
             onSubmit={(values, { setSubmitting }) => {
-                if(values.email === '') {
-                    delete values.email
+                const payload = { ...values }
+
+                // Limpiar campos opcionales vacíos
+                if (!payload.email) delete payload.email
+                if (!payload.telephone) delete payload.telephone
+                if (!payload.address) delete payload.address
+
+                // Lógica CF
+                if (payload.isFinalConsumer) {
+                    payload.nit = 'CF'
+                } else {
+                    if (!payload.nit) delete payload.nit
                 }
 
-                if(values.telephone === '') {
-                    delete values.telephone
-                }
-
-                if(values.address === '') {
-                    delete values.address
-                }
-
-                onFormSubmit?.(values)
+                onFormSubmit?.(payload)
                 setSubmitting(false)
             }}
         >
-            {({ values, touched, errors, resetForm }) => (
-                <Form>
+            {({ values, touched, errors, setFieldValue }) => (
+                <Form className="h-full">
                     <FormContainer>
-                        <Tabs defaultValue="basicInfo">
-                            <TabList>
-                                <TabNav value="basicInfo">Información Básica</TabNav>
-                                <TabNav value="contactInfo">Contactos</TabNav>
-                            </TabList>
-                            <div className="p-6">
-                                <TabContent value="basicInfo">
-                                    <BasicInfoFields values={values} touched={touched} errors={errors} />
-                                </TabContent>
-                                <TabContent value="contactInfo">
-                                    <ContactFields touched={touched} errors={errors} />
-                                </TabContent>
+                        <div className="p-6">
+                            {/* Sección: Información Personal */}
+                            <div className="mb-8">
+                                <h4 className="mb-4 text-base font-bold text-gray-900 border-b pb-2">Información Personal</h4>
+                                <BasicInfoFields
+                                    values={values}
+                                    touched={touched}
+                                    errors={errors}
+                                    setFieldValue={setFieldValue}
+                                />
                             </div>
-                        </Tabs>
+
+                            {/* Sección: Contactos */}
+                            <div>
+                                <h4 className="mb-4 text-base font-bold text-gray-900 border-b pb-2">Datos de Contacto</h4>
+                                <ContactFields
+                                    values={values}
+                                    touched={touched}
+                                    errors={errors}
+                                />
+                            </div>
+                        </div>
                     </FormContainer>
                 </Form>
             )}

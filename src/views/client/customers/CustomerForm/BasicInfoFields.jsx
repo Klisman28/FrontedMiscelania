@@ -1,5 +1,5 @@
-import React from 'react'
-import { Input, FormItem } from 'components/ui'
+import React, { useEffect } from 'react'
+import { Input, FormItem, Switcher } from 'components/ui'
 import { Field } from 'formik'
 import { NumberFormatBase } from 'react-number-format'
 
@@ -20,72 +20,98 @@ const NumberFormatInput = ({ onValueChange, ...rest }) => {
 }
 
 const BasicInfoFields = props => {
+    const { values, touched, errors, setFieldValue } = props
 
-    const { values, touched, errors } = props
+    // Efecto para manejar el cambio de switch
+    useEffect(() => {
+        if (values.isFinalConsumer) {
+            setFieldValue('nit', 'CF')
+        } else if (values.nit === 'CF') {
+            setFieldValue('nit', '')
+        }
+    }, [values.isFinalConsumer, setFieldValue])
 
     return (
-        <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormItem
                 label="Nombre"
-                invalid={errors.name && touched.name}
-                errorMessage={errors.name}
+                invalid={errors.firstName && touched.firstName}
+                errorMessage={errors.firstName}
             >
                 <Field
                     type="text"
                     autoComplete="off"
-                    name="name"
-                    placeholder="Nombre"
+                    name="firstName"
+                    placeholder="Ej: Juan"
                     component={Input}
+                    autoFocus
                 />
             </FormItem>
+
             <FormItem
-                label="Primer Apellido"
-                invalid={errors.firstLastname && touched.firstLastname}
-                errorMessage={errors.firstLastname}
+                label="Apellidos"
+                invalid={errors.lastName && touched.lastName}
+                errorMessage={errors.lastName}
             >
                 <Field
                     type="text"
                     autoComplete="off"
-                    name="firstLastname"
-                    placeholder="Primer Apellido"
+                    name="lastName"
+                    placeholder="Ej: Pérez García"
                     component={Input}
                 />
             </FormItem>
-            <FormItem
-                label="Segundo Apellido"
-                invalid={errors.secondLastname && touched.secondLastname}
-                errorMessage={errors.secondLastname}
-            >
-                <Field
-                    type="text"
-                    autoComplete="off"
-                    name="secondLastname"
-                    placeholder="Segundo Apellido"
-                    component={Input}
-                />
-            </FormItem>
+
+            <div className="flex items-center gap-4 border p-4 rounded-lg bg-gray-50 h-full">
+                <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-1 block">Consumidor Final</label>
+                    <div className="flex items-center gap-2">
+                        <Field name="isFinalConsumer">
+                            {({ field, form }) => (
+                                <Switcher
+                                    field={field}
+                                    form={form}
+                                    checked={field.value}
+                                    onChange={(checked) => {
+                                        form.setFieldValue(field.name, checked)
+                                    }}
+                                />
+                            )}
+                        </Field>
+                        <span className="text-sm text-gray-500">
+                            {values.isFinalConsumer ? 'Sí (Venta rápida)' : 'No (Cliente con NIT)'}
+                        </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                        Úsalo para ventas rápidas sin NIT
+                    </p>
+                </div>
+            </div>
+
             <FormItem
                 label="NIT"
-                invalid={errors.dni && touched.dni}
-                errorMessage={errors.dni}
+                invalid={errors.nit && touched.nit}
+                errorMessage={errors.nit}
+                extra={!values.isFinalConsumer && <span className="text-gray-400 text-xs ml-1">(Opcional)</span>}
             >
-                <Field name="dni">
+                <Field name="nit">
                     {({ field, form }) => {
                         return (
                             <NumberFormatInput
                                 form={form}
                                 field={field}
-                                placeholder="NIT"
+                                placeholder={values.isFinalConsumer ? "CF" : "100282115"}
                                 customInput={NumberInput}
                                 onValueChange={e => {
                                     form.setFieldValue(field.name, e.value)
                                 }}
+                                disabled={values.isFinalConsumer}
                             />
                         )
                     }}
                 </Field>
             </FormItem>
-        </>
+        </div>
     )
 }
 

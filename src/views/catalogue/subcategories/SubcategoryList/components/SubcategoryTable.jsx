@@ -6,7 +6,6 @@ import { FiPackage } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getSubcategories } from '../store/dataSlice'
 import { toggleDeleteConfirmation, setDrawerOpen, setSelectedSubcategory, setActionForm } from '../store/stateSlice'
-import useThemeClass from 'utils/hooks/useThemeClass'
 import SubcategoryDeleteConfirmation from './SubcategoryDeleteConfirmation'
 import SubcategoryEditDialog from './SubcategoryEditDialog'
 import { matchSorter } from 'match-sorter'
@@ -33,12 +32,12 @@ const ActionColumn = ({ row }) => {
 	}
 
 	return (
-		<div className="flex justify-end gap-2">
-			<button className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-colors" onClick={onEdit}>
-				<HiOutlinePencil />
+		<div className="flex justify-end gap-2 text-right">
+			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-colors opacity-60 hover:opacity-100" onClick={onEdit}>
+				<HiOutlinePencil className="text-lg" />
 			</button>
-			<button className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-red-600 text-slate-500 transition-colors" onClick={onDelete}>
-				<HiOutlineTrash />
+			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-red-600 text-slate-400 transition-colors opacity-60 hover:opacity-100" onClick={onDelete}>
+				<HiOutlineTrash className="text-lg" />
 			</button>
 		</div>
 	)
@@ -49,16 +48,13 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 	const { initialPageIndex, initialPageSize } = useSelector((state) => state.subcategories.data.tableData)
 	const rawData = useSelector((state) => state.subcategories.data.subcategoryList)
 
-	// Filter by Category ID if provided
 	const data = useMemo(() => {
 		if (!categoryIdFilter) return rawData
 		return rawData.filter(sub => sub.categoryId === categoryIdFilter || sub.category?.id === categoryIdFilter)
 	}, [rawData, categoryIdFilter])
 
 	useEffect(() => {
-		// Fetch if empty (or always to ensure freshness)
 		if (rawData.length === 0) dispatch(getSubcategories())
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch])
 
 	const filterTypes = useMemo(() => ({
@@ -80,27 +76,31 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 				const row = props.row.original
 				return (
 					<div className="flex items-center gap-3">
-						<Avatar size={32} shape="rounded" src={row.img} icon={<FiPackage />} className="bg-slate-100 text-slate-500" />
+						<Avatar size={32} shape="rounded" src={row.img} icon={<FiPackage />} className="bg-slate-50 text-slate-500 border border-slate-100" />
 						<div className="flex flex-col">
-							<span className="font-semibold text-slate-700">{row.name}</span>
-							<span className="text-[10px] text-slate-400">{row.code}</span>
+							<span className="font-semibold text-slate-800 text-sm">{row.name}</span>
 						</div>
 					</div>
 				)
 			},
 		},
-		// Show Category column ONLY if NOT filtering by category
+		{
+			Header: 'Código',
+			accessor: 'code',
+			sortable: true,
+			Cell: props => <span className="font-mono text-sm text-slate-600 tabular-nums">{props.value}</span>
+		},
 		!categoryIdFilter && {
 			Header: 'Categoría',
 			accessor: 'category.name',
 			sortable: true,
-			Cell: props => <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">{props.value}</span>
+			Cell: props => <span className="text-xs font-medium bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full border border-indigo-100 inline-block truncate max-w-[120px]">{props.value}</span>
 		},
 		{
 			Header: 'Slug',
 			accessor: 'slug',
 			sortable: true,
-			Cell: props => <span className="text-xs text-slate-400 italic">{props.value}</span>
+			Cell: props => <span className="text-xs text-slate-400 italic font-light truncate block max-w-[150px]">{props.value}</span>
 		},
 		{
 			Header: '',
@@ -117,7 +117,6 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 		prepareRow,
 		page,
 		gotoPage,
-		setPageSize,
 		state: { pageIndex, pageSize },
 		setGlobalFilter: setTableGlobalFilter
 	} = useTable(
@@ -130,7 +129,7 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 		},
 		useFilters,
 		useGlobalFilter,
-		useSortBy, // FIX: Moved before pagination
+		useSortBy,
 		usePagination,
 	)
 
@@ -145,13 +144,13 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 	return (
 		<>
 			<div className="overflow-x-auto h-full flex flex-col">
-				<Table {...getTableProps()}>
-					<THead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
+				<Table {...getTableProps()} className="w-full">
+					<THead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 w-full">
 						{headerGroups.map(headerGroup => (
 							<Tr {...headerGroup.getHeaderGroupProps()}>
 								{headerGroup.headers.map(column => (
-									<Th {...column.getHeaderProps(column.getSortByToggleProps())} className="text-[10px] uppercase font-bold text-slate-500 tracking-wider py-3 px-4">
-										<div className="flex items-center gap-1 cursor-pointer hover:text-slate-700">
+									<Th {...column.getHeaderProps(column.getSortByToggleProps())} className="text-xs uppercase font-bold text-slate-500 tracking-wide py-3 px-6 first:pl-6 last:pr-6 whitespace-nowrap">
+										<div className="flex items-center gap-1 cursor-pointer hover:text-slate-700 transition-colors">
 											{column.render('Header')}
 											<span><Sorter sort={column.isSortedDesc} /></span>
 										</div>
@@ -164,9 +163,9 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 						{page.map((row, i) => {
 							prepareRow(row)
 							return (
-								<Tr {...row.getRowProps()} className="hover:bg-slate-50 transition-colors h-14 border-b border-slate-100 last:border-0">
+								<Tr {...row.getRowProps()} className="hover:bg-slate-50 transition-colors h-14 border-b border-slate-100 last:border-0 group">
 									{row.cells.map(cell => {
-										return <Td {...cell.getCellProps()} className="px-4 py-2">{cell.render('Cell')}</Td>
+										return <Td {...cell.getCellProps()} className="px-6 py-2 group-hover:text-slate-700">{cell.render('Cell')}</Td>
 									})}
 								</Tr>
 							)
@@ -175,8 +174,8 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 							<Tr>
 								<Td className="text-center py-12" colSpan={columns.length}>
 									<div className='flex flex-col items-center justify-center space-y-3 text-slate-400'>
-										<HiExclamation className='w-6 h-6' />
-										<span className="text-xs">
+										<HiExclamation className='w-8 h-8 opacity-20' />
+										<span className="text-xs font-medium">
 											{categoryIdFilter ? 'Esta categoría no tiene subcategorías' : 'Sin resultados'}
 										</span>
 									</div>
@@ -187,7 +186,7 @@ const SubcategoryTable = ({ globalFilter, categoryIdFilter }) => {
 				</Table>
 			</div>
 
-			<div className="border-t border-slate-200 p-2 bg-white sticky bottom-0 z-10">
+			<div className="border-t border-slate-200 p-3 bg-white sticky bottom-0 z-10">
 				<Pagination
 					pageSize={pageSize}
 					currentPage={pageIndex + 1}

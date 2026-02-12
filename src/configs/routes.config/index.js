@@ -10,174 +10,184 @@ export const protectedRoutes = [
         key: 'home',
         path: '/home',
         component: React.lazy(() => import('views/Home')),
-        authority: [],
+        authority: [], // Accessible to all authenticated users
     },
+    {
+        key: 'unauthorized',
+        path: '/access-denied',
+        component: React.lazy(() => import('views/Unauthorized')),
+        authority: [], // Accessible to all
+    },
+    // CATALOGUE ROUTES - Read access for all, write for ADMIN + WAREHOUSE
     {
         key: 'catalogueMenu.products',
         path: '/catalogo/productos',
         component: React.lazy(() => import('views/catalogue/products/ProductList')),
-        authority: [],
+        authority: ['ADMIN', 'SALES', 'WAREHOUSE'], // All can view
     },
     {
         key: 'catalogueMenu.products.nuevo',
         path: '/catalogo/productos/nuevo',
         component: React.lazy(() => import('views/catalogue/products/ProductNew')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'], // Only admin and warehouse can create
     },
     {
         key: 'catalogueMenu.products.edit',
         path: '/catalogo/productos/:productId/edit',
         component: React.lazy(() => import('views/catalogue/products/ProductEdit')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'], // Only admin and warehouse can edit
     },
     {
         key: 'catalogueMenu.categories',
         path: '/catalogo/categorias',
         component: React.lazy(() => import('views/catalogue/Hub')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin
     },
     {
         key: 'catalogueMenu.subcategories',
         path: '/catalogo/subcategorias',
         component: React.lazy(() => import('views/catalogue/Hub')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin
     },
     {
         key: 'catalogueMenu.brands',
         path: '/catalogo/marcas',
         component: React.lazy(() => import('views/catalogue/Hub')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin
     },
-    //ORGANIZATION ROUTES
+    // ORGANIZATION ROUTES - Admin only
     {
         key: 'organizationMenu.employees',
         path: '/organizacion/empleados',
         component: React.lazy(() => import('views/organization/employees/EmployeeList')),
-        authority: [],
+        authority: ['ADMIN'],
     },
     {
         key: 'organizationMenu.suppliers',
         path: '/organizacion/proveedores',
         component: React.lazy(() => import('views/organization/suppliers/SupplierList')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'], // Warehouse can view suppliers
     },
     {
         key: 'organizationMenu.users',
         path: '/organizacion/usuarios',
         component: React.lazy(() => import('views/organization/users/UserList')),
-        authority: [],
+        authority: ['ADMIN'],
     },
-    //CLIENTS ROUTES
+    // CLIENTS ROUTES - Admin and Sales
     {
         key: 'clientMenu.customers',
         path: '/cliente/personas',
         component: React.lazy(() => import('views/client/customers/CustomerList')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'],
     },
     {
         key: 'clientMenu.enterprises',
         path: '/cliente/empresas',
         component: React.lazy(() => import('views/client/enterprises/EnterpriseList')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'],
     },
-    //TRANSACTION ROUTES
-    //WAREHOUSE ROUTES
+    // WAREHOUSE ROUTES - Admin and Warehouse
     {
         key: 'warehouseMenu.warehouses',
         path: '/warehouses',
         component: React.lazy(() => import('views/warehouses/WarehouseListPage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
     {
         key: 'warehouseMenu.warehouses.stock',
         path: '/warehouses/:id/stock',
         component: React.lazy(() => import('views/warehouses/WarehouseStockPage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE', 'SALES'], // Sales can view, not edit
     },
     {
         key: 'inventory.transfers',
         path: '/inventory/transfers',
         component: React.lazy(() => import('views/inventory/transfers/TransfersListPage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
     {
         key: 'inventory.transfers.new',
         path: '/inventory/transfers/new',
         component: React.lazy(() => import('views/inventory/transfers/TransferCreatePage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
     {
         key: 'inventory.transfers.detail',
         path: '/inventory/transfers/:id',
         component: React.lazy(() => import('views/inventory/transfers/TransferDetailPage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
     {
         key: 'warehouseMenu.stockIn',
         path: '/inventory/in',
         component: React.lazy(() => import('views/inventory/StockInPage')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'], // Only admin and warehouse can reload stock
     },
+    // PURCHASES ROUTES - Admin and Warehouse
     {
         key: 'warehouseMenu.purchases',
         path: '/almacen/compras',
         component: React.lazy(() => import('views/transaction/purchases/PurchasList')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
     {
         key: 'warehouseMenu.purchases.new',
         path: '/almacen/compras/registrar',
         component: React.lazy(() => import('views/transaction/purchases/PurchasNew')),
-        authority: [],
+        authority: ['ADMIN', 'WAREHOUSE'],
     },
+    // CASHIERS ROUTES - Admin only
     {
         key: 'warehouseMenu.cashiers',
         path: '/almacen/cajas',
         component: React.lazy(() => import('views/transaction/cashiers/CashierList')),
-        authority: [],
+        authority: ['ADMIN'], // Admin manages cashiers
     },
+    // TRANSACTIONS ROUTES - Admin and Sales
     {
         key: 'transactionMenu.openings',
         path: '/transacciones/apertura-de-caja',
         component: React.lazy(() => import('views/transaction/openings/OpeningList')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'], // Cash register operations
     },
     {
         key: 'transactionMenu.sales.opening',
         path: '/transacciones/mis-ventas',
         component: React.lazy(() => import('views/transaction/sales/SaleList')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'], // My sales
     },
     {
         key: 'transactionMenu.sales.opening.new',
         path: '/transacciones/nueva-venta',
         component: React.lazy(() => import('views/transaction/sales/SaleNew')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'], // New sale
     },
     {
         key: 'transactionMenu.sales.print',
         path: '/transacciones/ventas/:saleId/imprimir',
         component: React.lazy(() => import('views/transaction/sales/SalePrint')),
-        authority: [],
+        authority: ['ADMIN', 'SALES'], // Print sale
     },
     {
         key: 'transactionMenu.sales.report',
         path: '/transacciones/historial-ventas',
         component: React.lazy(() => import('views/transaction/sales/SaleReport')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin can see all sales
     },
     {
         key: 'transactionMenu.configs',
         path: '/transacciones/configuracion-de-ventas',
         component: React.lazy(() => import('views/transaction/configs/ConfigNew')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin configures
     },
     {
         key: 'transactionMenu.configs.edit',
         path: '/transacciones/configuracion-de-ventas/:configId/editar',
         component: React.lazy(() => import('views/transaction/configs/ConfigEdit')),
-        authority: [],
+        authority: ['ADMIN'], // Only admin configures
     },
+    // NOTES - All authenticated
     {
         key: 'notes',
         path: '/notes',

@@ -99,9 +99,9 @@ const getStockBadge = (stock, stockMin) => {
 const ProductTable = () => {
 
 	const dispatch = useDispatch()
-	const { initialPageIndex, initialPageSize, total } = useSelector((state) => state.products.data.tableData)
-	const loading = useSelector((state) => state.products.data.loading)
-	const data = useSelector((state) => state.products.data.productList)
+	const { initialPageIndex, initialPageSize, total } = useSelector((state) => state.productList.data.tableData)
+	const loading = useSelector((state) => state.productList.data.loading)
+	const data = useSelector((state) => state.productList.data.productList)
 
 	useEffect(() => {
 		fetchData()

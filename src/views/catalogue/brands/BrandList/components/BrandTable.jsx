@@ -6,7 +6,6 @@ import { FiPackage } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getBrands } from '../store/dataSlice'
 import { toggleDeleteConfirmation, setDrawerOpen, setSelectedBrand, setActionForm } from '../store/stateSlice'
-import useThemeClass from 'utils/hooks/useThemeClass'
 import BrandDeleteConfirmation from './BrandDeleteConfirmation'
 import BrandEditDialog from './BrandEditDialog'
 import { matchSorter } from 'match-sorter'
@@ -33,12 +32,12 @@ const ActionColumn = ({ row }) => {
 	}
 
 	return (
-		<div className="flex justify-end gap-2">
-			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-colors" onClick={onEdit}>
-				<HiOutlinePencil />
+		<div className="flex justify-end gap-2 text-right">
+			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-colors opacity-60 hover:opacity-100" onClick={onEdit}>
+				<HiOutlinePencil className="text-lg" />
 			</button>
-			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-red-600 text-slate-500 transition-colors" onClick={onDelete}>
-				<HiOutlineTrash />
+			<button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-red-600 text-slate-400 transition-colors opacity-60 hover:opacity-100" onClick={onDelete}>
+				<HiOutlineTrash className="text-lg" />
 			</button>
 		</div>
 	)
@@ -73,7 +72,10 @@ const BrandTable = ({ globalFilter }) => {
 				return (
 					<div className="flex items-center gap-3">
 						<Avatar size={32} shape="rounded" src={row.img} icon={<FiPackage />} className="bg-amber-50 text-amber-600 border border-amber-100" />
-						<span className="font-semibold text-slate-700">{row.name}</span>
+						<div className="flex flex-col">
+							<span className="font-semibold text-slate-800 text-sm">{row.name}</span>
+							<span className="text-[10px] text-slate-400 font-mono tabular-nums">{row.code}</span>
+						</div>
 					</div>
 				)
 			},
@@ -82,13 +84,13 @@ const BrandTable = ({ globalFilter }) => {
 			Header: 'Código',
 			accessor: 'code',
 			sortable: true,
-			Cell: props => <span className="font-mono text-slate-500 text-xs">{props.value}</span>
+			Cell: props => <span className="font-mono text-sm text-slate-600 tabular-nums">{props.value}</span>
 		},
 		{
 			Header: 'Slug',
 			accessor: 'slug',
 			sortable: true,
-			Cell: props => <span className="text-slate-400 italic text-sm">{props.value}</span>
+			Cell: props => <span className="text-xs text-slate-400 italic max-w-[200px] truncate block">{props.value}</span>
 		},
 		{
 			Header: '',
@@ -118,7 +120,7 @@ const BrandTable = ({ globalFilter }) => {
 		},
 		useFilters,
 		useGlobalFilter,
-		useSortBy, // FIX: Placed before pagination
+		useSortBy,
 		usePagination,
 	)
 
@@ -140,14 +142,14 @@ const BrandTable = ({ globalFilter }) => {
 
 	return (
 		<>
-			<div className="overflow-x-auto min-h-[400px]">
-				<Table {...getTableProps()}>
-					<THead className="bg-slate-50 border-b border-slate-200">
+			<div className="overflow-x-auto h-full flex flex-col">
+				<Table {...getTableProps()} className="w-full">
+					<THead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 w-full">
 						{headerGroups.map(headerGroup => (
 							<Tr {...headerGroup.getHeaderGroupProps()}>
 								{headerGroup.headers.map(column => (
-									<Th {...column.getHeaderProps(column.getSortByToggleProps())} className="text-xs uppercase font-bold text-slate-500 tracking-wider py-4 px-6">
-										<div className="flex items-center gap-1 cursor-pointer hover:text-slate-700">
+									<Th {...column.getHeaderProps(column.getSortByToggleProps())} className="text-xs uppercase font-bold text-slate-500 tracking-wide py-3 px-6 first:pl-6 last:pr-6 whitespace-nowrap">
+										<div className="flex items-center gap-1 cursor-pointer hover:text-slate-700 transition-colors">
 											{column.render('Header')}
 											<span><Sorter sort={column.isSortedDesc} /></span>
 										</div>
@@ -160,9 +162,9 @@ const BrandTable = ({ globalFilter }) => {
 						{page.map((row, i) => {
 							prepareRow(row)
 							return (
-								<Tr {...row.getRowProps()} className="hover:bg-slate-50 transition-colors h-16 border-b border-slate-100 last:border-0">
+								<Tr {...row.getRowProps()} className="hover:bg-slate-50 transition-colors h-14 border-b border-slate-100 last:border-0 group">
 									{row.cells.map(cell => {
-										return <Td {...cell.getCellProps()} className="px-6 py-4">{cell.render('Cell')}</Td>
+										return <Td {...cell.getCellProps()} className="px-6 py-2 group-hover:text-slate-700">{cell.render('Cell')}</Td>
 									})}
 								</Tr>
 							)
@@ -171,8 +173,8 @@ const BrandTable = ({ globalFilter }) => {
 							<Tr>
 								<Td className="text-center py-12" colSpan={columns.length}>
 									<div className='flex flex-col items-center justify-center space-y-3 text-slate-400'>
-										<HiExclamation className='w-8 h-8' />
-										<span className="text-sm">Sin resultados</span>
+										<HiExclamation className='w-8 h-8 opacity-20' />
+										<span className="text-xs font-medium">Sin resultados</span>
 									</div>
 								</Td>
 							</Tr>
@@ -181,7 +183,7 @@ const BrandTable = ({ globalFilter }) => {
 				</Table>
 			</div>
 
-			<div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
+			<div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white sticky bottom-0 z-10">
 				<Pagination
 					pageSize={pageSize}
 					currentPage={pageIndex + 1}

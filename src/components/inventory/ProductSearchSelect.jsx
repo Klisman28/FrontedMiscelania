@@ -3,12 +3,13 @@ import { Input, Spinner, Button } from 'components/ui'
 import { HiSearch, HiPlus } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { searchProducts, resetSearchResults } from 'store/products/productsSlice'
+import { CURRENCY_SYMBOL } from 'utils/currency'
 
 const ProductSearchSelect = ({ onSelect, onCreateClick, selectedProduct }) => {
     const dispatch = useDispatch()
     const [searchTerm, setSearchTerm] = useState('')
     const [showDropdown, setShowDropdown] = useState(false)
-    const { searchResults, loadingSearch } = useSelector((state) => state.products)
+    const { searchResults = [], loadingSearch } = useSelector((state) => state.products || {})
     const searchTimeoutRef = useRef(null)
     const wrapperRef = useRef(null)
 
@@ -71,7 +72,7 @@ const ProductSearchSelect = ({ onSelect, onCreateClick, selectedProduct }) => {
                     }
                 }}
                 onFocus={() => {
-                    if (searchTerm || searchResults.length > 0) {
+                    if (searchTerm || searchResults?.length > 0) {
                         setShowDropdown(true)
                     }
                 }}
@@ -83,7 +84,7 @@ const ProductSearchSelect = ({ onSelect, onCreateClick, selectedProduct }) => {
                         <div className="flex items-center justify-center p-4">
                             <Spinner size={30} />
                         </div>
-                    ) : searchResults.length > 0 ? (
+                    ) : searchResults?.length > 0 ? (
                         <>
                             <div className="py-1">
                                 {searchResults.map((product) => (
@@ -94,7 +95,7 @@ const ProductSearchSelect = ({ onSelect, onCreateClick, selectedProduct }) => {
                                     >
                                         <div className="font-semibold">{product.name}</div>
                                         <div className="text-xs text-gray-500">
-                                            SKU: {product.sku} | Precio: ${product.price}
+                                            SKU: {product.sku} | Precio: {CURRENCY_SYMBOL}{product.price} | Stock: {product.stock || 0}
                                         </div>
                                     </div>
                                 ))}
