@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Input, Spinner, Button, toast, Notification } from 'components/ui'
 import { HiSearch, HiX } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
-import { searchProducts } from '../store/formSlice'
+import { searchProducts, setSearchTerm as setGlobalSearchTerm } from '../store/formSlice'
 
 /**
  * ProductQuickAddBar
@@ -36,6 +36,12 @@ const ProductQuickAddBar = ({
     const [isSearching, setIsSearching] = useState(false)
 
     const productList = useSelector((state) => state.saleForm.data.productList)
+
+
+    // Sync local search term to Redux for global filtering (e.g. in ProductCatalogue)
+    useEffect(() => {
+        dispatch(setGlobalSearchTerm(searchTerm))
+    }, [searchTerm, dispatch])
 
     // Auto-focus al montar (si está activado)
     useEffect(() => {

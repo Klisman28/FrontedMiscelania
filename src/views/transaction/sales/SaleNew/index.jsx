@@ -9,7 +9,8 @@ import reducer from './store'
 import { useDispatch, useSelector } from 'react-redux'
 import isEmpty from 'lodash/isEmpty'
 import { getOpeningCurrent } from './store/newSlice'
-import { HiInformationCircle } from 'react-icons/hi'
+import { HiInformationCircle, HiOutlineShoppingCart, HiOutlineCube } from 'react-icons/hi'
+import { setSideNavCollapse } from 'store/theme/themeSlice'
 
 injectReducer('saleNew', reducer)
 
@@ -19,6 +20,14 @@ const SaleNew = () => {
 	const navigate = useNavigate()
 
 	const openingData = useSelector((state) => state.saleNew.data.openingData)
+
+	// Auto-collapse sidebar
+	useEffect(() => {
+		dispatch(setSideNavCollapse(true))
+		return () => {
+			dispatch(setSideNavCollapse(false))
+		}
+	}, [dispatch])
 
 	const handleFormSubmit = async (values) => {
 		const products = values.products.map((product) => (
@@ -42,7 +51,8 @@ const SaleNew = () => {
 			igv: taxValue,
 			total: total,
 			status: 1,
-			openingId: openingData?.id
+			openingId: openingData?.id,
+			warehouseId: values.warehouseId
 		}
 
 		if (values.type !== 'Ticket') {
@@ -92,13 +102,29 @@ const SaleNew = () => {
 
 	return (
 		<Container className="h-full">
-			<div className="mb-4">
-				<div className="flex items-center mb-2">
-					<h3>
-						<span>Registrar Venta</span>
-					</h3>
+			<div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div className="flex items-center gap-4">
+					<div className="bg-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none bg-gradient-to-br from-indigo-500 to-indigo-700 text-white">
+						<HiOutlineShoppingCart className="text-2xl" />
+					</div>
+					<div>
+						<h3 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight leading-none mb-1">
+							Punto de Venta
+						</h3>
+						<p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+							Nueva Transacción
+						</p>
+					</div>
 				</div>
+				{/* Optional: Add Shift Info or Time here if needed */}
+				{!isEmpty(openingData) && (
+					<div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100">
+						<div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+						<span className="text-xs font-bold">Caja Abierta</span>
+					</div>
+				)}
 			</div>
+
 			{!isEmpty(openingData) ?
 				<SaleForm
 					onFormSubmit={handleFormSubmit}

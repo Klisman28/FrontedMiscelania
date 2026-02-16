@@ -1,7 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { FormContainer, Button, Card } from 'components/ui'
 import { StickyFooter } from 'components/shared'
-import { AiOutlineSave } from 'react-icons/ai'
+import { AiOutlineSave, AiOutlineStop } from 'react-icons/ai'
+import { HiOutlineCreditCard, HiOutlineTrash } from 'react-icons/hi'
 import * as Yup from 'yup'
 import dayjs from 'dayjs'
 import { toast, Notification } from 'components/ui'
@@ -14,8 +16,10 @@ import SearchProduct from './components/SearchProducts'
 import ProductQuickAddBar from './components/ProductQuickAddBar'
 import KeyboardShortcutsHelper from './components/KeyboardShortcutsHelper'
 import PaymentSummary from './components/PaymentSummary'
+import ProductCatalogue from './components/ProductCatalogue'
 import ReceiptPrintView from '../shared/PrintBoleta'
 import SaleFormC from '../SaleForm/store/SaleForm.css'
+import { getWarehouses } from 'store/warehouses/warehousesSlice'
 // import ProductsSidebar from './components/ProductsSidebar' // Si lo usas
 // import OptionsFields from './OptionsFields'               // Si lo usas
 
@@ -73,6 +77,16 @@ const SaleForm = (props) => {
     const formRef = useRef(null)
     const [printData, setPrintData] = useState(null)
 
+    // Redux
+    const dispatch = useDispatch()
+    const warehouseList = useSelector((state) => state.warehouses?.warehouses || [])
+    const user = useSelector((state) => state.auth.user)
+
+    // Initial Data Fetch
+    useEffect(() => {
+        dispatch(getWarehouses())
+    }, [dispatch])
+
     // Creamos la ref local para apuntar al <form> que se va a imprimir
 
     // Ejemplo de data que quisieras imprimir
@@ -86,7 +100,7 @@ const SaleForm = (props) => {
         incrementarTicket(setValue, data.number);
     };
     const {
-        formState: { errors },
+        formState: { errors, isSubmitting },
         handleSubmit,
         control,
         setValue,
@@ -98,6 +112,33 @@ const SaleForm = (props) => {
         resolver: yupResolver(validationSchema),
         defaultValues: initialData
     })
+
+    // Watch for changes to calculate live total for the button
+    const watchedProducts = watch('products', [])
+    const totalAmount = watchedProducts.reduce((acc, curr) => acc + (parseFloat(curr.subtotal) || 0), 0)
+
+    // Warehouse Resolution Logic
+    useEffect(() => {
+        if (warehouseList.length > 0) {
+            // Check if form already has warehouseId
+            const currentId = getValues('warehouseId')
+            if (!currentId) {
+                // Priority 1: User default
+                if (user?.defaultWarehouseId) {
+                    const found = warehouseList.find(w => w.id === user.defaultWarehouseId && w.status === 'Activo')
+                    if (found) {
+                        setValue('warehouseId', found.id)
+                        return
+                    }
+                }
+                // Priority 2: First active warehouse
+                const firstActive = warehouseList.find(w => w.status === 'Activo')
+                if (firstActive) {
+                    setValue('warehouseId', firstActive.id)
+                }
+            }
+        }
+    }, [warehouseList, user, setValue, getValues])
 
     // Atajo de teclado Ctrl+Enter para guardar
     useEffect(() => {
@@ -207,109 +248,114 @@ const SaleForm = (props) => {
         <form ref={formRef} onSubmit={handleSubmit(handleSaveAndIncrement)} >
             <FormContainer className="sale-form">
                 {/* Contenedor principal con varias columnas */}
-                <div className="sf-layout">
+                {/* Contenedor principal Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* Panel lateral (opcional) */}
-                    {/* <ProductsSidebar handleAppendProduct={handleAppendProduct} /> */}
+                    {/* Columna Izquierda: Búsqueda y Catálogo (2 columnas) */}
+                    <div className="lg:col-span-2 flex flex-col gap-4">
+                        <Card className="flex-1 shadow-sm border-gray-200">
+                            <KeyboardShortcutsHelper />
 
-                    <Card className="sf-left-card">
-                        {/* Helper de atajos de teclado */}
-                        <KeyboardShortcutsHelper />
-
-                        {/* Barra de búsqueda/escaneo tipo POS (nuevo flujo principal) */}
-                        <div className="sf-search mb-4">
-                            <ProductQuickAddBar
-                                handleAppendProduct={handleAppendProduct}
-                                currentProducts={fields}
-                                warehouseId={watch('warehouseId')}
-                                autoFocus={true}
-                            />
-                            {/* Modal de búsqueda avanzada (fallback opcional) */}
-                            <div className="mt-2">
-                                <SearchProduct handleAppendProduct={handleAppendProduct}>
-                                    <Button
-                                        size="sm"
-                                        variant="plain"
-                                        className="w-full text-sm"
-                                    >
-                                        o buscar con filtros avanzados...
-                                    </Button>
-                                </SearchProduct>
+                            {/* Barra de búsqueda */}
+                            <div className="mb-4">
+                                <ProductQuickAddBar
+                                    handleAppendProduct={handleAppendProduct}
+                                    currentProducts={fields}
+                                    warehouseId={watch('warehouseId')}
+                                    autoFocus={true}
+                                />
+                                <div className="mt-2 text-center">
+                                    <SearchProduct handleAppendProduct={handleAppendProduct}>
+                                        <Button
+                                            size="sm"
+                                            variant="plain"
+                                            className="w-full text-xs text-gray-400 hover:text-indigo-600"
+                                        >
+                                            o buscar con filtros avanzados (F2)...
+                                        </Button>
+                                    </SearchProduct>
+                                </div>
                             </div>
-                        </div>
-                        <div className="sf-content">
-                            {/* Lista de productos en la orden */}
-                            <div className="sf-products-list" >
-                                <OrderProducts
-                                    errors={errors}
-                                    fields={fields}
-                                    remove={remove}
+
+                            {/* Catálogo Visual */}
+                            <ProductCatalogue onProductSelect={handleAppendProduct} />
+                        </Card>
+                    </div>
+
+                    {/* Columna Derecha: Recibo / Orden (1 columna) */}
+                    <div className="lg:col-span-1">
+                        <Card className="h-full shadow-lg border-gray-200 sticky top-4 flex flex-col" bodyClass="flex flex-col h-full p-0">
+
+                            {/* 1. Cabecera del Ticket (Info Básica) */}
+                            <div className="p-4 bg-gray-50/50">
+                                <BasicInfoFields
                                     control={control}
-                                    watch={watch}
+                                    errors={errors}
                                     setValue={setValue}
-                                    getValues={getValues}
-                                    handleChangeQuantity={handleChangeQuantity}
+                                    watch={watch}
+                                    resetField={resetField}
                                 />
                             </div>
 
-                            {/* Opciones de IGV / Resumen de pago */}
-                            <div className="sf-subtotal-row">
-                                <PaymentSummary control={control} watch={watch} />
+                            {/* 2. Cuerpo del Ticket (Lista de Productos) */}
+                            <div className="flex-1 overflow-y-auto min-h-[300px] border-t border-b border-gray-100 bg-white">
+                                <div className="p-0">
+                                    <OrderProducts
+                                        errors={errors}
+                                        fields={fields}
+                                        remove={remove}
+                                        control={control}
+                                        watch={watch}
+                                        setValue={setValue}
+                                        getValues={getValues}
+                                        handleChangeQuantity={handleChangeQuantity}
+                                    />
+                                </div>
                             </div>
 
-                        </div>
-                    </Card>
-
-                    {/* Columna derecha: información básica del comprobante */}
-                    <div className="sf-right-panel hide-on-print">
-                        <BasicInfoFields
-                            control={control}
-                            errors={errors}
-                            setValue={setValue}
-                            watch={watch}
-                            resetField={resetField}
-                        />
+                            {/* 3. Footer del Ticket (Pagos) */}
+                            <div className="p-4 bg-gray-50/80">
+                                <PaymentSummary control={control} watch={watch} />
+                            </div>
+                        </Card>
                     </div>
                 </div>
 
-                {/* Footer con botones de acción */}
+                {/* Footer con botones de acción POS */}
                 <StickyFooter
-                    className="-mx-8 px-8 flex items-center justify-end py-4"
-                    stickyClass="border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                    className="-mx-8 px-8 flex items-center justify-between py-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-upper"
+                    stickyClass="border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-upper"
                 >
-                    <div className="md:flex sm:flex-row sm:flex-wrap items-center hide-on-print">
-                        {/* Botón Descartar */}
-                        <Button
-                            size="sm"
-                            className="ltr:mr-1 rtl:ml-1"
-                            onClick={() => onDiscard?.()}
-                            type="button"
-                        >
-                            Descartar
-                        </Button>
-
-                        {/* Botón para imprimir */}
-                        <Button
-                            size="sm"
-                            className="ltr:mr-1 rtl:ml-1"
-                            onClick={onClickPrint}
-                            type="button"
-                        >
-                            Imprimir
-                            <div style={{ display: 'none' }}>
-                                <ReceiptPrintView data={printData} ref={printRef} />
+                    <div className="flex items-center">
+                        <div className="md:flex items-center gap-4">
+                            <div className="hidden md:block text-gray-500 text-sm">
+                                {watchedProducts.length} productos en orden
                             </div>
-                        </Button>
+                            <Button
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                icon={<HiOutlineTrash />}
+                                onClick={() => onDiscard?.()}
+                                type="button"
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
+                    </div>
 
-                        {/* Botón para guardar */}
+                    <div className="md:flex items-center gap-4">
                         <Button
-                            size="sm"
+                            size="lg"
                             variant="solid"
-                            loading={false}
-                            icon={<AiOutlineSave />}
+                            loading={isSubmitting}
+                            icon={<HiOutlineCreditCard className="text-xl" />}
+                            className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white min-w-[200px] shadow-lg hover:shadow-indigo-500/50 transition-all transform hover:-translate-y-0.5 rounded-xl text-lg font-bold tracking-wide"
                             type="submit"
                         >
-                            {typeAction === 'create' ? ' Guardar' : 'Actualizar'}
+                            <span className="mr-2">COBRAR</span>
+                            <span className="bg-white/20 px-2 py-0.5 rounded text-white font-mono text-base">
+                                Q{totalAmount.toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
                         </Button>
                     </div>
                 </StickyFooter>

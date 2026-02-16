@@ -2,8 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { apiGetCustomers } from 'services/client/CustomerService'
 import { apiGetEnterprises } from 'services/client/EnterpriseService'
 import { apiGetConfigs } from 'services/transaction/ConfigService'
-import { apiSearchProducts } from 'services/catalogue/ProductService'
+import { apiSearchProducts, apiGetProducts } from 'services/catalogue/ProductService'
+import { apiGetSubcategories } from 'services/catalogue/SubcategoryService'
 import { apiGetNextTicket } from 'services/transaction/TicketService'
+import { apiGetBrands } from 'services/catalogue/BrandService'
+import { apiGetCategories } from 'services/catalogue/CategoryService'
 
 export const getCustomers = createAsyncThunk(
     'transaction/sales/getCustomers',
@@ -25,6 +28,38 @@ export const searchProducts = createAsyncThunk(
     'transaction/sales/searchProducts',
     async (query) => {
         const response = await apiSearchProducts(query)
+        return response.data
+    }
+)
+
+export const getAllProducts = createAsyncThunk(
+    'transaction/sales/getAllProducts',
+    async () => {
+        const response = await apiGetProducts()
+        return response.data
+    }
+)
+
+export const getSubcategories = createAsyncThunk(
+    'transaction/sales/getSubcategories',
+    async () => {
+        const response = await apiGetSubcategories()
+        return response.data
+    }
+)
+
+export const getBrands = createAsyncThunk(
+    'transaction/sales/getBrands',
+    async () => {
+        const response = await apiGetBrands()
+        return response.data
+    }
+)
+
+export const getCategories = createAsyncThunk(
+    'transaction/sales/getCategories',
+    async () => {
+        const response = await apiGetCategories()
         return response.data
     }
 )
@@ -54,8 +89,22 @@ const newSlice = createSlice({
         enterpriseList: [],
         productList: [],
         configData: [],
+        searchTerm: '', // Global search term for filtering
+        catalogue: {
+            categories: [],
+            subcategories: [],
+            brands: [],
+            products: []
+        }
     },
-    reducers: {},
+    reducers: {
+        setSearchTerm: (state, action) => {
+            state.searchTerm = action.payload
+        },
+        setProductList: (state, action) => {
+            state.productList = action.payload
+        }
+    },
     extraReducers: {
         [getCustomers.fulfilled]: (state, action) => {
             state.customerList = action.payload.data.customers
@@ -72,7 +121,25 @@ const newSlice = createSlice({
         [getNextTicket.fulfilled]: (state, action) => {
             state.nextTicket = action.payload
         },
+        [getAllProducts.fulfilled]: (state, action) => {
+            const payload = action.payload
+            state.catalogue.products = payload?.data?.products ?? payload?.products ?? []
+        },
+        [getSubcategories.fulfilled]: (state, action) => {
+            const payload = action.payload
+            state.catalogue.subcategories = Array.isArray(payload) ? payload : (payload.data || payload.subcategories || [])
+        },
+        [getBrands.fulfilled]: (state, action) => {
+            const payload = action.payload
+            state.catalogue.brands = Array.isArray(payload) ? payload : (payload.data || payload.brands || [])
+        },
+        [getCategories.fulfilled]: (state, action) => {
+            const payload = action.payload
+            state.catalogue.categories = Array.isArray(payload) ? payload : (payload.data || payload.categories || [])
+        }
     }
 })
+
+export const { setSearchTerm, setProductList } = newSlice.actions
 
 export default newSlice.reducer
