@@ -1,6 +1,7 @@
 import React from 'react'
+import { Toaster } from 'react-hot-toast'
 import { Provider } from 'react-redux'
-import { BrowserRouter  } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import store, { persistor } from './store'
 import Theme from 'components/template/Theme'
@@ -26,6 +27,7 @@ function App() {
 			<PersistGate loading={null} persistor={persistor}>
 				<BrowserRouter history={history}>
 					<Theme>
+						<Toaster position="top-right" />
 						<Layout />
 					</Theme>
 				</BrowserRouter >

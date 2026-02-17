@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Card, Button, FormContainer, FormItem, Select, Input, Notification, toast, Table } from 'components/ui'
+import { Card, Button, FormContainer, FormItem, Select, Input, Table } from 'components/ui'
+import toast from 'react-hot-toast'
 import { HiOutlineArrowLeft, HiOutlineSearch, HiTrash } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 import { Field, Form, Formik } from 'formik'
@@ -59,22 +60,14 @@ const TransferCreatePage = () => {
 
     useEffect(() => {
         if (createSuccess) {
-            toast.push(
-                <Notification title="Transferencia Creada" type="success">
-                    La transferencia se ha registrado exitosamente.
-                </Notification>
-            )
+            toast.success('Transferencia registrada exitosamente')
             navigate('/inventory/transfers')
         }
     }, [createSuccess, navigate])
 
     useEffect(() => {
         if (errorCreate) {
-            toast.push(
-                <Notification title="Error" type="danger">
-                    {errorCreate}
-                </Notification>
-            )
+            toast.error(errorCreate)
         }
     }, [errorCreate])
 
@@ -121,7 +114,7 @@ const TransferCreatePage = () => {
                 // Final validation before submit
                 const invalidItems = values.items.some(item => item.quantity > item.available)
                 if (invalidItems) {
-                    toast.push(<Notification type="danger">Algunos productos superan el stock disponible</Notification>)
+                    toast.error('Algunos productos superan el stock disponible')
                     setSubmitting(false)
                     return
                 }

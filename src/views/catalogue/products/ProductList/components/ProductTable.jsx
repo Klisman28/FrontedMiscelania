@@ -17,14 +17,14 @@ const inventoryStatusColor = {
 	2: { label: 'Agotado', dotClass: 'bg-red-500', textClass: 'text-red-600 bg-red-100' },
 }
 
-const ActionColumn = ({ row }) => {
+const ActionColumn = ({ row, onEdit }) => {
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { textTheme } = useThemeClass()
 
-	const onEdit = () => {
-		navigate(`${row.id}/edit`)
+	const onEditClick = () => {
+		onEdit(row)
 	}
 
 	const onDelete = () => {
@@ -37,7 +37,7 @@ const ActionColumn = ({ row }) => {
 			<Tooltip title="Editar">
 				<button
 					className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-gray-600 transition-colors"
-					onClick={onEdit}
+					onClick={onEditClick}
 				>
 					<HiOutlinePencil className="text-lg" />
 				</button>
@@ -96,7 +96,7 @@ const getStockBadge = (stock, stockMin) => {
 }
 
 
-const ProductTable = () => {
+const ProductTable = ({ onEdit, onAdd }) => {
 
 	const dispatch = useDispatch()
 	const { initialPageIndex, initialPageSize, total } = useSelector((state) => state.productList.data.tableData)
@@ -261,9 +261,9 @@ const ProductTable = () => {
 			Header: 'Acciones',
 			id: 'action',
 			accessor: (row) => row,
-			Cell: props => <ActionColumn row={props.row.original} />
+			Cell: props => <ActionColumn row={props.row.original} onEdit={onEdit} />
 		}
-	], [])
+	], [onEdit])
 
 	return (
 		<div className="h-full">
@@ -274,7 +274,7 @@ const ProductTable = () => {
 				skeletonAvatarProps={{ className: 'rounded-md' }}
 				loading={loading}
 				pagingData={tableData}
-				tableTools={<ProductTableTools />}
+				tableTools={<ProductTableTools onAdd={onAdd} />}
 				title="Productos"
 			/>
 			<ProductDeleteConfirmation />

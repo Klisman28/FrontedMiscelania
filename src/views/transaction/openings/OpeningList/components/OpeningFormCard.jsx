@@ -3,7 +3,7 @@ import { Card, Input, Button, FormItem } from 'components/ui'
 import { HiCash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { postOpening, getOpeningCurrent } from '../store/dataSlice'
-import { toast, Notification } from 'components/ui'
+import toast from 'react-hot-toast'
 
 /**
  * OpeningFormCard
@@ -68,29 +68,14 @@ const OpeningFormCard = ({ cashiers = [] }) => {
             const { message, type } = res.payload || {}
 
             if (type === 'success') {
-                await dispatch(getOpeningCurrent())
-                toast.push(
-                    <Notification title="¡Apertura Exitosa!" type="success" duration={3000}>
-                        {message || 'La caja se ha aperturado correctamente'}
-                    </Notification>,
-                    { placement: 'top-center' }
-                )
+                dispatch(getOpeningCurrent())
+                toast.success(message || 'La caja se ha aperturado correctamente')
                 handleClear()
             } else {
-                toast.push(
-                    <Notification title="Error al Aperturar" type="danger" duration={3000}>
-                        {message || 'No se pudo aperturar la caja'}
-                    </Notification>,
-                    { placement: 'top-center' }
-                )
+                toast.error(message || 'No se pudo aperturar la caja')
             }
         } catch (error) {
-            toast.push(
-                <Notification title="Error" type="danger" duration={3000}>
-                    Ocurrió un error al aperturar la caja
-                </Notification>,
-                { placement: 'top-center' }
-            )
+            toast.error('Ocurrió un error al aperturar la caja')
         } finally {
             setIsSubmitting(false)
         }

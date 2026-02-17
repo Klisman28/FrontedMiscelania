@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Button, FormItem, FormContainer, Input, Select, Notification, toast } from 'components/ui'
+import { Card, Button, FormItem, FormContainer, Input, Select } from 'components/ui'
+import toast from 'react-hot-toast'
 import { AdaptableCard } from 'components/shared'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -54,12 +55,7 @@ const StockInPage = () => {
 
     useEffect(() => {
         if (stockInSuccess) {
-            toast.push(
-                <Notification title="Éxito" type="success">
-                    Stock ingresado exitosamente.
-                </Notification>,
-                { placement: 'top-center' }
-            )
+            toast.success('Stock ingresado exitosamente.')
 
             // Reset form and state
             reset()
@@ -77,12 +73,7 @@ const StockInPage = () => {
 
     useEffect(() => {
         if (stockInError) {
-            toast.push(
-                <Notification title="Error" type="danger">
-                    {stockInError}
-                </Notification>,
-                { placement: 'top-center' }
-            )
+            toast.error(stockInError)
             dispatch(resetStockInState())
         }
     }, [stockInError, dispatch])

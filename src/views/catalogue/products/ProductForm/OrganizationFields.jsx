@@ -6,8 +6,8 @@ import { useSelector } from 'react-redux'
 const OrganizationFields = (props) => {
   const { values, touched, errors } = props
 
-  const subcategoryList = useSelector((state) => state.productForm?.data?.subcategoryList ?? [])
-  const brandList = useSelector((state) => state.productForm?.data?.brandList ?? [])
+  const subcategoryList = useSelector((state) => state.catalogs?.subcategories ?? [])
+  const brandList = useSelector((state) => state.catalogs?.brands ?? [])
 
   const subcategoryOptions = subcategoryList.map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))
   const brandOptions = brandList.map((brand) => ({ value: brand.id, label: brand.name }))

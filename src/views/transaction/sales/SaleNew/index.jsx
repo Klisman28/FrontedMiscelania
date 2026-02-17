@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import SaleForm from '../SaleForm'
-import { toast, Notification } from 'components/ui'
-import { Container, DoubleSidedImage } from 'components/shared'
+import { toastError } from 'utils/toast'
+import toast from 'react-hot-toast'
+import { DoubleSidedImage } from 'components/shared'
 import { useNavigate } from 'react-router-dom'
 import { postSale } from './store/newSlice'
 import { injectReducer } from 'store/index'
@@ -30,6 +31,8 @@ const SaleNew = () => {
 	}, [dispatch])
 
 	const handleFormSubmit = async (values) => {
+		// console.log('HANDLE FORM SUBMIT - VALUES', values);
+
 		const products = values.products.map((product) => (
 			{
 				productId: product.productId,
@@ -43,6 +46,11 @@ const SaleNew = () => {
 		const taxValue = values.applyIgv ? Math.round((0.18 * subtotalRounded) * 100) / 100 : 0
 		const total = values.applyIgv ? (taxValue + subtotalRounded) : subtotalRounded
 
+		if (!openingData || !openingData.id) {
+			toast.error('No se detectó una caja abierta (openingId missing)')
+			return;
+		}
+
 		const data = {
 			number: values.number,
 			type: values.type,
@@ -51,7 +59,7 @@ const SaleNew = () => {
 			igv: taxValue,
 			total: total,
 			status: 1,
-			openingId: openingData?.id,
+			openingId: openingData.id,
 			warehouseId: values.warehouseId
 		}
 
@@ -59,35 +67,29 @@ const SaleNew = () => {
 			data.serie = values.serie
 			data.saleableId = parseInt(values.client.value)
 
+			// Fix: ensure valid saleableType
 			if (values.type === 'Boleta') {
 				data.saleableType = 'customers'
 			} else {
-				data.saleableType = 'enterprises'
+				data.saleableType = 'enterprises' // Verify if this is correct for Factura
 			}
 		}
+
+		// console.log('DISPATCHING POST SALE', data);
+
 		const res = await dispatch(postSale(data))
 
-		const { message, type } = res.payload
+		const payload = res.payload || {}
+		const { message, type } = payload
 
 		if (type === 'success') {
-			toast.push(
-				<Notification title={'¡Registro Exitoso!'} type="success" duration={3000}>
-					{message}
-				</Notification>
-				, {
-					placement: 'top-center'
-				}
-			)
+			toast.success(message || 'Venta registrada con éxito')
 			navigate(`/transacciones/min-ventas`)
 		} else {
-			toast.push(
-				<Notification title={'¡Registro Fallido!'} type="danger" duration={3000}>
-					La venta no se puede registrar, asegure de enviar todos los campos correctos.
-				</Notification>
-				, {
-					placement: 'top-center'
-				}
-			)
+			console.error('POST SALE FAILED', res);
+			// Default error message if payload is missing
+			const errorMsg = message || 'Ocurrió un error al procesar la venta.'
+			toast.error(errorMsg)
 		}
 
 	}
@@ -101,7 +103,7 @@ const SaleNew = () => {
 	}, [dispatch])
 
 	return (
-		<Container className="h-full">
+		<div className="h-full">
 			<div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
 				<div className="flex items-center gap-4">
 					<div className="bg-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none bg-gradient-to-br from-indigo-500 to-indigo-700 text-white">
@@ -146,7 +148,7 @@ const SaleNew = () => {
 					/>
 				</div>
 			}
-		</Container>
+		</div>
 	)
 }
 

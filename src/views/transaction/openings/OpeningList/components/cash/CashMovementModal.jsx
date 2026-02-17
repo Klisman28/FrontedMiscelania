@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Dialog, Button, FormItem, Input, Tabs, Notification, toast } from 'components/ui'
+import { Dialog, Button, FormItem, Input, Tabs } from 'components/ui'
+import toast from 'react-hot-toast'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
 import { NumericFormat } from 'react-number-format'
@@ -53,32 +54,17 @@ const CashMovementModal = ({ isOpen, onClose, openingId }) => {
             const result = await dispatch(createCashMovement(payload))
 
             if (createCashMovement.fulfilled.match(result)) {
-                toast.push(
-                    <Notification title="Éxito" type="success">
-                        Movimiento registrado correctamente
-                    </Notification>,
-                    { placement: 'top-center' }
-                )
+                toast.success('Movimiento registrado correctamente')
                 dispatch(getOpeningCurrent()) // Refresh data
                 dispatch(getOpeningSummary(openingId))
                 onClose()
                 resetForm()
             } else {
-                toast.push(
-                    <Notification title="Error" type="danger">
-                        {result.payload?.message || 'Error al registrar movimiento'}
-                    </Notification>,
-                    { placement: 'top-center' }
-                )
+                toast.error(result.payload?.message || 'Error al registrar movimiento')
             }
         } catch (error) {
             console.error(error)
-            toast.push(
-                <Notification title="Error" type="danger">
-                    Ocurrió un error inesperado
-                </Notification>,
-                { placement: 'top-center' }
-            )
+            toast.error('Ocurrió un error inesperado')
         } finally {
             setSubmitting(false)
         }

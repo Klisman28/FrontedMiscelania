@@ -1,5 +1,5 @@
-import React, { forwardRef, useEffect } from 'react'
-import { FormContainer, Button } from 'components/ui'
+import React, { forwardRef, useEffect, useState } from 'react'
+import { FormContainer, Button, Dialog } from 'components/ui'
 import { Form, Formik } from 'formik'
 import BasicInfoFields from './BasicInfoFields'
 import PricingFields from './PricingFields'
@@ -10,8 +10,7 @@ import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { Loading } from 'components/shared'
 import { injectReducer } from 'store/index'
-import reducer from './store'
-import { getSubategories, getBrands, getProductUnits, getCategories } from './store/formSlice'
+import catalogsReducer, { getCatalogs } from 'store/catalogue/catalogsSlice'
 
 const validationSchema = Yup.object().shape({
     sku: Yup.string()
@@ -55,7 +54,7 @@ const validationSchema = Yup.object().shape({
         .required('Por favor seleccione unidad'),
 })
 
-injectReducer('productForm', reducer)
+injectReducer('catalogs', catalogsReducer)
 
 const ProductForm = forwardRef((props, ref) => {
 
@@ -63,93 +62,154 @@ const ProductForm = forwardRef((props, ref) => {
 
     const dispatch = useDispatch();
 
-    const unitList = useSelector((state) => state.productForm?.data?.unitList ?? [])
-    const subcategoryList = useSelector((state) => state.productForm?.data?.subcategoryList ?? [])
-    const brandList = useSelector((state) => state.productForm?.data?.brandList ?? [])
-    const loadingData = useSelector((state) => state.productForm?.data?.loading ?? false)
+    // Use centralized catalogs slice
+    const { brands, categories, subcategories, units, loaded, loading, error } = useSelector((state) => state.catalogs)
+
+    // Image Modal State
+    const [viewImageObj, setViewImageObj] = useState({ open: false, url: '' })
 
     useEffect(() => {
-        dispatch(getSubategories())
-        dispatch(getBrands())
-        dispatch(getProductUnits())
-        dispatch(getCategories())
+        if (!loaded && !loading) {
+            dispatch(getCatalogs())
+        }
+    }, [dispatch, loaded, loading])
 
-    }, [dispatch])
+    const handleImageClick = (url) => {
+        if (url) {
+            setViewImageObj({ open: true, url })
+        }
+    }
 
-    if (loadingData || !unitList.length || !subcategoryList.length || !brandList.length) {
+    if (loading || !loaded) {
         return <Loading loading={true} />
     }
 
+    if (error) {
+        return (
+            <div className="p-4 text-center text-red-500">
+                <p>Error cargando catálogos: {typeof error === 'string' ? error : 'Error desconocido'}</p>
+                <Button size="sm" onClick={() => dispatch(getCatalogs())}>Reintentar</Button>
+            </div>
+        )
+    }
+
     return (
-        <Formik
-            innerRef={ref}
-            initialValues={{
-                ...initialData
-            }}
+        <>
+            <Formik
+                innerRef={ref}
+                initialValues={{
+                    ...initialData
+                }}
+                enableReinitialize={true}
+                validationSchema={validationSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                    // Si se seleccionó una imagen nueva (en imgList), actualizar imageUrl
+                    // Nota: ProductImages suele manejar imgList. Si se sube archivo real, el backend lo maneja.
+                    // Si es solo URL visual, aquí asignamos.
+                    // Adaptamos para que el backend reciba lo correcto.
 
-            validationSchema={validationSchema}
-            onSubmit={(values, { setSubmitting }) => {
-                if (values.typeAction === 'create' && values.imgList.length > 0) {
-                    values.imageUrl = values.imgList[0].img
-                }
-                if (typeAction === 'edit') {
-                    delete values.id
-                }
-                onFormSubmit?.(values, setSubmitting)
-            }}
-        >
-            {({ values, touched, errors }) => (
-                <Form>
-                    <FormContainer>
-                        <div className="max-w-7xl mx-auto px-6 py-6 font-sans">
-                            {/* Header */}
-                            <div className="flex flex-col mb-8">
-                                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Producto</h2>
-                                <p className="text-slate-500 text-sm mt-1">Completa la información para guardar el producto</p>
-                            </div>
+                    const payload = { ...values };
 
-                            <div className="grid grid-cols-12 gap-6 pb-20">
-                                {/* Columna Izquierda: Info General + Categorías */}
-                                <div className="col-span-12 lg:col-span-8 space-y-6">
-                                    <BasicInfoFields touched={touched} errors={errors} values={values} />
-                                    <OrganizationFields touched={touched} errors={errors} values={values} />
+                    // Si hay imagen en la lista de upload (nueva), usar esa.
+                    // Pero `ProductImages` componente suele operar con `imgList`.
+                    // El backend espera multipart si hay archivo. 
+                    // Aquí asumimos que `onFormSubmit` maneja la transformación a FormData si hay archivo `file`.
+
+                    if (values.imgList && values.imgList.length > 0) {
+                        // Si el componente de imágenes devuelve un objeto con `img` (url) y `file` (blob)
+                        // values.image = values.imgList[0].file 
+                        // values.imageUrl = values.imgList[0].img
+                    }
+
+                    if (typeAction === 'create') {
+                        // Limpiezas si es create
+                    }
+                    if (typeAction === 'edit') {
+                        // delete payload.id // Ya lo maneja el padre
+                    }
+                    onFormSubmit?.(payload, setSubmitting)
+                }}
+            >
+                {({ values, touched, errors }) => (
+                    <Form>
+                        <FormContainer>
+                            <div className="max-w-7xl mx-auto px-6 py-6 font-sans">
+                                {/* Header */}
+                                <div className="flex flex-col mb-8">
+                                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Producto</h2>
+                                    <p className="text-slate-500 text-sm mt-1">Completa la información para guardar el producto</p>
                                 </div>
 
-                                {/* Columna Derecha: Precios + Imagenes */}
-                                <div className="col-span-12 lg:col-span-4 space-y-6">
-                                    <PricingFields touched={touched} errors={errors} values={values} />
-                                    <ProductImages touched={touched} errors={errors} values={values} />
+                                <div className="grid grid-cols-12 gap-6 pb-20">
+                                    {/* Columna Izquierda: Info General + Categorías */}
+                                    <div className="col-span-12 lg:col-span-8 space-y-6">
+                                        <BasicInfoFields touched={touched} errors={errors} values={values} />
+                                        <OrganizationFields touched={touched} errors={errors} values={values} />
+                                    </div>
+
+                                    {/* Columna Derecha: Precios + Imagenes */}
+                                    <div className="col-span-12 lg:col-span-4 space-y-6">
+                                        <PricingFields touched={touched} errors={errors} values={values} />
+                                        <ProductImages
+                                            touched={touched}
+                                            errors={errors}
+                                            values={values}
+                                            onImageClick={handleImageClick} // Pass handler if supported, else assume onClick internally
+                                        />
+                                        {/* Fallback trigger if ProductImages doesn't support click */}
+                                        {values.imageUrl && (
+                                            <div className="mt-2 text-center cursor-pointer text-indigo-600 text-sm" onClick={() => handleImageClick(values.imageUrl)}>
+                                                (Ver imagen grande)
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Sticky Footer */}
-                        <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t border-slate-200 py-4 px-8 z-50">
-                            <div className="flex items-center justify-end max-w-7xl mx-auto gap-3">
-                                <Button
-                                    size="md"
-                                    className="rounded-xl px-6 font-medium text-gray-600 hover:bg-slate-50 transition-colors"
-                                    onClick={() => onDiscard?.()}
-                                    type="button"
-                                >
-                                    Descartar
-                                </Button>
-                                <Button
-                                    size="md"
-                                    variant="solid"
-                                    loading={false}
-                                    icon={<AiOutlineSave className="text-xl" />}
-                                    className="rounded-xl px-6 font-medium shadow-lg shadow-indigo-500/20"
-                                    type="submit"
-                                >
-                                    {(typeAction === 'create') ? ' Guardar' : 'Actualizar'}
-                                </Button>
+                            {/* Sticky Footer */}
+                            <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t border-slate-200 py-4 px-8 z-50">
+                                <div className="flex items-center justify-end max-w-7xl mx-auto gap-3">
+                                    <Button
+                                        size="md"
+                                        className="rounded-xl px-6 font-medium text-gray-600 hover:bg-slate-50 transition-colors"
+                                        onClick={() => onDiscard?.()}
+                                        type="button"
+                                    >
+                                        Descartar
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        variant="solid"
+                                        loading={false}
+                                        icon={<AiOutlineSave className="text-xl" />}
+                                        className="rounded-xl px-6 font-medium shadow-lg shadow-indigo-500/20"
+                                        type="submit"
+                                    >
+                                        {(typeAction === 'create') ? ' Guardar' : 'Actualizar'}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    </FormContainer>
-                </Form>
-            )}
-        </Formik>
+                        </FormContainer>
+                    </Form>
+                )}
+            </Formik>
+
+            {/* Image Preview Modal */}
+            <Dialog
+                isOpen={viewImageObj.open}
+                onClose={() => setViewImageObj({ ...viewImageObj, open: false })}
+                width={800}
+                contentClassName="p-0 bg-transparent shadow-none"
+            >
+                <div className="relative text-center">
+                    <img
+                        src={viewImageObj.url}
+                        alt="Vista previa"
+                        className="max-h-[80vh] mx-auto rounded-lg shadow-2xl object-contain bg-white"
+                    />
+                </div>
+            </Dialog>
+        </>
     )
 })
 

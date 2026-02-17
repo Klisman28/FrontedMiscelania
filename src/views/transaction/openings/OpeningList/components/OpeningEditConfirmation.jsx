@@ -1,10 +1,10 @@
 import React from 'react'
-import { toast, Notification } from 'components/ui'
+import toast from 'react-hot-toast'
 import { ConfirmDialog } from 'components/shared'
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleDeleteConfirmation } from '../store/stateSlice'
 import { putOpening, resetOpeningData } from '../store/dataSlice'
-import {HiInformationCircle} from 'react-icons/hi'
+import { HiInformationCircle } from 'react-icons/hi'
 
 const OpeningEditConfirmation = () => {
 
@@ -22,23 +22,9 @@ const OpeningEditConfirmation = () => {
 
         if (res.payload.type === 'success') {
             dispatch(resetOpeningData())
-            toast.push(
-                <Notification title={"¡Corte Existoso!"} type="success" duration={3000}>
-                    El corte de caja se registró con éxito
-                </Notification>
-                , {
-                    placement: 'top-center'
-                }
-            )
+            toast.success('El corte de caja se registró con éxito')
         } else {
-            toast.push(
-                <Notification title={"¡Corte Fallido!"} type="danger" duration={3000}>
-                    No se puede hacer el corte, comuniquese con el administrador.
-                </Notification>
-                , {
-                    placement: 'top-center'
-                }
-            )
+            toast.error('No se puede hacer el corte, comuníquese con el administrador.')
         }
     }
 
@@ -59,7 +45,7 @@ const OpeningEditConfirmation = () => {
                 Esta acción no se puede deshacer.
             </p>
             <div className='text-amber-500 flex items-center mt-6'>
-                <HiInformationCircle className='w-8 h-8 mr-2'/>
+                <HiInformationCircle className='w-8 h-8 mr-2' />
                 <span>¡Recuerde antes de realizar esta acción debe hacer la rendición de cuenta!</span>
             </div>
             {/* <div className='mt-4'>

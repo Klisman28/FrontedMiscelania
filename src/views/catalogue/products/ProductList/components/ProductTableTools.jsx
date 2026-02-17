@@ -3,7 +3,7 @@ import { Button } from 'components/ui'
 import { HiDownload, HiPlusCircle } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
 
-const ProductTableTools = () => {
+const ProductTableTools = ({ onAdd }) => {
 
 	return (
 		<div className="flex flex-row items-center gap-3">
@@ -22,19 +22,18 @@ const ProductTableTools = () => {
 					Exportar
 				</Button>
 			</Link>
-			<Link
-				to="nuevo"
-				className="block lg:inline-block" >
+			<div className="block lg:inline-block">
 				<Button
 					block
 					variant="solid"
 					size="md"
 					className="flex items-center gap-2 h-10 rounded-xl"
 					icon={<HiPlusCircle className="text-lg" />}
+					onClick={onAdd}
 				>
 					Nuevo Producto
 				</Button>
-			</Link>
+			</div>
 
 		</div>
 	)

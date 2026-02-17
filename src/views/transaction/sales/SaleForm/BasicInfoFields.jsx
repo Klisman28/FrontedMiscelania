@@ -1,42 +1,25 @@
 import React, { useEffect } from 'react'
-import { InputGroup, Input, FormItem, Select, Card, DatePicker } from 'components/ui'
+import { InputGroup, Input, FormItem, DatePicker } from 'components/ui'
 import { useSelector, useDispatch } from 'react-redux'
 import 'dayjs/locale/es'
 import { Controller } from 'react-hook-form'
-import { getCustomers, getEnterprises, getConfig } from './store/formSlice'
+import { getConfig } from './store/formSlice'
 import { getWarehouses } from 'store/warehouses/warehousesSlice'
-import { HiOutlineTicket, HiOutlineDocumentText, HiOutlineCalendar, HiOutlineUser, HiOutlineHashtag } from 'react-icons/hi'
+import { HiOutlineTicket, HiOutlineDocumentText, HiOutlineHashtag } from 'react-icons/hi'
 import classNames from 'classnames'
+import CustomerSelect from 'components/sales/CustomerSelect' // Importamos el nuevo componente
 
 const { Addon } = InputGroup
 
 const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
 
     const dispatch = useDispatch()
-
-    const customerList = useSelector((state) => state.saleForm.data.customerList)
-    const enterpriseList = useSelector((state) => state.saleForm.data.enterpriseList)
     const configData = useSelector((state) => state.saleForm.data.configData)
-    const warehouseList = useSelector((state) => state.warehouses?.warehouses || [])
-
     const watchType = watch('type', 'Ticket')
-
-    const customerOptions = customerList.map((customer) => ({
-        value: customer.id,
-        label: `${customer.fullname} (${customer.dni})`
-    }))
-
-    const enterpriseOptions = enterpriseList.map((enterprise) => ({
-        value: enterprise.id,
-        label: `${enterprise.name} (${enterprise.ruc})`
-    }))
-
-    const mergedOptions = [...customerOptions, ...enterpriseOptions]
 
     useEffect(() => {
         dispatch(getWarehouses())
     }, [dispatch])
-
 
     useEffect(() => {
         const handleGetConfig = async () => {
@@ -44,27 +27,26 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
             setValue('number', res.payload.data?.ticketNum)
         }
         handleGetConfig()
-    }, [])
+    }, [dispatch, setValue])
 
     useEffect(() => {
-        resetField('client')
+        // Al cambiar tipo, reseteamos cliente y número
+        resetField('client') // 'client' ahora será un objeto o null
 
         if (watchType === 'Ticket') {
             setValue('number', configData?.ticketNum)
         }
 
         if (watchType === 'Boleta') {
-            dispatch(getCustomers())
             setValue('number', configData?.boletaNum)
             setValue('serie', configData?.boletaSerie)
         }
 
         if (watchType === 'Factura') {
-            dispatch(getEnterprises())
             setValue('number', configData?.invoceNum)
             setValue('serie', configData?.invoceSerie)
         }
-    }, [watchType, configData, dispatch, setValue, resetField])
+    }, [watchType, configData, setValue, resetField])
 
     return (
         <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -169,25 +151,18 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
                     <FormItem
                         label="Cliente"
                         className="mb-0"
-                        invalid={errors.client && errors.client.value}
-                        errorMessage={(errors.client && errors.client.value) && errors.client.value.message}
+                        invalid={errors.client} // Check if object is invalid generally, or check errors.client?.value if structure demands
+                        errorMessage={errors.client?.message || "Seleccione un cliente"}
                     >
                         <Controller
                             control={control}
                             name="client"
+                            rules={{ required: watchType === 'Factura' ? "Cliente es requerido para factura" : false }}
                             render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    placeholder="Buscar cliente..."
-                                    options={watchType === 'Factura' ? mergedOptions : customerOptions}
-                                    components={{
-                                        Control: ({ children, ...props }) => (
-                                            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-1.5 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 bg-white">
-                                                <HiOutlineUser className="text-lg text-gray-400 mr-2" />
-                                                {children}
-                                            </div>
-                                        )
-                                    }}
+                                <CustomerSelect
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    disabled={false}
                                 />
                             )}
                         />

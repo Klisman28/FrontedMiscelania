@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { FormContainer, Button, Card } from 'components/ui'
 import { StickyFooter } from 'components/shared'
@@ -20,6 +20,7 @@ import ProductCatalogue from './components/ProductCatalogue'
 import ReceiptPrintView from '../shared/PrintBoleta'
 import SaleFormC from '../SaleForm/store/SaleForm.css'
 import { getWarehouses } from 'store/warehouses/warehousesSlice'
+import warehousesReducer from 'store/warehouses/warehousesSlice'
 // import ProductsSidebar from './components/ProductsSidebar' // Si lo usas
 // import OptionsFields from './OptionsFields'               // Si lo usas
 
@@ -27,6 +28,7 @@ import { injectReducer } from 'store/index'
 import reducer from './store'
 
 injectReducer('saleForm', reducer)
+injectReducer('warehouses', warehousesReducer)
 
 
 
@@ -43,33 +45,7 @@ const productsSchema = Yup.object({
 })
 
 // Esquema de validación general
-const validationSchema = Yup.object().shape({
-    warehouseId: Yup.number().required("Seleccione una bodega"),
-    serie: Yup.string().when('type', {
-        is: (val) => val !== 'Ticket',
-        then: Yup.string()
-            .required("Serie es requerida")
-            .matches(/[0-9]/, { message: "La serie solo admite números" })
-            .min(3, "Serie demasiado corta")
-            .max(3, "Serie demasiado larga")
-    }),
-    number: Yup.string()
-        .required("Número es requerido")
-        .matches(/[0-9]/, { message: "Número solo admite números" })
-        .min(1, "Número demasiado corto")
-        .max(3, "Número demasiado largo"),
-    type: Yup.string().required("Tipo de comprobante es requerido"),
-    client: Yup.object().when('type', {
-        is: (val) => val !== "Ticket",
-        then: Yup.object({
-            value: Yup.string().required("Seleccione un cliente"),
-            label: Yup.string().required("Seleccione un cliente")
-        })
-    }),
-    products: Yup.array().of(productsSchema).min(1, "Seleccione al menos un producto"),
-    applyIgv: Yup.boolean(),
-    dateIssue: Yup.date().required("La fecha es requerida")
-})
+// Validation schema moved inside component to access state
 
 const SaleForm = (props) => {
     const { typeAction, initialData, onFormSubmit, onDiscard } = props
@@ -91,13 +67,70 @@ const SaleForm = (props) => {
 
     // Ejemplo de data que quisieras imprimir
 
+    // Esquema de validación general con acceso a estado
+    const validationSchema = useMemo(() => Yup.object().shape({
+        warehouseId: Yup.mixed().test('is-valid-warehouse', 'Seleccione una bodega', (value) => {
+            // Guard clause: si la lista no ha cargado, no bloqueamos (asumiendo carga inicial)
+            if (Array.isArray(warehouseList) && warehouseList.length === 0) return true;
+
+            // Aceptamos números o cadenas numéricas, pero no NaN ni null/undefined
+            if (value === null || value === undefined || value === '') return false;
+            return !isNaN(Number(value));
+        }),
+        serie: Yup.string().when('type', {
+            is: (val) => val !== 'Ticket',
+            then: Yup.string()
+                .required("Serie es requerida")
+                .matches(/[0-9]/, { message: "La serie solo admite números" })
+                .min(3, "Serie demasiado corta")
+                .max(3, "Serie demasiado larga")
+        }),
+        number: Yup.string()
+            .required("Número es requerido")
+            .matches(/[0-9]/, { message: "Número solo admite números" })
+            .min(1, "Número demasiado corto")
+            .max(3, "Número demasiado largo"),
+        type: Yup.string().required("Tipo de comprobante es requerido"),
+        client: Yup.object().when('type', {
+            is: (val) => val !== "Ticket",
+            then: Yup.object({
+                value: Yup.string().required("Seleccione un cliente"),
+                label: Yup.string().required("Seleccione un cliente")
+            })
+        }),
+        products: Yup.array().of(productsSchema).min(1, "Seleccione al menos un producto"),
+        applyIgv: Yup.boolean(),
+        dateIssue: Yup.date().required("La fecha es requerida")
+    }), [warehouseList])
+
     // Inicializamos react-hook-form
     const handleSaveAndIncrement = (data) => {
+        // console.log('CLICK COBRAR')
+        // console.log('PAYLOAD', data)
         // Primero ejecutamos la lógica original de guardado
         onFormSubmit(data);
 
         // Luego incrementamos el ticket para la próxima vez
         incrementarTicket(setValue, data.number);
+    };
+
+    const onError = (errors, e) => {
+        console.log('VALIDATION ERRORS', errors); // Keep this for visibility on errors
+        let message = "Revise los campos requeridos";
+        if (errors.products) {
+            message = "Agrega al menos un producto válido";
+        } else if (errors.warehouseId) {
+            message = "Seleccione una bodega (o no se pudo determinar automáticamente)";
+        } else if (errors.client) {
+            message = "Seleccione un cliente válido";
+        }
+
+        toast.push(
+            <Notification title="Error de Validación" type="danger" duration={3000}>
+                {message}
+            </Notification>,
+            { placement: 'top-center' }
+        )
     };
     const {
         formState: { errors, isSubmitting },
@@ -107,6 +140,7 @@ const SaleForm = (props) => {
         getValues,
         watch,
         resetField,
+        register,
     } = useForm({
         mode: 'onChange',
         resolver: yupResolver(validationSchema),
@@ -117,24 +151,45 @@ const SaleForm = (props) => {
     const watchedProducts = watch('products', [])
     const totalAmount = watchedProducts.reduce((acc, curr) => acc + (parseFloat(curr.subtotal) || 0), 0)
 
+    // Register warehouseId manually since we are removing the hidden input
+    useEffect(() => {
+        register('warehouseId', { required: true });
+    }, [register]);
+
     // Warehouse Resolution Logic
     useEffect(() => {
-        if (warehouseList.length > 0) {
+        if (Array.isArray(warehouseList) && warehouseList.length > 0) {
             // Check if form already has warehouseId
             const currentId = getValues('warehouseId')
+
+            // Only set if not already set or invalid
             if (!currentId) {
-                // Priority 1: User default
-                if (user?.defaultWarehouseId) {
-                    const found = warehouseList.find(w => w.id === user.defaultWarehouseId && w.status === 'Activo')
-                    if (found) {
-                        setValue('warehouseId', found.id)
-                        return
-                    }
+                let targetWarehouse = null;
+
+                // Priority 1: Exact "Main Warehouse" (case insensitive)
+                targetWarehouse = warehouseList.find(w => w.name && w.name.toLowerCase() === 'main warehouse' && w.status === 'Activo')
+
+                // Priority 2: Code "BOD 001"
+                if (!targetWarehouse) {
+                    targetWarehouse = warehouseList.find(w => w.code === 'BOD 001' && w.status === 'Activo')
                 }
-                // Priority 2: First active warehouse
-                const firstActive = warehouseList.find(w => w.status === 'Activo')
-                if (firstActive) {
-                    setValue('warehouseId', firstActive.id)
+
+                // Priority 3: User default (if valid)
+                if (!targetWarehouse && user?.defaultWarehouseId) {
+                    targetWarehouse = warehouseList.find(w => w.id === user.defaultWarehouseId && w.status === 'Activo')
+                }
+
+                // Priority 4: First active
+                if (!targetWarehouse) {
+                    targetWarehouse = warehouseList.find(w => w.status === 'Activo')
+                }
+
+                if (targetWarehouse) {
+                    console.log('DEBUG: Setting default warehouse:', targetWarehouse.id);
+                    // Force update and validation
+                    setValue('warehouseId', Number(targetWarehouse.id), { shouldValidate: true, shouldDirty: true })
+                } else {
+                    console.warn('No active warehouse found for default selection.')
                 }
             }
         }
@@ -243,9 +298,36 @@ const SaleForm = (props) => {
         handlePrint()
     }
 
+    const onPreSubmit = async () => {
+        let wId = getValues('warehouseId')
+
+        console.log('DEBUG: val just before submit:', wId, typeof wId)
+
+        // Fix 1: Emergency fallback if null but list available
+        if (!wId && Array.isArray(warehouseList) && warehouseList.length > 0) {
+            const fallback = warehouseList.find(w => w.status === 'Activo') || warehouseList[0];
+            if (fallback) {
+                console.log('DEBUG: Emergency fallback applied:', fallback.id)
+                setValue('warehouseId', Number(fallback.id), { shouldValidate: true })
+                wId = fallback.id
+            }
+        }
+
+        // Fix 2: Force number type if it's a string
+        if (wId !== null && wId !== undefined) {
+            const numId = Number(wId)
+            if (!isNaN(numId)) {
+                setValue('warehouseId', numId, { shouldValidate: true })
+            }
+        }
+
+        await handleSubmit(handleSaveAndIncrement, onError)()
+    }
+
 
     return (
-        <form ref={formRef} onSubmit={handleSubmit(handleSaveAndIncrement)} >
+        <form ref={formRef} onSubmit={(e) => e.preventDefault()} >
+            {/* Hidden input removed to avoid validation conflicts with manual registration */}
             <FormContainer className="sale-form">
                 {/* Contenedor principal con varias columnas */}
                 {/* Contenedor principal Grid */}
@@ -258,6 +340,11 @@ const SaleForm = (props) => {
 
                             {/* Barra de búsqueda */}
                             <div className="mb-4">
+                                <div className="flex justify-between items-center mb-2 px-1">
+                                    <div className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+                                        Bodega: <span className="text-indigo-600 font-bold">{warehouseList.find(w => w.id === watch('warehouseId'))?.name || 'Seleccionando...'}</span>
+                                    </div>
+                                </div>
                                 <ProductQuickAddBar
                                     handleAppendProduct={handleAppendProduct}
                                     currentProducts={fields}
@@ -350,7 +437,8 @@ const SaleForm = (props) => {
                             loading={isSubmitting}
                             icon={<HiOutlineCreditCard className="text-xl" />}
                             className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white min-w-[200px] shadow-lg hover:shadow-indigo-500/50 transition-all transform hover:-translate-y-0.5 rounded-xl text-lg font-bold tracking-wide"
-                            type="submit"
+                            type="button"
+                            onClick={onPreSubmit}
                         >
                             <span className="mr-2">COBRAR</span>
                             <span className="bg-white/20 px-2 py-0.5 rounded text-white font-mono text-base">
