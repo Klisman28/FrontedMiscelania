@@ -1,33 +1,40 @@
 import React from 'react'
-import { Alert } from 'components/ui'
-import { HiInformationCircle } from 'react-icons/hi'
+import { HiLightningBolt } from 'react-icons/hi'
 
 /**
  * KeyboardShortcutsHelper
  * 
  * Muestra un pequeño helper con los atajos de teclado disponibles
+ * Estilo: Barra discreta minimal POS Pro
  */
 const KeyboardShortcutsHelper = () => {
     return (
-        <div className="mb-3">
-            <Alert
-                showIcon
-                type="info"
-                customIcon={<HiInformationCircle />}
-                className="border-blue-200 dark:border-blue-700"
-            >
-                <div className="text-xs">
-                    <span className="font-semibold">Atajos: </span>
-                    <kbd className="mx-1 px-1.5 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">F2</kbd>
-                    <span className="text-gray-600 dark:text-gray-400">Buscar</span>
-                    <span className="mx-1">•</span>
-                    <kbd className="mx-1 px-1.5 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Ctrl+Enter</kbd>
-                    <span className="text-gray-600 dark:text-gray-400">Guardar</span>
-                    <span className="mx-1">•</span>
-                    <kbd className="mx-1 px-1.5 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Enter</kbd>
-                    <span className="text-gray-600 dark:text-gray-400">Agregar producto escaneado</span>
+        <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1.5 text-slate-500 whitespace-nowrap">
+                <HiLightningBolt className="text-amber-500 text-sm" />
+                <span className="font-medium">Accesos:</span>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <kbd className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium text-slate-700">F2</kbd>
+                    <span className="text-slate-600">Buscar</span>
                 </div>
-            </Alert>
+
+                <div className="w-px h-3 bg-slate-200" />
+
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <kbd className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium text-slate-700">Ctrl+Enter</kbd>
+                    <span className="text-slate-600">Cobrar</span>
+                </div>
+
+                <div className="w-px h-3 bg-slate-200" />
+
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <kbd className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium text-slate-700">Enter</kbd>
+                    <span className="text-slate-600">Agregar</span>
+                </div>
+            </div>
         </div>
     )
 }

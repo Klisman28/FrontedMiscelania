@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, Button, Avatar, Spinner } from 'components/ui'
+import { Button, Avatar, Spinner } from 'components/ui'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllProducts, getSubcategories, getBrands, getCategories } from '../store/formSlice'
-import { HiPlus, HiOutlineCube, HiCheck } from 'react-icons/hi'
+import { HiPlus, HiOutlineCube } from 'react-icons/hi'
 import { NumericFormat } from 'react-number-format'
 import classNames from 'classnames'
 
@@ -82,8 +82,8 @@ const ProductCatalogue = ({ onProductSelect }) => {
     }, [products, searchTerm, selectedSubcategoryId])
 
     // Limit to 6 items
-    const visibleProducts = filteredProducts.slice(0, 6)
-    const remainingCount = Math.max(0, filteredProducts.length - 6)
+    const visibleProducts = filteredProducts.slice(0, 8)
+    const remainingCount = Math.max(0, filteredProducts.length - 8)
 
     // Reset selection when search changes (optional, but good UX to avoid empty states)
     // User requirement: "Si el usuario escribe en el buscador, filtra dentro de la categoría seleccionada."
@@ -93,37 +93,40 @@ const ProductCatalogue = ({ onProductSelect }) => {
     const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : 'PR'
 
     return (
-        <div className="mt-4 flex flex-col h-full">
-            {/* 1. Subcategory Chips Bar */}
-            <div className="mb-4">
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
+        <div className="mt-2 flex flex-col h-full">
+            {/* 1. Subcategory Chips Bar - Scroll horizontal con fade */}
+            <div className="mb-4 relative">
+                {/* Fade left */}
+                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10"></div>
+                {/* Fade right */}
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10"></div>
+
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide items-center px-1">
                     {/* Chip "Todos" */}
                     <div
                         onClick={() => setSelectedSubcategoryId(null)}
                         className={classNames(
-                            "cursor-pointer rounded-full px-4 py-1.5 whitespace-nowrap text-sm font-semibold transition-all duration-200 border flex items-center gap-1.5 shadow-sm select-none",
+                            "cursor-pointer rounded-full px-6 h-8 flex items-center whitespace-nowrap text-xs font-medium transition-all border select-none shrink-0",
                             selectedSubcategoryId === null
-                                ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-200"
-                                : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:text-indigo-600"
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         )}
                     >
-                        {selectedSubcategoryId === null && <HiCheck className="text-white text-sm" />}
                         Todos
                     </div>
 
                     {/* Dynamic Subcategories */}
                     {subcategories.map(sub => (
-                        <div
+                        <div style={{ fontSize: "10px" }}
                             key={sub.id}
                             onClick={() => setSelectedSubcategoryId(sub.id)}
                             className={classNames(
-                                "cursor-pointer rounded-full px-4 py-1.5 whitespace-nowrap text-sm font-semibold transition-all duration-200 border flex items-center gap-1.5 shadow-sm select-none",
+                                "cursor-pointer rounded-full px-2 h-9 flex items-center whitespace-nowrap  font-semibold transition-all border select-none shrink-0",
                                 String(selectedSubcategoryId) === String(sub.id)
-                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-200"
-                                    : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:text-indigo-600"
+                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                             )}
                         >
-                            {String(selectedSubcategoryId) === String(sub.id) && <HiCheck className="text-white text-sm" />}
                             {sub.name}
                         </div>
                     ))}
@@ -134,32 +137,46 @@ const ProductCatalogue = ({ onProductSelect }) => {
             </div>
 
             {/* Loading State */}
-            {loading && products.length === 0 ? (
-                <div className="flex justify-center items-center py-20">
-                    <Spinner size="40px" />
-                </div>
-            ) : (
-                <>
-                    {/* 2. Product Grid (Max 6) */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 animate-fade-in content-start">
-                        {visibleProducts.map((product) => {
-                            const imageSrc = product.img || product.imageUrl
-                            const hasImage = imageSrc && imageSrc !== ""
+            {
+                loading && products.length === 0 ? (
+                    <div className="flex justify-center items-center py-20">
+                        <Spinner size="40px" />
+                    </div>
+                ) : (
+                    <div className="flex-1 overflow-y-auto pr-1 pb-4">
+                        {/* 2. Product Grid - Mayor densidad visual */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 animate-fade-in content-start">
+                            {visibleProducts.map((product) => {
+                                const imageSrc = product.img || product.imageUrl
+                                const hasImage = imageSrc && imageSrc !== ""
 
-                            return (
-                                <Card
-                                    key={product.id}
-                                    className="cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 group relative overflow-hidden bg-white hover:-translate-y-1 flex flex-col h-[160px]"
-                                    onClick={() => onProductSelect(product)}
-                                    bodyClass="p-0 h-full flex flex-col"
-                                >
-                                    <div className="flex h-full">
-                                        <div className="relative w-[40%] bg-gray-100 overflow-hidden flex items-center justify-center">
+                                // Stock Logic (Solo visual)
+                                const stock = product.stock || 0
+                                const minStock = product.minStock || 5
+                                let stockColor = "text-emerald-700 bg-emerald-50 border-emerald-200"
+                                if (stock <= 0) stockColor = "text-rose-700 bg-rose-50 border-rose-200"
+                                else if (stock <= minStock) stockColor = "text-amber-700 bg-amber-50 border-amber-200"
+
+                                return (
+                                    <div
+                                        key={product.id}
+                                        className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-md hover:border-slate-300 transition-all group relative"
+                                        onClick={() => onProductSelect(product)}
+                                    >
+                                        {/* Stock Badge - Top Right Absoluto */}
+                                        <div className="absolute top-2 right-2 z-10">
+                                            <div className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${stockColor}`}>
+                                                {stock} uds
+                                            </div>
+                                        </div>
+
+                                        {/* Imagen/Placeholder - Altura fija h-16 */}
+                                        <div className="relative h-16 w-full bg-slate-50 overflow-hidden shrink-0">
                                             {hasImage ? (
                                                 <img
                                                     src={imageSrc}
                                                     alt={product.name}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                     onError={(e) => {
                                                         e.target.style.display = 'none'
                                                         if (e.target.nextSibling) {
@@ -170,28 +187,27 @@ const ProductCatalogue = ({ onProductSelect }) => {
                                                 />
                                             ) : null}
 
-                                            <div className={`w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-300 ${hasImage ? 'hidden' : 'flex'}`}>
-                                                <Avatar size={35} className="bg-indigo-100 text-indigo-600 font-bold" shape="circle">
-                                                    {getInitials(product.name)}
-                                                </Avatar>
+                                            {/* Fallback */}
+                                            <div className={`w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 text-slate-300 ${hasImage ? 'hidden' : 'flex'}`}>
+                                                <HiOutlineCube className="text-2xl" />
                                             </div>
-
-                                            {/* Overlay on Hover */}
-                                            <div className="absolute inset-0 bg-indigo-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                         </div>
 
-                                        <div className="w-[60%] p-2 flex flex-col justify-between">
-                                            <div className="flex flex-col">
-                                                <span className="text-[9px] text-gray-400 uppercase font-bold tracking-wider truncate w-full mb-0.5">
-                                                    {product.brand?.name || 'Genérico'}
-                                                </span>
-                                                <h6 className="text-xs font-bold text-gray-800 line-clamp-3 leading-tight group-hover:text-indigo-600 transition-colors">
-                                                    {product.name}
-                                                </h6>
+                                        {/* Cuerpo - Padding p-3 */}
+                                        <div className="p-3 flex flex-col gap-1.5">
+                                            {/* Marca - Arriba */}
+                                            <div className="text-[11px] uppercase tracking-wide text-slate-500 truncate font-semibold">
+                                                {product.brand?.name || 'GENÉRICO'}
                                             </div>
 
-                                            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                                                <span className="font-extrabold text-indigo-700 text-sm">
+                                            {/* Nombre - line-clamp-2 */}
+                                            <h6 className="text-sm font-semibold leading-5 line-clamp-2 text-slate-900 min-h-[40px]">
+                                                {product.name}
+                                            </h6>
+
+                                            {/* Precio y botón + */}
+                                            <div className="flex items-center justify-between mt-auto pt-2">
+                                                <span className="text-sm font-bold text-indigo-600 tabular-nums">
                                                     <NumericFormat
                                                         displayType="text"
                                                         value={product.price}
@@ -201,50 +217,53 @@ const ProductCatalogue = ({ onProductSelect }) => {
                                                         fixedDecimalScale={true}
                                                     />
                                                 </span>
-                                                <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                                                    <HiPlus className="text-xs" />
-                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className={`h-9 w-9 rounded-full flex items-center justify-center transition-all ${stock <= 0
+                                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                                        : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'
+                                                        }`}
+                                                    disabled={stock <= 0}
+                                                >
+                                                    <HiPlus className="text-base" />
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                </Card>
-                            )
-                        })}
+                                )
+                            })}
 
-                        {/* Empty State */}
-                        {visibleProducts.length === 0 && (
-                            <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-400">
-                                <HiOutlineCube className="w-12 h-12 mb-2 opacity-20" />
-                                <p className="font-medium text-gray-500">
-                                    {searchTerm
-                                        ? `No hay productos para "${searchTerm}" en esta categoría`
-                                        : "No hay productos disponibles"}
-                                </p>
-                                {selectedSubcategoryId !== null && (
-                                    <Button
-                                        size="sm"
-                                        variant="plain"
-                                        className="mt-2 text-indigo-600"
-                                        onClick={() => setSelectedSubcategoryId(null)}
-                                    >
-                                        Ver todos los productos
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            {/* Empty State - Mejorado */}
+                            {visibleProducts.length === 0 && (
+                                <div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
+                                    <div className="bg-slate-100 p-4 rounded-full mb-4">
+                                        <HiOutlineCube className="w-10 h-10 text-slate-300" />
+                                    </div>
+                                    <p className="font-semibold text-slate-700 mb-1">
+                                        No se encontraron productos
+                                    </p>
+                                    <p className="text-sm text-slate-500">
+                                        {searchTerm
+                                            ? `Intenta con otro término de búsqueda`
+                                            : selectedSubcategoryId
+                                                ? `No hay productos en esta categoría`
+                                                : `Agrega productos para comenzar`}
+                                    </p>
+                                </div>
+                            )}
 
-                    {/* 3. See More Indicator */}
-                    {remainingCount > 0 && (
-                        <div className="mt-4 flex justify-center">
-                            <span className="text-sm text-gray-500 font-medium bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
-                                +{remainingCount} productos más disponibles...
-                            </span>
+                            {/* 3. Card "Ver más productos" - Dashed minimal */}
+                            {remainingCount > 0 && (
+                                <div className="border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50/50 hover:bg-slate-50 hover:border-slate-400 flex flex-col items-center justify-center gap-2 text-slate-600 cursor-pointer transition-all group min-h-[160px]">
+                                    <span className="font-bold text-3xl group-hover:scale-110 transition-transform">+{remainingCount}</span>
+                                    <span className="text-xs font-semibold uppercase tracking-wide">Ver más productos</span>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </>
-            )}
-        </div>
+                    </div>
+                )
+            }
+        </div >
     )
 }
 

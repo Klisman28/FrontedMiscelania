@@ -1,3 +1,4 @@
+// CustomerSelect Component
 import React, { useRef, useState, useEffect } from 'react'
 import Select from 'react-select'
 import { components } from 'react-select'
@@ -20,9 +21,9 @@ const Option = (props) => {
         <components.Option {...props}>
             <div className="flex items-center justify-between">
                 <div>
-                    <span className="font-semibold block text-gray-800 dark:text-gray-100">{props.label}</span>
+                    <span className="font-medium block text-slate-900 leading-5">{props.label}</span>
                     {props.data.original?.nit && (
-                        <span className="text-xs text-gray-400 block mt-0.5">NIT: {props.data.original.nit}</span>
+                        <span className="text-xs text-slate-500 block">NIT: {props.data.original.nit}</span>
                     )}
                 </div>
                 {props.isSelected && <HiCheck className="text-indigo-600 text-lg" />}
@@ -89,11 +90,11 @@ const CustomerSelect = ({ value, onChange, disabled }) => {
     return (
         <div className="customer-select-wrapper">
             <Select
-                options={customers} // Lista completa
-                value={value}       // Objeto {value, label}
-                onChange={onChange} // Devuelve objeto {value, label} a RHF Controller
+                options={customers}
+                value={value}
+                onChange={onChange}
 
-                filterOption={filterOption} // IMPORTANTE: Filtrado local custom
+                filterOption={filterOption}
 
                 isLoading={isLoading}
                 getOptionLabel={(e) => e.label}
@@ -105,15 +106,25 @@ const CustomerSelect = ({ value, onChange, disabled }) => {
                 isClearable
                 isSearchable
 
+                // CRÍTICO: Evitar que el dropdown se corte o se superponga
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                maxMenuHeight={260}
+                styles={{
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                    control: (base) => ({ ...base, minHeight: '44px' }),
+                }}
+
                 classNames={{
                     control: (state) =>
-                        `!border-gray-200 dark:!border-gray-700 !rounded-xl !shadow-sm hover:!border-indigo-500 !bg-white dark:!bg-gray-800 ${state.isFocused ? '!ring-2 !ring-indigo-500/20 !border-indigo-500' : ''}`,
-                    menu: () => "!rounded-xl !shadow-lg !border !border-gray-100 dark:!border-gray-700 !mt-1 !overflow-hidden !z-50",
+                        `!border-slate-300 !rounded-xl !shadow-sm hover:!border-indigo-400 !bg-white h-11 ${state.isFocused ? '!ring-2 !ring-indigo-200 !border-indigo-300' : ''}`,
+                    menu: () => "!rounded-xl !shadow-lg !border !border-slate-100 !mt-1 !overflow-hidden",
                     option: (state) =>
-                        `${state.isFocused ? '!bg-indigo-50 dark:!bg-indigo-900/30 !text-indigo-600 dark:!text-indigo-400' : '!text-gray-600 dark:!text-gray-300'} !cursor-pointer !py-2.5 !px-4`,
-                    singleValue: () => "!text-gray-700 dark:!text-gray-200 !font-medium",
-                    input: () => "!text-gray-700 dark:!text-gray-200",
-                    placeholder: () => "!text-gray-400"
+                        `${state.isFocused ? '!bg-slate-50 !text-slate-900' : '!text-slate-600'} !cursor-pointer !py-2.5 !px-4`,
+                    singleValue: () => "!text-slate-900 !font-medium",
+                    input: () => "!text-slate-700",
+                    placeholder: () => "!text-slate-400"
                 }}
                 unstyled
             />

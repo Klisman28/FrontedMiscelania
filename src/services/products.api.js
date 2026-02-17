@@ -1,4 +1,5 @@
 import BaseService from './BaseService'
+import { cleanParams } from '../utils/cleanParams'
 
 const ProductsApi = {
     createProduct: (formData, onUploadProgress) => {
@@ -24,7 +25,7 @@ const ProductsApi = {
     },
 
     listProducts: (params) => {
-        return BaseService.get('/products', { params })
+        return BaseService.get('/products', { params: cleanParams(params) })
     }
 }
 

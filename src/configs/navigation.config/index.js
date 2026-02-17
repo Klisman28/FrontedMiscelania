@@ -292,6 +292,16 @@ const navigationConfig = [
             }
         ]
     },
+    {
+        key: 'reports',
+        path: '/reportes',
+        title: 'Reportes',
+        translateKey: 'nav.reports',
+        icon: 'reportsIcon',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['ADMIN'],
+        subMenu: []
+    },
 ]
 
 export default navigationConfig

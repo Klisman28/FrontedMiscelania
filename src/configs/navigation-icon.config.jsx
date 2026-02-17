@@ -23,7 +23,8 @@ import {
     LuUserCog,
     LuBadge,
     LuTruck,
-    LuStickyNote
+    LuStickyNote,
+    LuBarChart3
 } from 'react-icons/lu'
 
 const ICON_SIZE = 18
@@ -65,6 +66,7 @@ const navigationIcon = {
     employeesIcon: (props) => <LuBadge size={ICON_SIZE} {...props} />,
     suppliersIcon: (props) => <LuTruck size={ICON_SIZE} {...props} />,
     notesIcon: (props) => <LuStickyNote size={ICON_SIZE} {...props} />,
+    reportsIcon: (props) => <LuBarChart3 size={ICON_SIZE} {...props} />,
 }
 
 export default navigationIcon

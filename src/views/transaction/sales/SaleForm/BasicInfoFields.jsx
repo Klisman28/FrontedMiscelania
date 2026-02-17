@@ -49,75 +49,97 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
     }, [watchType, configData, setValue, resetField])
 
     return (
-        <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="space-y-4">
 
-            {/* Custom Segmented Control for Type */}
-            <FormItem className="mb-4">
+            {/* 1) Toggle Ticket / Factura - Segmented Control Minimal */}
+            <FormItem className="mb-0">
                 <Controller
                     control={control}
                     name="type"
                     render={({ field: { onChange, value } }) => (
-                        <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded-xl flex">
+                        <div className="bg-slate-100 rounded-2xl p-1 flex h-11">
                             <div
                                 className={classNames(
-                                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-lg cursor-pointer transition-all font-semibold text-sm select-none",
+                                    "flex-1 flex items-center justify-center gap-2 rounded-xl cursor-pointer transition-all font-semibold text-sm select-none",
                                     value === 'Ticket'
-                                        ? "bg-white dark:bg-gray-600 text-indigo-600 shadow-sm ring-1 ring-black/5"
-                                        : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                                        ? "bg-white shadow-sm text-indigo-600"
+                                        : "text-slate-600 hover:text-slate-900"
                                 )}
                                 onClick={() => onChange('Ticket')}
                             >
-                                <HiOutlineTicket className="text-lg" />
+                                <HiOutlineTicket className="text-[18px]" />
                                 <span>Ticket</span>
                             </div>
                             <div
                                 className={classNames(
-                                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-lg cursor-pointer transition-all font-semibold text-sm select-none",
+                                    "flex-1 flex items-center justify-center gap-2 rounded-xl cursor-pointer transition-all font-semibold text-sm select-none",
                                     value === 'Factura'
-                                        ? "bg-white dark:bg-gray-600 text-indigo-600 shadow-sm ring-1 ring-black/5"
-                                        : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                                        ? "bg-white shadow-sm text-indigo-600"
+                                        : "text-slate-600 hover:text-slate-900"
                                 )}
                                 onClick={() => onChange('Factura')}
                             >
-                                <HiOutlineDocumentText className="text-lg" />
+                                <HiOutlineDocumentText className="text-[18px]" />
                                 <span>Factura</span>
                             </div>
                         </div>
                     )}
                 />
-                {errors.type && <div className="text-red-500 text-xs mt-1">{errors.type.message}</div>}
+                {errors.type && <div className="text-red-500 text-xs mt-1 min-h-[16px]">{errors.type.message}</div>}
             </FormItem>
 
-            {/* Grid for Number and Date */}
-            <div className="grid grid-cols-2 gap-3 mb-2">
+            {/* 2) Serie/Num y Fecha en Grid */}
+            <div className="grid grid-cols-2 gap-3">
+                {/* Serie/Num - Grupo compacto */}
                 <FormItem
                     label={watchType !== 'Ticket' ? 'Serie/Num' : 'Número'}
                     className="mb-0"
                     invalid={errors.number || errors.serie}
                 >
-                    <InputGroup size="sm" className="w-full">
-                        {watchType !== 'Ticket' && (
+                    {watchType !== 'Ticket' ? (
+                        /* Serie y Número juntos */
+                        <div className="flex items-center h-11 rounded-xl border border-slate-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-indigo-200 focus-within:border-indigo-300">
                             <Controller
                                 control={control}
                                 name="serie"
                                 render={({ field }) => (
-                                    <Input {...field} className="min-w-[50px] text-center font-mono pl-1 pr-1" placeholder="Ser" />
+                                    <input
+                                        {...field}
+                                        className="w-14 text-center font-mono tabular-nums text-sm border-0 focus:ring-0 bg-transparent px-2"
+                                        placeholder="001"
+                                    />
                                 )}
                             />
-                        )}
-                        <Addon className="bg-gray-50 text-gray-400 px-2">
-                            {watchType !== 'Ticket' ? '-' : <HiOutlineHashtag />}
-                        </Addon>
+                            <span className="text-slate-400 px-1">-</span>
+                            <Controller
+                                control={control}
+                                name="number"
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        className="flex-1 text-right font-mono tabular-nums text-sm font-semibold border-0 focus:ring-0 bg-transparent pr-3"
+                                        placeholder="000000"
+                                    />
+                                )}
+                            />
+                        </div>
+                    ) : (
+                        /* Solo Número para Ticket */
                         <Controller
                             control={control}
                             name="number"
                             render={({ field }) => (
-                                <Input {...field} className="text-right font-mono text-gray-700 font-bold" placeholder="000000" />
+                                <input
+                                    {...field}
+                                    className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-center font-mono tabular-nums text-sm font-semibold focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300"
+                                    placeholder="000000"
+                                />
                             )}
                         />
-                    </InputGroup>
+                    )}
                 </FormItem>
 
+                {/* Fecha con ícono calendario */}
                 <FormItem
                     label="Fecha"
                     className="mb-0"
@@ -132,26 +154,28 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
                                 locale='es'
                                 inputFormat="DD/MM/YYYY"
                                 placeholder="Seleccionar"
-                                size="sm"
                                 clearable={false}
+                                inputPrefix={null}
+                                inputSuffix={null}
+                                className="custom-datepicker-h11"
                             />
                         )}
                     />
                 </FormItem>
             </div>
             {(errors.serie || errors.number) && (
-                <div className="text-red-500 text-xs mb-3">
+                <div className="text-red-500 text-xs min-h-[16px]">
                     {errors.serie?.message || errors.number?.message}
                 </div>
             )}
 
-            {/* Client Section - Conditionally Rendered */}
+            {/* 3) Cliente - Dropdown (solo si no es Ticket) */}
             {watchType !== 'Ticket' && (
-                <div className="mt-4 animate-fade-in-down">
+                <div className="animate-fade-in-down">
                     <FormItem
                         label="Cliente"
                         className="mb-0"
-                        invalid={errors.client} // Check if object is invalid generally, or check errors.client?.value if structure demands
+                        invalid={errors.client}
                         errorMessage={errors.client?.message || "Seleccione un cliente"}
                     >
                         <Controller

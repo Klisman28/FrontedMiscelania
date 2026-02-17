@@ -335,46 +335,48 @@ const SaleForm = (props) => {
 
                     {/* Columna Izquierda: Búsqueda y Catálogo (2 columnas) */}
                     <div className="lg:col-span-2 flex flex-col gap-4">
-                        <Card className="flex-1 shadow-sm border-gray-200">
-                            <KeyboardShortcutsHelper />
+                        <Card className="flex-1 shadow-sm border-gray-200 h-full flex flex-col" bodyClass="flex flex-col h-full">
+
+                            {/* Header: Atajos + Bodega */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                <div className="flex-1">
+                                    <KeyboardShortcutsHelper />
+                                </div>
+                                <div className="flex items-center self-start sm:self-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-full shrink-0">
+                                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wide truncate max-w-[180px]">
+                                        {warehouseList.find(w => w.id === watch('warehouseId'))?.name || '...'}
+                                    </span>
+                                </div>
+                            </div>
 
                             {/* Barra de búsqueda */}
-                            <div className="mb-4">
-                                <div className="flex justify-between items-center mb-2 px-1">
-                                    <div className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-                                        Bodega: <span className="text-indigo-600 font-bold">{warehouseList.find(w => w.id === watch('warehouseId'))?.name || 'Seleccionando...'}</span>
-                                    </div>
-                                </div>
+                            <div className="mb-2 relative z-20">
                                 <ProductQuickAddBar
                                     handleAppendProduct={handleAppendProduct}
                                     currentProducts={fields}
                                     warehouseId={watch('warehouseId')}
                                     autoFocus={true}
                                 />
-                                <div className="mt-2 text-center">
-                                    <SearchProduct handleAppendProduct={handleAppendProduct}>
-                                        <Button
-                                            size="sm"
-                                            variant="plain"
-                                            className="w-full text-xs text-gray-400 hover:text-indigo-600"
-                                        >
-                                            o buscar con filtros avanzados (F2)...
-                                        </Button>
-                                    </SearchProduct>
+                                <div className="mt-2 text-center absolute right-0 top-full hidden">
+                                    {/* Ocultamos el link de filtros avanzados por ahora para limpiar UI, o lo movemos dentro del search */}
                                 </div>
                             </div>
 
                             {/* Catálogo Visual */}
-                            <ProductCatalogue onProductSelect={handleAppendProduct} />
+                            <div className="flex-1 min-h-0">
+                                <ProductCatalogue onProductSelect={handleAppendProduct} />
+                            </div>
                         </Card>
                     </div>
 
                     {/* Columna Derecha: Recibo / Orden (1 columna) */}
                     <div className="lg:col-span-1">
-                        <Card className="h-full shadow-lg border-gray-200 sticky top-4 flex flex-col" bodyClass="flex flex-col h-full p-0">
+                        {/* Card wrapper consistente - POS Pro */}
+                        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm sticky top-4 flex flex-col h-full overflow-hidden">
 
                             {/* 1. Cabecera del Ticket (Info Básica) */}
-                            <div className="p-4 bg-gray-50/50">
+                            <div className="p-4 sm:p-5">
                                 <BasicInfoFields
                                     control={control}
                                     errors={errors}
@@ -384,27 +386,31 @@ const SaleForm = (props) => {
                                 />
                             </div>
 
+                            {/* Divisor sutil */}
+                            <div className="border-t border-slate-100"></div>
+
                             {/* 2. Cuerpo del Ticket (Lista de Productos) */}
-                            <div className="flex-1 overflow-y-auto min-h-[300px] border-t border-b border-gray-100 bg-white">
-                                <div className="p-0">
-                                    <OrderProducts
-                                        errors={errors}
-                                        fields={fields}
-                                        remove={remove}
-                                        control={control}
-                                        watch={watch}
-                                        setValue={setValue}
-                                        getValues={getValues}
-                                        handleChangeQuantity={handleChangeQuantity}
-                                    />
-                                </div>
+                            <div className="flex-1 overflow-y-auto min-h-[300px] bg-white">
+                                <OrderProducts
+                                    errors={errors}
+                                    fields={fields}
+                                    remove={remove}
+                                    control={control}
+                                    watch={watch}
+                                    setValue={setValue}
+                                    getValues={getValues}
+                                    handleChangeQuantity={handleChangeQuantity}
+                                />
                             </div>
 
+                            {/* Divisor sutil */}
+                            <div className="border-t border-slate-100"></div>
+
                             {/* 3. Footer del Ticket (Pagos) */}
-                            <div className="p-4 bg-gray-50/80">
+                            <div className="p-4 sm:p-5">
                                 <PaymentSummary control={control} watch={watch} />
                             </div>
-                        </Card>
+                        </div>
                     </div>
                 </div>
 

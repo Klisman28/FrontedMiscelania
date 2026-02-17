@@ -1,11 +1,12 @@
 import ApiService from './ApiService'
+import { cleanParams } from '../utils/cleanParams'
 
 const warehouseService = {
     fetchWarehouses: async (params) => {
         return ApiService.fetchData({
             url: '/warehouses',
             method: 'get',
-            params
+            params: cleanParams(params)
         })
     },
     createWarehouse: async (data) => {
@@ -26,7 +27,7 @@ const warehouseService = {
         return ApiService.fetchData({
             url: `/warehouses/${id}/stock`,
             method: 'get',
-            params
+            params: cleanParams(params)
         })
     },
     fetchWarehouse: async (id) => {

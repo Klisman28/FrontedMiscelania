@@ -251,35 +251,41 @@ const ProductQuickAddBar = ({
 
     return (
         <div className="relative w-full" ref={dropdownRef}>
-            {/* Input de búsqueda/escaneo */}
+            {/* Input de búsqueda/escaneo - POS Search */}
             <div className="relative">
-                <Input
+                {/* Icono lupa a la izquierda (absolute) */}
+                <div className="absolute mx-2 left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                    <HiSearch className="text-xl text-slate-400" />
+                </div>
+
+                <input
                     ref={inputRef}
-                    prefix={<HiSearch className="text-lg" />}
-                    suffix={
-                        searchTerm && (
-                            <button
-                                onClick={handleClear}
-                                className="hover:text-red-500 transition-colors"
-                                type="button"
-                            >
-                                <HiX className="text-lg" />
-                            </button>
-                        )
-                    }
-                    placeholder="Escanear o buscar por nombre / SKU / código (Enter o F2)"
+                    type="text"
+                    placeholder="        Escanear o buscar por nombre / SKU / código (Enter o F2)"
                     value={searchTerm}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     autoComplete="off"
-                    className="text-base"
+                    className="relative w-full h-12 rounded-2xl border border-slate-300 bg-white pl-12 pr-4 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all outline-none"
                 />
+
 
                 {/* Indicador de carga */}
                 {isSearching && (
-                    <div className="absolute right-12 top-1/2 -translate-y-1/2">
-                        <Spinner size={20} />
+                    <div className="absolute right-24 top-1/2 -translate-y-1/2">
+                        <Spinner size={18} />
                     </div>
+                )}
+
+                {/* Botón clear (cuando hay texto) */}
+                {searchTerm && (
+                    <button
+                        onClick={handleClear}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-red-500 transition-colors bg-slate-100 hover:bg-red-50 rounded-full p-1.5"
+                        type="button"
+                    >
+                        <HiX className="text-base" />
+                    </button>
                 )}
             </div>
 
