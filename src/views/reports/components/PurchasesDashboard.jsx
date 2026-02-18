@@ -6,9 +6,20 @@ import { apiGetPurchasesSummary, apiGetPurchasesByDay, apiGetTopSuppliers, apiGe
 import { NumericFormat } from 'react-number-format'
 import dayjs from 'dayjs'
 import 'dayjs/locale/es'
-import { pickList } from '../../../utils/pickList'
 
 const { Tr, Th, Td, THead, TBody } = Table
+
+function normalizeList(res, keys = []) {
+    const d = res?.data
+    if (!d) return []
+    for (const key of keys) {
+        if (Array.isArray(d?.data?.[key])) return d.data[key]
+        if (Array.isArray(d?.[key])) return d[key]
+    }
+    if (Array.isArray(d?.data)) return d.data
+    if (Array.isArray(d)) return d
+    return []
+}
 
 const StatisticCard = ({ title, value, icon, type = 'default' }) => {
     return (
@@ -46,13 +57,30 @@ const PurchasesDashboard = ({ filter }) => {
                 apiGetTopSuppliers({ ...params, limit: 10 })
             ])
 
-            if (resSummary.data) setSummary(resSummary.data[0] || { totalPurchases: 0, count: 0, averagePurchase: 0 })
+            // DEBUG: ver estructura real
+            console.log('[PurchasesDashboard] resSummary.data:', resSummary.data)
+            console.log('[PurchasesDashboard] resChart.data:', resChart.data)
+            console.log('[PurchasesDashboard] resSuppliers.data:', resSuppliers.data)
 
-            setChartData(pickList(resChart, 'purchases'))
-            setTopSuppliers(pickList(resSuppliers, 'suppliers'))
+            // Normalizar summary
+            const rawSummary = resSummary?.data
+            if (rawSummary) {
+                const s = Array.isArray(rawSummary)
+                    ? (rawSummary[0] || {})
+                    : (rawSummary?.data ?? rawSummary)
+                setSummary({
+                    totalPurchases: s.totalPurchases ?? s.total_purchases ?? s.total ?? 0,
+                    count: s.count ?? s.total_count ?? 0,
+                    averagePurchase: s.averagePurchase ?? s.average_purchase ?? s.average ?? 0,
+                })
+            }
+
+            setChartData(normalizeList(resChart, ['purchases', 'data', 'items']))
+            setTopSuppliers(normalizeList(resSuppliers, ['suppliers', 'data', 'items']))
 
         } catch (error) {
-            console.error('Error fetching purchases report', error)
+            console.error('[PurchasesDashboard] Error fetching purchases report:', error)
+            setSummary({ totalPurchases: 0, count: 0, averagePurchase: 0 })
         } finally {
             setLoading(false)
         }

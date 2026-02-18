@@ -10,6 +10,25 @@ import { pickList } from '../../../utils/pickList'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
+/**
+ * Extrae un array de la respuesta del backend sin importar cómo esté anidado.
+ * Intenta múltiples claves en orden hasta encontrar un array.
+ * Ej: res.data.data.sales | res.data.sales | res.data | res.data.data | []
+ */
+function normalizeList(res, keys = []) {
+    const d = res?.data
+    if (!d) return []
+    // Intentar cada clave en res.data.data primero, luego en res.data
+    for (const key of keys) {
+        if (Array.isArray(d?.data?.[key])) return d.data[key]
+        if (Array.isArray(d?.[key])) return d[key]
+    }
+    // Fallback: si res.data.data es array, usarlo directamente
+    if (Array.isArray(d?.data)) return d.data
+    if (Array.isArray(d)) return d
+    return []
+}
+
 const StatisticCard = ({ title, value, icon, type = 'default' }) => {
     return (
         <Card className="flex items-center gap-4 p-4 border border-gray-100 shadow-sm rounded-2xl">
@@ -48,16 +67,34 @@ const SalesDashboard = ({ filter }) => {
                 apiGetTopClients({ ...params, limit: 10 })
             ])
 
-            if (resSummary.data) setSummary(resSummary.data[0] || { totalSales: 0, count: 0, averageTicket: 0, totalTax: 0 })
-            if (resSummary.data) setSummary(resSummary.data[0] || { totalSales: 0, count: 0, averageTicket: 0, totalTax: 0 })
+            // DEBUG: ver estructura real de la respuesta
+            console.log('[SalesDashboard] resSummary.data:', resSummary.data)
+            console.log('[SalesDashboard] resChart.data:', resChart.data)
+            console.log('[SalesDashboard] resProducts.data:', resProducts.data)
+            console.log('[SalesDashboard] resClients.data:', resClients.data)
 
-            // Safe extraction
-            setChartData(pickList(resChart, 'sales'))
-            setTopProducts(pickList(resProducts, 'products'))
-            setTopClients(pickList(resClients, 'clients'))
+            // Normalizar summary — acepta array, objeto directo, o anidado en .data
+            const rawSummary = resSummary?.data
+            if (rawSummary) {
+                const s = Array.isArray(rawSummary)
+                    ? (rawSummary[0] || {})
+                    : (rawSummary?.data ?? rawSummary)
+                setSummary({
+                    totalSales: s.totalSales ?? s.total_sales ?? s.total ?? 0,
+                    count: s.count ?? s.total_count ?? 0,
+                    averageTicket: s.averageTicket ?? s.average_ticket ?? s.average ?? 0,
+                    totalTax: s.totalTax ?? s.total_tax ?? s.tax ?? 0,
+                })
+            }
+
+            // Normalizar listas
+            setChartData(normalizeList(resChart, ['sales', 'data', 'items']))
+            setTopProducts(normalizeList(resProducts, ['products', 'data', 'items']))
+            setTopClients(normalizeList(resClients, ['clients', 'data', 'items']))
 
         } catch (error) {
-            console.error('Error fetching sales report', error)
+            console.error('[SalesDashboard] Error fetching sales report:', error)
+            setSummary({ totalSales: 0, count: 0, averageTicket: 0, totalTax: 0 })
         } finally {
             setLoading(false)
         }

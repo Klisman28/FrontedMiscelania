@@ -4,9 +4,20 @@ import { HiDownload, HiCurrencyDollar, HiExclamation, HiCheckCircle } from 'reac
 import { apiGetInventoryValuation, apiGetLowStock, apiGetReportExport } from 'services/ReportsService'
 import { NumericFormat } from 'react-number-format'
 import dayjs from 'dayjs'
-import { pickList } from '../../../utils/pickList'
 
 const { Tr, Th, Td, THead, TBody } = Table
+
+function normalizeList(res, keys = []) {
+    const d = res?.data
+    if (!d) return []
+    for (const key of keys) {
+        if (Array.isArray(d?.data?.[key])) return d.data[key]
+        if (Array.isArray(d?.[key])) return d[key]
+    }
+    if (Array.isArray(d?.data)) return d.data
+    if (Array.isArray(d)) return d
+    return []
+}
 
 const InventoryDashboard = ({ filter }) => {
     const [loading, setLoading] = useState(false)
@@ -25,12 +36,27 @@ const InventoryDashboard = ({ filter }) => {
                 apiGetLowStock({ ...params, limit: 50 })
             ])
 
-            if (resValuation.data) setValuation(resValuation.data[0] || { totalValue: 0, totalProducts: 0 })
+            // DEBUG: ver estructura real
+            console.log('[InventoryDashboard] resValuation.data:', resValuation.data)
+            console.log('[InventoryDashboard] resLowStock.data:', resLowStock.data)
 
-            setLowStock(pickList(resLowStock, 'stock'))
+            // Normalizar valuation
+            const rawVal = resValuation?.data
+            if (rawVal) {
+                const v = Array.isArray(rawVal)
+                    ? (rawVal[0] || {})
+                    : (rawVal?.data ?? rawVal)
+                setValuation({
+                    totalValue: v.totalValue ?? v.total_value ?? v.total ?? 0,
+                    totalProducts: v.totalProducts ?? v.total_products ?? v.count ?? 0,
+                })
+            }
+
+            setLowStock(normalizeList(resLowStock, ['stock', 'products', 'items', 'data']))
 
         } catch (error) {
-            console.error('Error fetching inventory report', error)
+            console.error('[InventoryDashboard] Error fetching inventory report:', error)
+            setValuation({ totalValue: 0, totalProducts: 0 })
         } finally {
             setLoading(false)
         }

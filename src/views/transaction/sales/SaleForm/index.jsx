@@ -372,10 +372,28 @@ const SaleForm = (props) => {
 
                     {/* Columna Derecha: Recibo / Orden (1 columna) */}
                     <div className="lg:col-span-1">
-                        {/* Card wrapper consistente - POS Pro */}
                         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm sticky top-4 flex flex-col h-full overflow-hidden">
 
-                            {/* 1. Cabecera del Ticket (Info Básica) */}
+                            {/* Header con gradiente — igual a Compras */}
+                            <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-3.5 flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                    <HiOutlineCreditCard className="text-white/90 text-lg" />
+                                    <span className="text-sm font-bold text-white tracking-wide">
+                                        Orden de Venta
+                                    </span>
+                                </div>
+                                {/* Badge contador de items */}
+                                <div className="flex items-center gap-1.5 bg-white/20 px-2.5 py-1 rounded-full">
+                                    <span className="text-xs font-bold text-white tabular-nums">
+                                        {fields.length}
+                                    </span>
+                                    <span className="text-[10px] text-white/80 font-medium">
+                                        {fields.length === 1 ? 'item' : 'items'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* 1. Info del Ticket */}
                             <div className="p-4 sm:p-5">
                                 <BasicInfoFields
                                     control={control}
@@ -386,11 +404,11 @@ const SaleForm = (props) => {
                                 />
                             </div>
 
-                            {/* Divisor sutil */}
-                            <div className="border-t border-slate-100"></div>
+                            {/* Divisor */}
+                            <div className="border-t border-slate-100" />
 
-                            {/* 2. Cuerpo del Ticket (Lista de Productos) */}
-                            <div className="flex-1 overflow-y-auto min-h-[300px] bg-white">
+                            {/* 2. Lista de Productos */}
+                            <div className="flex-1 overflow-y-auto min-h-[280px] bg-slate-50/30">
                                 <OrderProducts
                                     errors={errors}
                                     fields={fields}
@@ -403,11 +421,11 @@ const SaleForm = (props) => {
                                 />
                             </div>
 
-                            {/* Divisor sutil */}
-                            <div className="border-t border-slate-100"></div>
+                            {/* Divisor */}
+                            <div className="border-t border-slate-100" />
 
-                            {/* 3. Footer del Ticket (Pagos) */}
-                            <div className="p-4 sm:p-5">
+                            {/* 3. Totales + SAT */}
+                            <div className="p-4 sm:p-5 bg-white">
                                 <PaymentSummary control={control} watch={watch} />
                             </div>
                         </div>

@@ -1,56 +1,82 @@
 import React from 'react'
-import { Card } from 'components/ui'
 import { NumericFormat } from 'react-number-format'
 
-const PaymentInfo = ({ label, value, isLast }) => {
-    return (
-        <li className={`flex items-center justify-between${!isLast ? ' mb-3' : ''}`}>
-            <span>{label}</span>
-            <span className="font-semibold">
-                <NumericFormat
-                    displayType="text"
-                    value={(Math.round(value * 100) / 100).toFixed(2)}
-                    prefix={'S/'}
-                    thousandSeparator={true}
-                />
-            </span>
-        </li>
-    )
-}
-
+/**
+ * PaymentSummary — Resumen de pago premium
+ * Diseño limpio con separación clara, total destacado en indigo
+ */
 const PaymentSummary = ({ watch }) => {
 
-    const watchProducts = watch('products', []);
-    const watchApplyIgv = watch('applyIgv');
+    const watchProducts = watch('products', [])
+    const watchApplyIgv = watch('applyIgv')
 
-    const subtotal = watchProducts?.reduce((sum, element) => sum + element.subtotal, 0)
+    const subtotal = watchProducts?.reduce((sum, el) => sum + (el.subtotal || 0), 0) || 0
     const taxRate = 0.05
-    const taxValue = taxRate * subtotal
+    const taxValue = watchApplyIgv ? taxRate * subtotal : 0
+    const total = subtotal + taxValue
+
+    const fmt = (val) => (Math.round(val * 100) / 100).toFixed(2)
 
     return (
-        <Card className="mb-4">
-            <h5 className="mb-2">Resumen de Pago</h5>
-            <ul>
-                <PaymentInfo label="Subtotal" value={subtotal} />
-                {/* <PaymentInfo label="Delivery fee" value={data.deliveryFees} /> */}
+        <div className="space-y-1">
+            {/* Separador con label */}
+            <div className="flex items-center gap-2 mb-3">
+                <div className="h-px flex-1 bg-slate-100" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Resumen</span>
+                <div className="h-px flex-1 bg-slate-100" />
+            </div>
 
-                {watchApplyIgv
-                    ?
-                    <>
-                        <PaymentInfo label="SAT 5%" value={taxValue} />
-                        <hr className="mb-3" />
-                        <PaymentInfo label="Total" value={taxValue + subtotal} isLast />
-                    </>
-                    :
-                    <>
-                        <PaymentInfo label="SAT" value={0} />
-                        <hr className="mb-3" />
-                        <PaymentInfo label="Total" value={subtotal} isLast />
-                    </>
-                }
+            {/* Subtotal */}
+            <div className="flex items-center justify-between py-1">
+                <span className="text-sm text-slate-500">Subtotal</span>
+                <span className="text-sm font-semibold text-slate-700 tabular-nums font-mono">
+                    <NumericFormat
+                        displayType="text"
+                        value={fmt(subtotal)}
+                        prefix="Q "
+                        thousandSeparator
+                    />
+                </span>
+            </div>
 
-            </ul>
-        </Card>
+            {/* SAT */}
+            <div className="flex items-center justify-between py-1">
+                <div className="flex items-center gap-1.5">
+                    <span className="text-sm text-slate-500">SAT</span>
+                    {watchApplyIgv && (
+                        <span className="text-[10px] font-semibold bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full">
+                            5%
+                        </span>
+                    )}
+                </div>
+                <span className={`text-sm font-semibold tabular-nums font-mono ${watchApplyIgv ? 'text-slate-700' : 'text-slate-300'}`}>
+                    <NumericFormat
+                        displayType="text"
+                        value={fmt(taxValue)}
+                        prefix="Q "
+                        thousandSeparator
+                    />
+                </span>
+            </div>
+
+            {/* Divisor */}
+            <div className="border-t border-slate-100 my-2" />
+
+            {/* Total — destacado */}
+            <div className="flex items-center justify-between py-1.5 px-3 bg-indigo-50 rounded-xl">
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-500">
+                    Total
+                </span>
+                <span className="text-xl font-bold text-indigo-600 tabular-nums font-mono">
+                    <NumericFormat
+                        displayType="text"
+                        value={fmt(total)}
+                        prefix="Q "
+                        thousandSeparator
+                    />
+                </span>
+            </div>
+        </div>
     )
 }
 
