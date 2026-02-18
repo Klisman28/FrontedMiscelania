@@ -175,8 +175,6 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
                     <FormItem
                         label="Cliente"
                         className="mb-0"
-                        invalid={errors.client}
-                        errorMessage={errors.client?.message || "Seleccione un cliente"}
                     >
                         <Controller
                             control={control}
