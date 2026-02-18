@@ -69,18 +69,23 @@ const SignInForm = props => {
 					<Form>
 						<FormContainer>
 
-							{/* Campo Usuario */}
+							{/* ── Campo Usuario ── */}
 							<FormItem
-								label="Usuario"
+								label=" Usuario"
 								invalid={errors.username && touched.username}
-								// Ocultamos el mensaje de error default porque lo mostramos personalizado
 								errorMessage={errors.username}
-								className="mb-6"
-								labelClass="!text-xs !font-bold !uppercase !tracking-wide !text-slate-500 mb-2"
+								className="mb-5"
+								labelClass="!text-xs !font-bold !uppercase !tracking-wider !text-slate-500 dark:!text-slate-400 mb-1.5"
 							>
-								<div className="relative group">
+								<div className="auth-input-wrapper relative group">
 									<div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
-										<HiOutlineUser className={`text-xl transition-colors ${errors.username && touched.username ? 'text-rose-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
+										<HiOutlineUser
+											className={`auth-input-icon text-lg transition-all duration-200
+												${errors.username && touched.username
+													? 'text-rose-400'
+													: 'text-slate-400 group-focus-within:text-indigo-500'
+												}`}
+										/>
 									</div>
 									<Field
 										type="text"
@@ -88,69 +93,78 @@ const SignInForm = props => {
 										name="username"
 										placeholder="Ej. usuario123"
 										component={Input}
-										className={`h-12 pl-11 rounded-xl transition-all duration-200 font-medium placeholder:font-normal
+										className={`h-[46px] pl-11 rounded-xl transition-all duration-200 text-sm font-medium placeholder:font-normal
 											${errors.username && touched.username
-												? 'bg-rose-50 border-rose-300 focus:ring-rose-200 focus:border-rose-400 text-rose-900 placeholder:text-rose-300'
-												: 'bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700 placeholder:text-slate-400'
+												? 'bg-rose-50/60 border-rose-200 focus:ring-2 focus:ring-rose-100 focus:border-rose-300 text-rose-900 placeholder:text-rose-300'
+												: 'bg-slate-50/80 border-slate-200/60 hover:border-slate-300 hover:bg-slate-100/60 focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 text-slate-700 placeholder:text-slate-400'
 											}
 										`}
 									/>
 									{errors.username && touched.username && (
 										<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-											<HiExclamationCircle className="text-xl text-rose-500" />
+											<HiExclamationCircle className="text-lg text-rose-400" />
 										</div>
 									)}
 								</div>
 							</FormItem>
 
-							{/* Campo Password */}
+							{/* ── Campo Password ── */}
 							<FormItem
 								label="Contraseña"
 								invalid={errors.password && touched.password}
 								errorMessage={errors.password}
-								className="mb-6"
-								labelClass="!text-xs !font-bold !uppercase !tracking-wide !text-slate-500 mb-2"
+								className="mb-5"
+								labelClass="!text-xs !font-bold !uppercase !tracking-wider !text-slate-500 dark:!text-slate-400 mb-1.5"
 							>
-								<div className="relative group">
+								<div className="auth-input-wrapper relative group">
 									<div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
-										<HiOutlineLockClosed className={`text-xl transition-colors ${errors.password && touched.password ? 'text-rose-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
+										<HiOutlineLockClosed
+											className={`auth-input-icon text-lg transition-all duration-200
+												${errors.password && touched.password
+													? 'text-rose-400'
+													: 'text-slate-400 group-focus-within:text-indigo-500'
+												}`}
+										/>
 									</div>
 									<Field
 										autoComplete="off"
 										name="password"
 										placeholder="••••••••"
 										component={PasswordInput}
-										// PasswordInput wrapper style
-										className={`h-12 rounded-xl transition-all duration-200 font-medium !pl-11
+										className={`h-[46px] rounded-xl transition-all duration-200 text-sm font-medium !pl-11
 											${errors.password && touched.password
-												? 'bg-rose-50 border-rose-300 focus:ring-rose-200 focus:border-rose-400 text-rose-900 placeholder:text-rose-300'
-												: 'bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700 placeholder:text-slate-400'
+												? 'bg-rose-50/60 border-rose-200 focus:ring-2 focus:ring-rose-100 focus:border-rose-300 text-rose-900 placeholder:text-rose-300'
+												: 'bg-slate-50/80 border-slate-200/60 hover:border-slate-300 hover:bg-slate-100/60 focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 text-slate-700 placeholder:text-slate-400'
 											}
 										`}
 									/>
 								</div>
 							</FormItem>
 
-							{/* Remember */}
-							<div className="flex justify-between items-center mb-8">
+							{/* ── Remember + Forgot ── */}
+							<div className="flex justify-between items-center mb-7">
 								<Field
 									className="mb-0"
 									name="rememberMe"
 									component={Checkbox}
-									// Custom checkbox style would be ideal, but default is fine with text color tweak
-									children={<span className="text-sm text-slate-600 font-medium select-none cursor-pointer hover:text-indigo-600 transition-colors">Recordar dispositivo</span>}
+									children={
+										<span className="text-sm text-slate-600 dark:text-slate-300 font-medium select-none cursor-pointer hover:text-indigo-600 transition-colors">
+											Recordar dispositivo
+										</span>
+									}
 								/>
-								<span className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer hover:underline">
+								<span className="text-xs font-semibold text-indigo-500 hover:text-indigo-700 cursor-pointer hover:underline transition-colors">
 									¿Olvidaste contraseña?
 								</span>
 							</div>
 
+							{/* ── Submit Button ── */}
 							<Button
 								block
 								loading={isSubmitting}
 								variant="solid"
 								type="submit"
-								className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold tracking-wide shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 transform hover:-translate-y-0.5"
+								className="auth-submit-btn"
 							>
 								{isSubmitting ? 'Verificando...' : 'Iniciar Sesión'}
 							</Button>
