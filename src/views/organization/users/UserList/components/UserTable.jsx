@@ -10,6 +10,7 @@ import UserDeleteConfirmation from './UserDeleteConfirmation'
 import UserEditDialog from './UserEditDialog'
 import { matchSorter } from 'match-sorter'
 import { upperFirst } from 'lodash'
+import BillingStats from './BillingStats'
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
@@ -88,7 +89,9 @@ const UserTable = () => {
     // const loading = useSelector((state) => state.userList.data.loading) // Ignoring loading for pure UI layout as per instructions to keep it simple, or I can wrap table. 
     // Wait, I should keep loading state if possible but I'll focus on layout. The original used DataTableSimple which handles loading.
     // I will assume data is loaded for layout purposes or add basic conditional if empty.
+    // I will assume data is loaded for layout purposes or add basic conditional if empty.
     const data = useSelector((state) => state.userList.data.userList)
+    const [isLimitReached, setIsLimitReached] = useState(false)
 
     useEffect(() => {
         dispatch(getUsers())
@@ -129,8 +132,8 @@ const UserTable = () => {
                             <span
                                 key={key}
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border ${role.name.toLowerCase() === 'admin'
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                    : 'bg-slate-100 text-slate-700 border-slate-200'
                                     }`}
                             >
                                 {upperFirst(role.name)}
@@ -192,6 +195,7 @@ const UserTable = () => {
 
     return (
         <div className="flex flex-col gap-4">
+            <BillingStats onLimitReached={setIsLimitReached} />
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
@@ -202,6 +206,7 @@ const UserTable = () => {
                     <FilterInput globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
                     <Button
                         variant="solid"
+                        disabled={isLimitReached}
                         size="md"
                         className="rounded-xl h-11 w-full md:w-auto px-6 font-semibold shadow-lg shadow-indigo-500/20"
                         icon={<HiPlusCircle className="text-lg" />}

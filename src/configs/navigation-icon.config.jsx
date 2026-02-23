@@ -67,6 +67,8 @@ const navigationIcon = {
     suppliersIcon: (props) => <LuTruck size={ICON_SIZE} {...props} />,
     notesIcon: (props) => <LuStickyNote size={ICON_SIZE} {...props} />,
     reportsIcon: (props) => <LuBarChart3 size={ICON_SIZE} {...props} />,
+    buildingIcon: (props) => <LuBuilding size={ICON_SIZE} {...props} />, // Saas Companies
+    barChartIcon: (props) => <LuBarChart3 size={ICON_SIZE} {...props} />, // Saas Stats
 }
 
 export default navigationIcon

@@ -28,16 +28,33 @@ function useAuth() {
 					const roles = user.roles.map((role) => {
 						return role.toUpperCase()
 					});
+
+					// Superadmin Detection Logic
+					// Roles might be strings or objects. The map above converts to uppercase strings, but let's check `user.roles` safely.
+					const isSuperAdmin =
+						user.isSuperAdmin === true ||
+						user.username === 'root' ||
+						(Array.isArray(user.roles) && user.roles.some(r => (typeof r === 'string' ? r : r.name) === 'superadmin'));
+
+					if (isSuperAdmin) {
+						roles.push('SUPERADMIN');
+					}
+
 					dispatch(setUser({
 						avatar: '',
 						username: user.username,
-						owner: user.employee.fullname,
-						authority: roles
-					} || {
+						owner: user.employee?.fullname || user.username,
+						authority: [...new Set(roles)], // Ensure unique
+						subscriptionStatus: user.company?.subscription_status || 'active'
+					}))
+				} else {
+					// Fallback for unexpected response structure
+					dispatch(setUser({
 						avatar: '',
 						username: 'Anonymous',
 						authority: ['USER'],
-						owner: ''
+						owner: '',
+						subscriptionStatus: 'active'
 					}))
 				}
 				const redirectUrl = query.get(REDIRECT_URL_KEY)

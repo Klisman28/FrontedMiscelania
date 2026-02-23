@@ -1,5 +1,4 @@
 import {
-    NAV_ITEM_TYPE_TITLE,
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM
 } from 'constants/navigation.constant'
@@ -302,6 +301,65 @@ const navigationConfig = [
         authority: ['ADMIN'],
         subMenu: []
     },
+    {
+        key: 'saasMenu',
+        path: '/saas',
+        title: 'Suscripción',
+        translateKey: 'nav.saas',
+        icon: 'configsIcon',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['ADMIN'],
+        subMenu: [
+            {
+                key: 'saas.plans',
+                path: '/saas/planes',
+                title: 'Planes',
+                translateKey: 'nav.saas.plans',
+                icon: 'productsIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'saas.billing',
+                path: '/saas/facturacion',
+                title: 'Facturación',
+                translateKey: 'nav.saas.billing',
+                icon: 'salesReportIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN'],
+                subMenu: []
+            }
+        ]
+    },
+    {
+        key: 'saasAdminMenu',
+        path: '/saas-admin',
+        title: 'SaaS Admin',
+        icon: 'usersIcon',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['ADMIN', 'SUPERADMIN'], // Added ADMIN for visibility test
+        subMenu: [
+            {
+                key: 'saasAdmin.companies',
+                path: '/saas/companies',
+                title: 'Empresas',
+                icon: 'buildingIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN', 'SUPERADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'saasAdmin.stats',
+                path: '/saas/stats',
+                title: 'Estadísticas',
+                icon: 'barChartIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['ADMIN', 'SUPERADMIN'],
+                subMenu: []
+            }
+        ]
+    }
 ]
 
 export default navigationConfig

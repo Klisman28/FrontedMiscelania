@@ -8,7 +8,8 @@ import capitalize from '../../utils/capitalize'
 import { useConfig } from '../../ConfigProvider'
 
 function formatMonthLabel({ month, locale, format }) {
-	return capitalize(dayjs(month).locale(locale).format(format))
+	const l = locale || 'en';
+	return capitalize(dayjs(month).locale(l).format(format))
 }
 
 const DateTable = (props) => {

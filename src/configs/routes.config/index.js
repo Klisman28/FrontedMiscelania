@@ -200,4 +200,30 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/reports/Reports')),
         authority: ['ADMIN', 'MANAGER'],
     },
+    // SAAS ROUTES
+    {
+        key: 'saas.plans',
+        path: '/saas/planes',
+        component: React.lazy(() => import('views/saas/Plans')),
+        authority: ['ADMIN'],
+    },
+    {
+        key: 'saas.billing',
+        path: '/saas/facturacion',
+        component: React.lazy(() => import('views/saas/Billing')),
+        authority: ['ADMIN'],
+    },
+    // SAAS ADMIN ROUTES - Only SUPERADMIN
+    {
+        key: 'saasAdmin.companies',
+        path: '/saas/companies',
+        component: React.lazy(() => import('views/saas/admin/CompaniesList')),
+        authority: ['SUPERADMIN'],
+    },
+    {
+        key: 'saasAdmin.stats',
+        path: '/saas/stats',
+        component: React.lazy(() => import('views/saas/admin/SaasStats')),
+        authority: ['SUPERADMIN'],
+    },
 ]

@@ -4,16 +4,17 @@ export const initialState = {
     avatar: '',
     username: '',
     owner: '',
-    authority: []
+    authority: [],
+    subscriptionStatus: 'active' // Default to active to prevent blocking legacy users
 }
 
 export const userSlice = createSlice({
-	name: 'auth/user',
-	initialState,
-	reducers: {
+    name: 'auth/user',
+    initialState,
+    reducers: {
         setUser: (_, action) => action.payload,
         userLoggedOut: () => initialState,
-	},
+    },
 })
 
 export const { setUser } = userSlice.actions

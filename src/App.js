@@ -1,5 +1,6 @@
 import React from 'react'
 import { Toaster } from 'react-hot-toast'
+import 'dayjs/locale/es'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
