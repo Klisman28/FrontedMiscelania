@@ -199,7 +199,7 @@ const UserTable = () => {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">Usuario del Sistema</h3>
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">Usuarios de la Empresa</h3>
                     <p className="text-slate-500 text-sm mt-1">Administra usuarios y roles</p>
                 </div>
                 <div className="flex flex-col md:flex-row gap-3 items-center">

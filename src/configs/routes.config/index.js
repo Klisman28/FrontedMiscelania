@@ -72,7 +72,7 @@ export const protectedRoutes = [
         key: 'organizationMenu.users',
         path: '/organizacion/usuarios',
         component: React.lazy(() => import('views/organization/users/UserList')),
-        authority: ['ADMIN'],
+        authority: ['SUPERADMIN'], // Hidden from normal tenant admins as requested
     },
     // CLIENTS ROUTES - Admin and Sales
     {
@@ -224,6 +224,12 @@ export const protectedRoutes = [
         key: 'saasAdmin.stats',
         path: '/saas/stats',
         component: React.lazy(() => import('views/saas/admin/SaasStats')),
+        authority: ['SUPERADMIN'],
+    },
+    {
+        key: 'saasAdmin.users',
+        path: '/saas/users',
+        component: React.lazy(() => import('views/saas/users/UserList')),
         authority: ['SUPERADMIN'],
     },
 ]

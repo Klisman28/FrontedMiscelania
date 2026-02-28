@@ -33,7 +33,7 @@ const CatalogsApi = {
     },
 
     getUnits: async () => {
-        const res = await BaseService.get('/units')
+        const res = await BaseService.get('/products/units')
         return normalizeListResponse(res.data, 'units')
     }
 }

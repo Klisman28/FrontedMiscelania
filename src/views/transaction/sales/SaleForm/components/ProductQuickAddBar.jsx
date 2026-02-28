@@ -91,8 +91,17 @@ const ProductQuickAddBar = ({
 
         setIsSearching(true)
         try {
-            const result = await dispatch(searchProducts({ search: term }))
-            const products = result.payload?.data || []
+            const result = await dispatch(searchProducts({ search: term, warehouseId }))
+            const rawItems = result.payload?.data || result.payload || []
+
+            // Normalize: stock endpoint returns { product, quantity }, flatten for match logic
+            const products = Array.isArray(rawItems)
+                ? rawItems.map(item =>
+                    item.product
+                        ? { ...item.product, stock: item.quantity ?? item.storeStock ?? 0 }
+                        : item
+                )
+                : []
 
             // Guardar en caché
             searchCacheRef.current.set(term.toLowerCase(), true)
@@ -128,7 +137,7 @@ const ProductQuickAddBar = ({
         } finally {
             setIsSearching(false)
         }
-    }, [dispatch])
+    }, [dispatch, warehouseId])
 
     // Manejo del cambio de input (con debounce)
     const handleInputChange = (e) => {
@@ -350,7 +359,7 @@ const ProductQuickAddBar = ({
             {showDropdown && !isSearching && productList.length === 0 && searchTerm && (
                 <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg p-4">
                     <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
-                        Sin resultados para "{searchTerm}"
+                        No se encontraron productos en tienda para "{searchTerm}"
                     </p>
                 </div>
             )}

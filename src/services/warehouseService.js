@@ -9,6 +9,27 @@ const warehouseService = {
             params: cleanParams(params)
         })
     },
+    /**
+     * Fetch only active stores (type = 'tienda')
+     * Used by sales module to populate warehouse selector
+     */
+    fetchStores: async () => {
+        return ApiService.fetchData({
+            url: '/warehouses/stores',
+            method: 'get',
+        })
+    },
+    /**
+     * Fetch products available in stores (stock > 0 in tiendas)
+     * Used by "Nueva Venta" catalogue and quick search
+     */
+    fetchStoreProducts: async (params) => {
+        return ApiService.fetchData({
+            url: '/warehouses/stores/products',
+            method: 'get',
+            params: cleanParams(params)
+        })
+    },
     createWarehouse: async (data) => {
         return ApiService.fetchData({
             url: '/warehouses',
@@ -19,7 +40,7 @@ const warehouseService = {
     updateWarehouse: async (id, data) => {
         return ApiService.fetchData({
             url: `/warehouses/${id}`,
-            method: 'put',
+            method: 'patch',
             data
         })
     },
@@ -44,14 +65,14 @@ const warehouseService = {
     },
     addStock: async (data) => {
         return ApiService.fetchData({
-            url: '/inventory/in',
+            url: '/inventory/add',
             method: 'post',
             data
         })
     },
     removeStock: async (data) => {
         return ApiService.fetchData({
-            url: '/inventory/out',
+            url: '/inventory/remove',
             method: 'post',
             data
         })
@@ -66,3 +87,4 @@ const warehouseService = {
 }
 
 export default warehouseService
+

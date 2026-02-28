@@ -256,7 +256,7 @@ const navigationConfig = [
                 translateKey: 'nav.catalogueMenu.categories',
                 icon: 'usersIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN'],
+                authority: ['SUPERADMIN'], // Only super admin manages global users
                 subMenu: []
             },
             {
@@ -338,7 +338,7 @@ const navigationConfig = [
         title: 'SaaS Admin',
         icon: 'usersIcon',
         type: NAV_ITEM_TYPE_COLLAPSE,
-        authority: ['ADMIN', 'SUPERADMIN'], // Added ADMIN for visibility test
+        authority: ['SUPERADMIN'], // Only SUPERADMIN
         subMenu: [
             {
                 key: 'saasAdmin.companies',
@@ -346,7 +346,7 @@ const navigationConfig = [
                 title: 'Empresas',
                 icon: 'buildingIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN', 'SUPERADMIN'],
+                authority: ['SUPERADMIN'],
                 subMenu: []
             },
             {
@@ -355,7 +355,16 @@ const navigationConfig = [
                 title: 'Estadísticas',
                 icon: 'barChartIcon',
                 type: NAV_ITEM_TYPE_ITEM,
-                authority: ['ADMIN', 'SUPERADMIN'],
+                authority: ['SUPERADMIN'],
+                subMenu: []
+            },
+            {
+                key: 'saasAdmin.users',
+                path: '/saas/users',
+                title: 'Usuarios Globales',
+                icon: 'usersIcon',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['SUPERADMIN'],
                 subMenu: []
             }
         ]

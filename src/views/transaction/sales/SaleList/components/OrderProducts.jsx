@@ -1,7 +1,7 @@
 import React from 'react'
 import { AdaptableCard } from 'components/shared'
 import { Table, Avatar, Card } from 'components/ui'
-import { NumericFormat } from 'react-number-format'
+import { formatGTQ } from 'utils/money'
 import { FiPackage } from 'react-icons/fi'
 
 const { Tr, Th, Td, THead, TBody } = Table
@@ -26,16 +26,9 @@ const MainColumn = ({ row }) => {
 	)
 }
 
-const PriceAmount = ({ amount }) => {
-	return (
-		<NumericFormat
-			displayType="text"
-			value={(Math.round(amount * 100) / 100).toFixed(2)}
-			prefix={'S/'}
-			thousandSeparator={true}
-		/>
-	)
-}
+const PriceAmount = ({ amount }) => (
+	<span className="font-semibold text-slate-800">{formatGTQ(amount)}</span>
+)
 
 const OrderProducts = ({ data }) => {
 

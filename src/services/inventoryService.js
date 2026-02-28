@@ -23,14 +23,14 @@ const inventoryService = {
     },
     addStock: async (data) => {
         return ApiService.fetchData({
-            url: '/inventory/in',
+            url: '/inventory/add',
             method: 'post',
             data
         })
     },
     stockIn: async (data) => {
         return ApiService.fetchData({
-            url: '/inventory/in',
+            url: '/inventory/add',
             method: 'post',
             data
         })

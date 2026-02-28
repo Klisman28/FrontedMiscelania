@@ -29,10 +29,15 @@ const SaleShowDialog = () => {
         >
             <div className="flex flex-col h-full justify-between">
                 <div className="mb-2">
-                    <div className="flex items-center mb-1">
+                    <div className="flex items-center gap-3 mb-1">
                         <h3>
-                            <span>Detalle Venta</span>
+                            Detalle Venta {selectedSale.id ? `#${selectedSale.id.toString().padStart(6, '0')}` : ''}
                         </h3>
+                        {(selectedSale.deletedAt || selectedSale.status === 3) && (
+                            <span className="px-3 py-1 bg-red-50 text-red-600 text-[11px] font-bold uppercase tracking-wider rounded-md ring-1 ring-red-600/20">
+                                Anulada
+                            </span>
+                        )}
                     </div>
                     <span className="flex items-center">
                         <HiOutlineCalendar className="text-lg" />

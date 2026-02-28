@@ -30,11 +30,12 @@ const newSlice = createSlice({
     reducers: {},
     extraReducers: {
         [getOpeningCurrent.fulfilled]: (state, action) => {
-            state.openingData = action.payload.data
+            state.openingData = action.payload?.data ?? action.payload ?? {}
             state.loading = false
         },
-        [getOpeningCurrent.rejected]: (state, action) => {
+        [getOpeningCurrent.rejected]: (state) => {
             state.openingData = {}
+            state.loading = false
         }
     }
 })

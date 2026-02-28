@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import CatalogsApi from 'services/catalogs.api'
 import { toast, Notification } from 'components/ui'
 
@@ -12,7 +12,7 @@ const useProductCatalogs = () => {
 
     const mapOptions = (list) => list.map(item => ({
         value: String(item.id),
-        label: item.name || item.nombre || item.title || `ID ${item.id}`,
+        label: item.symbol || item.name || item.nombre || item.title || `ID ${item.id}`,
         original: item // Para acceder a propiedades extra como categoryId
     }))
 

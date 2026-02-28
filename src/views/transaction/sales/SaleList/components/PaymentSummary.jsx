@@ -1,24 +1,19 @@
 import React from 'react'
 import { Card } from 'components/ui'
-import { NumericFormat } from 'react-number-format'
+import { formatGTQ } from 'utils/money'
 
-const PaymentInfo = ({label, value, isLast}) => {
+const PaymentInfo = ({ label, value, isLast }) => {
 	return (
 		<li className={`flex items-center justify-between${!isLast ? ' mb-3' : ''}`}>
 			<span>{label}</span>
 			<span className="font-semibold">
-				<NumericFormat
-					displayType="text"
-					value={(Math.round(value * 100) / 100).toFixed(2)} 
-					prefix={'Q/'} 
-					thousandSeparator={true} 
-				/>
+				{formatGTQ(value)}
 			</span>
 		</li>
 	)
 }
 
-const PaymentSummary = ({data}) => {
+const PaymentSummary = ({ data }) => {
 	return (
 		<Card className="mb-4">
 			<h5 className="mb-4">Resumen de Pago</h5>

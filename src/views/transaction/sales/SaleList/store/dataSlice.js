@@ -54,7 +54,8 @@ const dataSlice = createSlice({
         loading: false,
         saleList: [],
         tableData: initialTableData,
-        openingData: {}
+        openingData: {},
+        filters: { search: '', status: 'TODAS', dateRange: 'ALL' }
     },
     reducers: {
         setTableData: (state, action) => {
@@ -63,6 +64,9 @@ const dataSlice = createSlice({
         setLoading: (state, action) => {
             console.log(action.payload);
             state.loading = action.payload
+        },
+        setFilters: (state, action) => {
+            state.filters = { ...state.filters, ...action.payload }
         }
     },
     extraReducers: {
@@ -91,6 +95,6 @@ const dataSlice = createSlice({
     }
 })
 
-export const { setTableData, setLoading } = dataSlice.actions
+export const { setTableData, setLoading, setFilters } = dataSlice.actions
 
 export default dataSlice.reducer

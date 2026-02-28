@@ -19,3 +19,26 @@ export async function createSaasCompany(data) {
 export async function updateSaasCompanyStatus(id, status) {
     return BaseService.patch(`/saas/companies/${id}/status`, { status })
 }
+
+// Company Members 
+export async function getCompanyMembers(companyId) {
+    return BaseService.get(`/saas/companies/${companyId}/members`)
+}
+
+export async function assignCompanyMember(companyId, data) {
+    // data = { userId, role }
+    return BaseService.post(`/saas/companies/${companyId}/members`, data)
+}
+
+export async function updateCompanyMember(companyId, userId, payload) {
+    // payload: { role?, status? }
+    return BaseService.patch(`/saas/companies/${companyId}/members/${userId}`, payload)
+}
+
+export async function removeCompanyMember(companyId, userId) {
+    return BaseService.delete(`/saas/companies/${companyId}/members/${userId}`)
+}
+
+export async function hardDeleteMember(companyId, userId) {
+    return BaseService.delete(`/saas/companies/${companyId}/members/${userId}?hard=true`)
+}

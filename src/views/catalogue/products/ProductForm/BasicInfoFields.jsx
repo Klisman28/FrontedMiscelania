@@ -25,7 +25,7 @@ const BasicInfoFields = (props) => {
     const unitList = useSelector((state) => state.catalogs?.units ?? [])
     const unitOptions = unitList.map((u) => ({
         value: u.id,
-        label: `${u.name} (${u.symbol})`
+        label: u.symbol || u.name
     }))
 
     /* Estado calculado de expiración */

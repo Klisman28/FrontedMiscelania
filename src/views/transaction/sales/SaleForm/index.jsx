@@ -19,7 +19,7 @@ import PaymentSummary from './components/PaymentSummary'
 import ProductCatalogue from './components/ProductCatalogue'
 import ReceiptPrintView from '../shared/PrintBoleta'
 import SaleFormC from '../SaleForm/store/SaleForm.css'
-import { getWarehouses } from 'store/warehouses/warehousesSlice'
+import { getStores } from 'store/warehouses/warehousesSlice'
 import warehousesReducer from 'store/warehouses/warehousesSlice'
 // import ProductsSidebar from './components/ProductsSidebar' // Si lo usas
 // import OptionsFields from './OptionsFields'               // Si lo usas
@@ -55,12 +55,13 @@ const SaleForm = (props) => {
 
     // Redux
     const dispatch = useDispatch()
-    const warehouseList = useSelector((state) => state.warehouses?.warehouses || [])
+    const storeList = useSelector((state) => state.warehouses?.stores || [])
     const user = useSelector((state) => state.auth.user)
 
     // Initial Data Fetch
+    // Fetch only stores (tiendas) for POS
     useEffect(() => {
-        dispatch(getWarehouses())
+        dispatch(getStores())
     }, [dispatch])
 
     // Creamos la ref local para apuntar al <form> que se va a imprimir
@@ -69,9 +70,9 @@ const SaleForm = (props) => {
 
     // Esquema de validación general con acceso a estado
     const validationSchema = useMemo(() => Yup.object().shape({
-        warehouseId: Yup.mixed().test('is-valid-warehouse', 'Seleccione una bodega', (value) => {
-            // Guard clause: si la lista no ha cargado, no bloqueamos (asumiendo carga inicial)
-            if (Array.isArray(warehouseList) && warehouseList.length === 0) return true;
+        warehouseId: Yup.mixed().test('is-valid-store', 'Seleccione una tienda', (value) => {
+            // Guard clause: si la lista no ha cargado, no bloqueamos
+            if (Array.isArray(storeList) && storeList.length === 0) return true;
 
             // Aceptamos números o cadenas numéricas, pero no NaN ni null/undefined
             if (value === null || value === undefined || value === '') return false;
@@ -101,7 +102,7 @@ const SaleForm = (props) => {
         products: Yup.array().of(productsSchema).min(1, "Seleccione al menos un producto"),
         applyIgv: Yup.boolean(),
         dateIssue: Yup.date().required("La fecha es requerida")
-    }), [warehouseList])
+    }), [storeList])
 
     // Inicializamos react-hook-form
     const handleSaveAndIncrement = (data) => {
@@ -120,7 +121,7 @@ const SaleForm = (props) => {
         if (errors.products) {
             message = "Agrega al menos un producto válido";
         } else if (errors.warehouseId) {
-            message = "Seleccione una bodega (o no se pudo determinar automáticamente)";
+            message = "Seleccione una tienda (o no se pudo determinar automáticamente)";
         } else if (errors.client) {
             message = "Seleccione un cliente válido";
         }
@@ -156,44 +157,35 @@ const SaleForm = (props) => {
         register('warehouseId', { required: true });
     }, [register]);
 
-    // Warehouse Resolution Logic
+    // Store Resolution Logic — solo tiendas
     useEffect(() => {
-        if (Array.isArray(warehouseList) && warehouseList.length > 0) {
+        if (Array.isArray(storeList) && storeList.length > 0) {
             // Check if form already has warehouseId
             const currentId = getValues('warehouseId')
 
             // Only set if not already set or invalid
             if (!currentId) {
-                let targetWarehouse = null;
+                let targetStore = null;
 
-                // Priority 1: Exact "Main Warehouse" (case insensitive)
-                targetWarehouse = warehouseList.find(w => w.name && w.name.toLowerCase() === 'main warehouse' && w.status === 'Activo')
-
-                // Priority 2: Code "BOD 001"
-                if (!targetWarehouse) {
-                    targetWarehouse = warehouseList.find(w => w.code === 'BOD 001' && w.status === 'Activo')
+                // Priority 1: User default (if valid and is a store)
+                if (user?.defaultWarehouseId) {
+                    targetStore = storeList.find(w => w.id === user.defaultWarehouseId && w.active)
                 }
 
-                // Priority 3: User default (if valid)
-                if (!targetWarehouse && user?.defaultWarehouseId) {
-                    targetWarehouse = warehouseList.find(w => w.id === user.defaultWarehouseId && w.status === 'Activo')
+                // Priority 2: First active store
+                if (!targetStore) {
+                    targetStore = storeList.find(w => w.active)
                 }
 
-                // Priority 4: First active
-                if (!targetWarehouse) {
-                    targetWarehouse = warehouseList.find(w => w.status === 'Activo')
-                }
-
-                if (targetWarehouse) {
-                    console.log('DEBUG: Setting default warehouse:', targetWarehouse.id);
-                    // Force update and validation
-                    setValue('warehouseId', Number(targetWarehouse.id), { shouldValidate: true, shouldDirty: true })
+                if (targetStore) {
+                    console.log('DEBUG: Setting default store:', targetStore.id, targetStore.name);
+                    setValue('warehouseId', Number(targetStore.id), { shouldValidate: true, shouldDirty: true })
                 } else {
-                    console.warn('No active warehouse found for default selection.')
+                    console.warn('No active stores (tiendas) found.')
                 }
             }
         }
-    }, [warehouseList, user, setValue, getValues])
+    }, [storeList, user, setValue, getValues])
 
     // Atajo de teclado Ctrl+Enter para guardar
     useEffect(() => {
@@ -303,9 +295,9 @@ const SaleForm = (props) => {
 
         console.log('DEBUG: val just before submit:', wId, typeof wId)
 
-        // Fix 1: Emergency fallback if null but list available
-        if (!wId && Array.isArray(warehouseList) && warehouseList.length > 0) {
-            const fallback = warehouseList.find(w => w.status === 'Activo') || warehouseList[0];
+        // Fix 1: Emergency fallback if null but stores available
+        if (!wId && Array.isArray(storeList) && storeList.length > 0) {
+            const fallback = storeList.find(w => w.active) || storeList[0];
             if (fallback) {
                 console.log('DEBUG: Emergency fallback applied:', fallback.id)
                 setValue('warehouseId', Number(fallback.id), { shouldValidate: true })
@@ -345,7 +337,7 @@ const SaleForm = (props) => {
                                 <div className="flex items-center self-start sm:self-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-full shrink-0">
                                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
                                     <span className="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wide truncate max-w-[180px]">
-                                        {warehouseList.find(w => w.id === watch('warehouseId'))?.name || '...'}
+                                        {storeList.find(w => w.id === watch('warehouseId'))?.name || 'Sin tienda'}
                                     </span>
                                 </div>
                             </div>

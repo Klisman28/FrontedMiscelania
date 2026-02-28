@@ -80,6 +80,24 @@ const WarehouseListPage = () => {
             sortable: true,
         },
         {
+            Header: 'Tipo',
+            accessor: 'type',
+            Cell: props => {
+                const row = props.row.original
+                const isStore = row.type === 'tienda'
+                return (
+                    <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${isStore
+                                ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}>
+                            {isStore ? '🏪 Tienda' : '📦 Bodega'}
+                        </span>
+                    </div>
+                )
+            }
+        },
+        {
             Header: 'Código',
             accessor: 'code',
             sortable: true,
@@ -90,7 +108,6 @@ const WarehouseListPage = () => {
                 )
             }
         },
-        // If isActive is returned, uncomment:
         {
             Header: 'Activa',
             accessor: 'active',
@@ -142,12 +159,12 @@ const WarehouseListPage = () => {
     return (
         <AdaptableCard className="h-full" bodyClass="h-full">
             <div className="lg:flex items-center justify-between mb-4">
-                <h3 className="mb-4 lg:mb-0">Bodegas</h3>
+                <h3 className="mb-4 lg:mb-0">Ubicaciones</h3>
                 <div className="flex flex-col lg:flex-row lg:items-center">
                     <Input
                         className="mb-4 lg:mb-0 lg:mr-4"
                         prefix={<HiSearch className="text-lg" />}
-                        placeholder="Buscar bodega..."
+                        placeholder="Buscar ubicación..."
                         onChange={onSearchChange}
                         value={search}
                     />
@@ -157,7 +174,7 @@ const WarehouseListPage = () => {
                         icon={<HiPlus />}
                         onClick={openModal}
                     >
-                        Nueva Bodega
+                        Nueva Ubicación
                     </Button>
                 </div>
             </div>

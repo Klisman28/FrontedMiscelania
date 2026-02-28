@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Button, Avatar, Spinner } from 'components/ui'
 import { useDispatch, useSelector } from 'react-redux'
-import { getAllProducts, getSubcategories, getBrands, getCategories } from '../store/formSlice'
+import { getStoreProducts, getSubcategories, getBrands, getCategories } from '../store/formSlice'
 import { HiPlus, HiOutlineCube } from 'react-icons/hi'
 import { NumericFormat } from 'react-number-format'
 import classNames from 'classnames'
@@ -49,7 +49,7 @@ const ProductCatalogue = ({ onProductSelect }) => {
         const fetchData = async () => {
             setLoading(true)
             await Promise.all([
-                dispatch(getAllProducts()),
+                dispatch(getStoreProducts()),
                 dispatch(getSubcategories()),
                 dispatch(getCategories()),
                 dispatch(getBrands())
@@ -240,14 +240,14 @@ const ProductCatalogue = ({ onProductSelect }) => {
                                         <HiOutlineCube className="w-10 h-10 text-slate-300" />
                                     </div>
                                     <p className="font-semibold text-slate-700 mb-1">
-                                        No se encontraron productos
+                                        No se encontraron productos en tienda
                                     </p>
                                     <p className="text-sm text-slate-500">
                                         {searchTerm
                                             ? `Intenta con otro término de búsqueda`
                                             : selectedSubcategoryId
-                                                ? `No hay productos en esta categoría`
-                                                : `Agrega productos para comenzar`}
+                                                ? `No hay productos con stock en esta categoría`
+                                                : `Agrega stock a la tienda para comenzar`}
                                     </p>
                                 </div>
                             )}

@@ -11,6 +11,15 @@ export const getWarehouses = createAsyncThunk(
     }
 )
 
+// Fetch only active stores (type = 'tienda') for sales module
+export const getStores = createAsyncThunk(
+    SLICE_NAME + '/getStores',
+    async () => {
+        const response = await warehouseService.fetchStores()
+        return response.data
+    }
+)
+
 export const createWarehouse = createAsyncThunk(
     SLICE_NAME + '/createWarehouse',
     async (data) => {
@@ -46,6 +55,7 @@ export const deleteWarehouse = createAsyncThunk(
 const initialState = {
     loading: false,
     warehouses: [],
+    stores: [],       // Only tienda-type warehouses (for sales)
     stock: [],
     selectedWarehouse: null,
     error: null,
@@ -133,6 +143,18 @@ const warehousesSlice = createSlice({
                 state.loading = false
             })
             .addCase(deleteWarehouse.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.error.message
+            })
+            // ─── Stores (tiendas only) ───
+            .addCase(getStores.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(getStores.fulfilled, (state, action) => {
+                state.loading = false
+                state.stores = action.payload || []
+            })
+            .addCase(getStores.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message
             })

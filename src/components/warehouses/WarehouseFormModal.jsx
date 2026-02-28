@@ -10,7 +10,8 @@ const validationSchema = yup.object().shape({
     name: yup.string().required('El nombre es requerido'),
     address: yup.string().nullable(),
     code: yup.string().nullable(),
-    active: yup.boolean()
+    active: yup.boolean(),
+    type: yup.string().oneOf(['tienda', 'bodega']).required('El tipo es requerido')
 })
 
 const WarehouseFormModal = ({ isOpen, onClose }) => {
@@ -24,6 +25,7 @@ const WarehouseFormModal = ({ isOpen, onClose }) => {
         control,
         setValue,
         reset,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(validationSchema),
@@ -31,9 +33,12 @@ const WarehouseFormModal = ({ isOpen, onClose }) => {
             name: '',
             address: '',
             code: '',
-            active: true
+            active: true,
+            type: 'bodega'
         }
     })
+
+    const watchedType = watch('type')
 
     useEffect(() => {
         if (selectedWarehouse) {
@@ -41,12 +46,14 @@ const WarehouseFormModal = ({ isOpen, onClose }) => {
             setValue('address', selectedWarehouse.address)
             setValue('code', selectedWarehouse.code)
             setValue('active', selectedWarehouse.active !== undefined ? selectedWarehouse.active : true)
+            setValue('type', selectedWarehouse.type || 'bodega')
         } else {
             reset({
                 name: '',
                 address: '',
                 code: '',
-                active: true
+                active: true,
+                type: 'bodega'
             })
         }
     }, [selectedWarehouse, setValue, reset])
@@ -57,14 +64,14 @@ const WarehouseFormModal = ({ isOpen, onClose }) => {
                 await dispatch(updateWarehouse({ id: selectedWarehouse.id, data: values })).unwrap()
                 toast.push(
                     <Notification title="Éxito" type="success">
-                        Bodega actualizada exitosamente.
+                        Ubicación actualizada exitosamente.
                     </Notification>
                 )
             } else {
                 await dispatch(createWarehouse(values)).unwrap()
                 toast.push(
                     <Notification title="Éxito" type="success">
-                        Bodega creada exitosamente.
+                        Ubicación creada exitosamente.
                     </Notification>
                 )
             }
@@ -92,18 +99,53 @@ const WarehouseFormModal = ({ isOpen, onClose }) => {
             onRequestClose={handleClose}
         >
             <div className="flex flex-col h-full justify-between">
-                <h5 className="mb-4">{selectedWarehouse ? 'Editar Bodega' : 'Nueva Bodega'}</h5>
+                <h5 className="mb-4">{selectedWarehouse ? 'Editar Ubicación' : 'Nueva Ubicación'}</h5>
                 <div className="max-h-[65vh] overflow-y-auto">
                     <FormContainer>
                         <form onSubmit={handleSubmit(onSubmit)}>
+                            {/* ─── Type Selector (Tienda / Bodega) ─── */}
                             <FormItem
-                                label="Nombre de la Bodega"
+                                label="Tipo de Ubicación"
+                                invalid={errors.type}
+                                errorMessage={errors.type?.message}
+                            >
+                                <Controller
+                                    control={control}
+                                    name="type"
+                                    render={({ field }) => (
+                                        <div className="flex gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => field.onChange('tienda')}
+                                                className={`flex-1 py-2.5 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${field.value === 'tienda'
+                                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                                                    : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                                                    }`}
+                                            >
+                                                🏪 Tienda (POS)
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => field.onChange('bodega')}
+                                                className={`flex-1 py-2.5 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${field.value === 'bodega'
+                                                    ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-sm'
+                                                    : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                                                    }`}
+                                            >
+                                                📦 Bodega
+                                            </button>
+                                        </div>
+                                    )}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label={watchedType === 'tienda' ? 'Nombre de la Tienda' : 'Nombre de la Bodega'}
                                 invalid={errors.name}
                                 errorMessage={errors.name?.message}
                             >
                                 <Input
                                     type="text"
-                                    placeholder="Ej. Bodega Central"
+                                    placeholder={watchedType === 'tienda' ? 'Ej. Tienda Centro' : 'Ej. Bodega Central'}
                                     {...register('name')}
                                 />
                             </FormItem>

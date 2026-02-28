@@ -19,23 +19,22 @@ const ProductDeleteConfirmation = () => {
         dispatch(toggleDeleteConfirmation(false))
         const res = await dispatch(deleteProduct(selectedProduct.id))
 
-        const { message, type } = res.payload
-
-        if (type === 'success') {
+        if (res.meta.requestStatus === 'fulfilled') {
             dispatch(getProducts())
             dispatch(setSelectedProduct({}))
             toast.push(
-                <Notification title={"¡Eliminación exitoso!"} type="success" duration={3000}>
-                    {message}
+                <Notification title={"¡Eliminación exitosa!"} type="success" duration={3000}>
+                    {res.payload?.message || "Producto eliminado exitosamente"}
                 </Notification>
                 , {
                     placement: 'top-center'
                 }
             )
         } else {
+            const errorMessage = res.payload?.message || "El producto no se puede eliminar";
             toast.push(
-                <Notification title={"¡Eliminación fallido!"} type="danger" duration={3000}>
-                    El producto no se puede eliminar
+                <Notification title={"¡Eliminación fallida!"} type="danger" duration={5000}>
+                    {errorMessage}
                 </Notification>
                 , {
                     placement: 'top-center'

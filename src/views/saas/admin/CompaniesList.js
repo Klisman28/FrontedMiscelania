@@ -7,11 +7,16 @@ import {
 import { HiOutlineSearch, HiPlusCircle } from 'react-icons/hi'
 import { getSaasCompanies, createSaasCompany, updateSaasCompanyStatus } from 'services/saasCompanies.service'
 import { searchSaasUsers } from 'services/saasUsers.service'
+import CompanyMembersModal from './CompanyMembersModal'
 import dayjs from 'dayjs'
 import debounce from 'lodash/debounce'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
 import AsyncSelect from 'react-select/async'
+import { useDispatch, useSelector } from 'react-redux'
+import { onSignInSuccess } from 'store/auth/sessionSlice'
+import { setUser } from 'store/auth/userSlice'
+import { apiImpersonateCompany } from 'services/AuthService'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -39,6 +44,7 @@ const validationSchema = Yup.object().shape({
 })
 
 const CompaniesList = () => {
+    const dispatch = useDispatch()
     const [companies, setCompanies] = useState([])
     const [loading, setLoading] = useState(false)
     const [rowLoading, setRowLoading] = useState({})
@@ -53,6 +59,8 @@ const CompaniesList = () => {
 
     // Modal
     const [modalOpen, setModalOpen] = useState(false)
+    const [membersModalOpen, setMembersModalOpen] = useState(false)
+    const [selectedCompany, setSelectedCompany] = useState(null)
 
     const fetchCompanies = useCallback(async () => {
         setLoading(true)
@@ -198,6 +206,48 @@ const CompaniesList = () => {
         }
     }
 
+    const handleImpersonate = async (id) => {
+        setRowLoading(prev => ({ ...prev, [`impersonate_${id}`]: true }))
+        try {
+            const resp = await apiImpersonateCompany({ companyId: id })
+            if (resp.data?.data?.token || resp.data?.token || resp.data?.accessToken) {
+                const token = resp.data?.data?.token || resp.data?.token || resp.data?.accessToken
+
+                let decodedToken = {}
+                try {
+                    const base64Url = token.split('.')[1]
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    }).join(''))
+                    decodedToken = JSON.parse(jsonPayload)
+                } catch (e) {
+                    console.error("JWT Decode error", e)
+                }
+
+                dispatch(onSignInSuccess(token))
+
+                // Optional: Update the user slice state just in case before reload
+                const activeCompanyId = decodedToken.activeCompanyId ?? null
+                const tenantRole = decodedToken.tenantRole ?? null
+
+                // Fetch existing Redux state instead of full replace if possible
+                // But honestly a hard page reload handles Redux Persist re-inflation!
+                window.localStorage.setItem('temp_activeCompanyId', activeCompanyId) // safety buffer
+
+                toast.push(<Notification title="Éxito" type="success">Empresa asignada correctamente.</Notification>)
+                setTimeout(() => {
+                    // Forzamos recarga dura para reinflar todo el store persistido limpiamente y App Init
+                    window.location.assign('/home')
+                }, 1000)
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Error al impersonar empresa'
+            toast.push(<Notification title="Error" type="danger">{message}</Notification>)
+            setRowLoading(prev => ({ ...prev, [`impersonate_${id}`]: false }))
+        }
+    }
+
     const generateSlug = (name, setFieldValue) => {
         if (!name) return
         const slug = name.toString().toLowerCase()
@@ -264,15 +314,40 @@ const CompaniesList = () => {
                                     </Td>
                                     <Td>{company.subscription_end ? dayjs(company.subscription_end).format('DD/MM/YYYY') : '-'}</Td>
                                     <Td>
-                                        <Button
-                                            size="xs"
-                                            variant="twoTone"
-                                            color={company.status === 'active' ? 'red-600' : 'green-600'} // Red for Suspend, Green for Activate
-                                            loading={rowLoading[company.id]}
-                                            onClick={() => handleStatusUpdate(company.id, company.status)}
-                                        >
-                                            {company.status === 'active' ? 'Suspender' : 'Activar'}
-                                        </Button>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    size="xs"
+                                                    variant="twoTone"
+                                                    onClick={() => {
+                                                        setSelectedCompany(company)
+                                                        setMembersModalOpen(true)
+                                                    }}
+                                                >
+                                                    Miembros
+                                                </Button>
+                                                <Button
+                                                    size="xs"
+                                                    variant="twoTone"
+                                                    color={company.status === 'active' ? 'red-600' : 'green-600'} // Red for Suspend, Green for Activate
+                                                    loading={rowLoading[company.id]}
+                                                    onClick={() => handleStatusUpdate(company.id, company.status)}
+                                                >
+                                                    {company.status === 'active' ? 'Suspender' : 'Activar'}
+                                                </Button>
+                                            </div>
+                                            {company.status === 'active' && (
+                                                <Button
+                                                    size="xs"
+                                                    variant="solid"
+                                                    color="indigo-600"
+                                                    loading={rowLoading[`impersonate_${company.id}`]}
+                                                    onClick={() => handleImpersonate(company.id)}
+                                                >
+                                                    Operar VTR
+                                                </Button>
+                                            )}
+                                        </div>
                                     </Td>
                                 </Tr>
                             )) : (
@@ -380,6 +455,12 @@ const CompaniesList = () => {
                     )}
                 </Formik>
             </Dialog>
+
+            <CompanyMembersModal
+                isOpen={membersModalOpen}
+                onClose={() => setMembersModalOpen(false)}
+                company={selectedCompany}
+            />
         </Card>
     )
 }

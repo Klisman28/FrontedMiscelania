@@ -5,7 +5,10 @@ export const initialState = {
     username: '',
     owner: '',
     authority: [],
-    subscriptionStatus: 'active' // Default to active to prevent blocking legacy users
+    subscriptionStatus: 'active', // Default to active to prevent blocking legacy users
+    activeCompanyId: null,
+    tenantRole: null,
+    isSuperAdmin: false
 }
 
 export const userSlice = createSlice({

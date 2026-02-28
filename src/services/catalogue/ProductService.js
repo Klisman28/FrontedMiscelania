@@ -1,9 +1,10 @@
 import ApiService from '../ApiService'
 
-export async function apiGetProducts() {
+export async function apiGetProducts(params = {}) {
     const res = ApiService.fetchData({
         url: '/products',
         method: 'get',
+        params,
     })
 
     return res
@@ -69,6 +70,16 @@ export async function apiCreateProduct(data) {
     const res = ApiService.fetchData({
         url: '/products',
         method: 'post',
+        data: data
+    })
+
+    return res
+}
+
+export async function apiUpdateProductStatus(id, data) {
+    const res = ApiService.fetchData({
+        url: `/products/${id}/status`,
+        method: 'patch',
         data: data
     })
 
