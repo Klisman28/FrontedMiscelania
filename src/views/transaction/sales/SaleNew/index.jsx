@@ -84,12 +84,13 @@ const SaleNew = () => {
 
 		if (type === 'success') {
 			toast.success(message || 'Venta registrada con éxito')
-			navigate(`/transacciones/min-ventas`)
+			return true
 		} else {
 			console.error('POST SALE FAILED', res);
 			// Default error message if payload is missing
 			const errorMsg = message || 'Ocurrió un error al procesar la venta.'
 			toast.error(errorMsg)
+			return false
 		}
 
 	}

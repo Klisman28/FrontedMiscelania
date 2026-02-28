@@ -105,14 +105,31 @@ const SaleForm = (props) => {
     }), [storeList])
 
     // Inicializamos react-hook-form
-    const handleSaveAndIncrement = (data) => {
-        // console.log('CLICK COBRAR')
-        // console.log('PAYLOAD', data)
-        // Primero ejecutamos la lógica original de guardado
-        onFormSubmit(data);
+    // Inicializamos react-hook-form
+    const handleSaveAndIncrement = async (data) => {
+        // Primero ejecutamos la lógica original de guardado que ahora debe retornar true/false
+        const success = await onFormSubmit(data);
 
-        // Luego incrementamos el ticket para la próxima vez
-        incrementarTicket(setValue, data.number);
+        // Si tuvo éxito, limpiamos el formulario para una nueva venta en la misma página (POS continuo)
+        if (success) {
+            const nextNumber = String(Number(data.number) + 1).padStart(String(data.number).length, '0');
+            reset({
+                ...initialData,
+                warehouseId: data.warehouseId, // Mantener la tienda actual
+                type: 'Ticket', // Volver al tipo default
+                serie: data.serie,
+                number: nextNumber, // Auto incrementar
+                client: {},
+                products: [], // Limpiar carrito
+                applyIgv: false,
+                dateIssue: dayjs(new Date()).toDate()
+            });
+            // Opcional: enfocar el input para seguir añadiendo productos (esperamos un pequeño render)
+            setTimeout(() => {
+                const searchInput = document.getElementById('search-product-input');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
     };
 
     const onError = (errors, e) => {
@@ -142,6 +159,7 @@ const SaleForm = (props) => {
         watch,
         resetField,
         register,
+        reset,
     } = useForm({
         mode: 'onChange',
         resolver: yupResolver(validationSchema),

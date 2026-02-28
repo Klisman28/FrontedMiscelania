@@ -269,6 +269,7 @@ const ProductQuickAddBar = ({
 
                 <input
                     ref={inputRef}
+                    id="search-product-input"
                     type="text"
                     placeholder="        Escanear o buscar por nombre / SKU / código (Enter o F2)"
                     value={searchTerm}
