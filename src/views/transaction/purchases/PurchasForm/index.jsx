@@ -9,7 +9,7 @@ import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { injectReducer } from 'store/index'
 import reducer from './store'
-import { getSuppliers } from './store/formSlice'
+import { getSuppliers, getProductsByWarehouse, getAllProducts } from './store/formSlice'
 import { getWarehouses } from 'store/warehouses/warehousesSlice'
 import warehousesReducer from 'store/warehouses/warehousesSlice'
 import SearchProduct from './components/SearchProducts'
@@ -153,6 +153,13 @@ const PurchasForm = forwardRef((props, ref) => {
                     input.focus();
                 }
             }, 100);
+
+            // Refetch products to update the displayed stock
+            if (values.warehouseId) {
+                dispatch(getProductsByWarehouse(values.warehouseId));
+            } else {
+                dispatch(getAllProducts());
+            }
         }
     }
 
