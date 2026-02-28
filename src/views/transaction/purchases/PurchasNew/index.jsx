@@ -28,9 +28,20 @@ const PurchasNew = () => {
 		const taxValue = values.applyIgv ? Math.round((0.05 * subtotalRounded) * 100) / 100 : 0
 		const total = values.applyIgv ? (taxValue + subtotalRounded) : subtotalRounded
 
+		if (!values.warehouseId) {
+			toast.push(
+				<Notification title={'Error de Validación'} type="danger" duration={3000}>
+					Selecciona una bodega destino
+				</Notification>,
+				{ placement: 'top-center' }
+			)
+			return false
+		}
+
 		const data = {
 			dateIssue: values.dateIssue,
 			supplierId: parseInt(values.supplier.value),
+			warehouseId: parseInt(values.warehouseId) || parseInt(values.warehouse_id),
 			products,
 			igv: taxValue,
 			total: total
