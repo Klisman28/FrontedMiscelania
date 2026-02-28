@@ -62,6 +62,7 @@ const PurchasForm = forwardRef((props, ref) => {
         setValue,
         getValues,
         watch,
+        reset,
     } = useForm({
         mode: "onChange",
         resolver: yupResolver(validationSchema),
@@ -134,11 +135,32 @@ const PurchasForm = forwardRef((props, ref) => {
         return () => document.removeEventListener('keydown', handleKeyDown)
     }, [])
 
+    const handleSaveAndReset = async (values) => {
+        const success = await onFormSubmit(values)
+        if (success) {
+            reset({
+                warehouseId: values.warehouseId, // Mantener bodega
+                supplier: {}, // Resetear proveedor
+                dateIssue: '', // O new Date() según como funcione el DatePicker tuyo
+                products: [], // Vaciar carrito
+                applyIgv: false, // Quitar flag
+            });
+
+            // Dar foco al input de productos para nueva compra rápida
+            setTimeout(() => {
+                const input = document.getElementById('search-product-input-purchas');
+                if (input) {
+                    input.focus();
+                }
+            }, 100);
+        }
+    }
+
     // Bodega actualmente seleccionada (para el chip del header)
     const selectedWarehouse = warehouseList.find(w => w.id === watch('warehouseId'))
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} ref={formRef}>
+        <form onSubmit={handleSubmit(handleSaveAndReset)} ref={formRef}>
             <FormContainer className="purchase-form">
                 {/* Grid principal: 2 columnas (igual a Ventas) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -20,6 +20,10 @@ export async function updateSaasCompanyStatus(id, status) {
     return BaseService.patch(`/saas/companies/${id}/status`, { status })
 }
 
+export async function updateSaasCompanySeats(id, seats) {
+    return BaseService.patch(`/saas/companies/${id}/seats`, { seats })
+}
+
 // Company Members 
 export async function getCompanyMembers(companyId) {
     return BaseService.get(`/saas/companies/${companyId}/members`)

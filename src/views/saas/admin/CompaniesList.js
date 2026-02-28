@@ -4,9 +4,9 @@ import {
     Card, Table, Input, Button, Tag, Pagination, toast, Notification, Spinner,
     Dialog, FormItem, FormContainer, Select, DatePicker
 } from 'components/ui'
-import { HiOutlineSearch, HiPlusCircle } from 'react-icons/hi'
-import { getSaasCompanies, createSaasCompany, updateSaasCompanyStatus } from 'services/saasCompanies.service'
+import { getSaasCompanies, createSaasCompany, updateSaasCompanyStatus, updateSaasCompanySeats } from 'services/saasCompanies.service'
 import { searchSaasUsers } from 'services/saasUsers.service'
+import { HiOutlineSearch, HiPlusCircle, HiOutlinePencil } from 'react-icons/hi'
 import CompanyMembersModal from './CompanyMembersModal'
 import dayjs from 'dayjs'
 import debounce from 'lodash/debounce'
@@ -61,6 +61,8 @@ const CompaniesList = () => {
     const [modalOpen, setModalOpen] = useState(false)
     const [membersModalOpen, setMembersModalOpen] = useState(false)
     const [selectedCompany, setSelectedCompany] = useState(null)
+    const [editingSeatId, setEditingSeatId] = useState(null)
+    const [editSeatValue, setEditSeatValue] = useState(0)
 
     const fetchCompanies = useCallback(async () => {
         setLoading(true)
@@ -206,6 +208,25 @@ const CompaniesList = () => {
         }
     }
 
+    const handleSeatsUpdate = async (id) => {
+        if (!editSeatValue || isNaN(editSeatValue) || editSeatValue < 1) {
+            toast.push(<Notification title="Error" type="danger">Valor inválido</Notification>)
+            return
+        }
+        setRowLoading(prev => ({ ...prev, [`seats_${id}`]: true }))
+        try {
+            await updateSaasCompanySeats(id, Number(editSeatValue))
+            toast.push(<Notification title="Éxito" type="success">Cupos de la empresa actualizados</Notification>)
+            setEditingSeatId(null)
+            fetchCompanies()
+        } catch (error) {
+            const message = error.response?.data?.message || 'Error al actualizar cupos'
+            toast.push(<Notification title="Error" type="danger">{message}</Notification>)
+        } finally {
+            setRowLoading(prev => ({ ...prev, [`seats_${id}`]: false }))
+        }
+    }
+
     const handleImpersonate = async (id) => {
         setRowLoading(prev => ({ ...prev, [`impersonate_${id}`]: true }))
         try {
@@ -306,7 +327,36 @@ const CompaniesList = () => {
                                     <Td>
                                         <Tag className="bg-indigo-100 text-indigo-600 border-0 uppercase font-bold text-xs">{company.plan || 'Basic'}</Tag>
                                     </Td>
-                                    <Td>{company.seats || 0}</Td>
+                                    <Td>
+                                        {editingSeatId === company.id ? (
+                                            <div className="flex items-center gap-2">
+                                                <Input
+                                                    size="sm"
+                                                    type="number"
+                                                    min={1}
+                                                    className="w-20"
+                                                    value={editSeatValue}
+                                                    onChange={e => setEditSeatValue(e.target.value)}
+                                                />
+                                                <Button size="sm" variant="solid" loading={rowLoading[`seats_${company.id}`]} onClick={() => handleSeatsUpdate(company.id)}>OK</Button>
+                                                <Button size="sm" onClick={() => setEditingSeatId(null)}>X</Button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold">{company.seats || 0}</span>
+                                                <button
+                                                    className="text-indigo-600 hover:text-indigo-800"
+                                                    title="Editar miembros sugeridos"
+                                                    onClick={() => {
+                                                        setEditingSeatId(company.id);
+                                                        setEditSeatValue(company.seats || 0);
+                                                    }}
+                                                >
+                                                    <HiOutlinePencil size={18} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </Td>
                                     <Td>
                                         <Tag className={`${statusColorStyles[company.status] || 'bg-gray-100 text-gray-600'} border-0 rounded font-bold`}>
                                             {(company.status || 'unknown').toUpperCase()}

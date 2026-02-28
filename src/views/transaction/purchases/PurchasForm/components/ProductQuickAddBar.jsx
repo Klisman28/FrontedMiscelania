@@ -243,6 +243,7 @@ const ProductQuickAddBar = ({
             <div className="relative">
                 <Input
                     ref={inputRef}
+                    id="search-product-input-purchas"
                     prefix={<HiSearch className="text-lg" />}
                     suffix={
                         searchTerm && (
