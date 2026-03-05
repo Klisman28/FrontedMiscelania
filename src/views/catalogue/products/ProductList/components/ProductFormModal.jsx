@@ -10,6 +10,8 @@ import { parseApiError } from 'utils/parseApiError'
 import { validateImageFile } from 'utils/fileValidators'
 import useProductCatalogs from 'hooks/useProductCatalogs'
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux'
+import { presignProductImage, getOrFetchSignedUrl } from 'services/uploadsService'
 
 const getValidationSchema = (mode) => Yup.object().shape({
     name: Yup.string().required('El nombre es requerido'),
@@ -58,10 +60,15 @@ const ProductFormModal = ({
     } = useProductCatalogs()
 
     const [preview, setPreview] = useState(null)
-    const [uploadProgress, setUploadProgress] = useState(0)
+    const [isImageUploading, setIsImageUploading] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
     const [imageRemoved, setImageRemoved] = useState(false)
+
+    // Roles
+    const user = useSelector((state) => state.auth.user)
+    const authority = user?.authority || []
+    const canManageImage = user?.isSuperAdmin || authority.includes('admin') || authority.includes('almacenero')
     const [warehouses, setWarehouses] = useState([])
     const [warehousesLoading, setWarehousesLoading] = useState(false)
     const fileInputRef = useRef(null)
@@ -90,7 +97,7 @@ const ProductFormModal = ({
             subcategoryId: '',
             brandId: '',
             unitId: '',
-            image: null,
+            imageKey: null,
             expirationDate: '',
             warehouseId: '',
             initialStock: 0,
@@ -98,7 +105,6 @@ const ProductFormModal = ({
         }
     })
 
-    const selectedImage = watch('image')
     const selectedCategoryId = watch('categoryId')
 
     // Fetch warehouses for location selector
@@ -152,10 +158,11 @@ const ProductFormModal = ({
                     subcategoryId: initialValues.subcategoryId ? String(initialValues.subcategoryId) : '',
                     brandId: initialValues.brandId ? String(initialValues.brandId) : '',
                     unitId: initialValues.unitId ? String(initialValues.unitId) : '',
-                    image: null,
+                    imageKey: initialValues.imageKey || null,
                     expirationDate: expDate
                 })
                 setImageRemoved(false)
+                setPreview(null)
 
                 // Cargar subcategorías si hay categoría seleccionada
                 if (initialValues.categoryId) {
@@ -174,64 +181,94 @@ const ProductFormModal = ({
                     subcategoryId: '',
                     brandId: '',
                     unitId: '',
-                    image: null,
+                    imageKey: null,
                     expirationDate: '',
                     warehouseId: '',
                     initialStock: 0,
                     stockDescription: 'Stock inicial al crear producto'
                 })
                 setImageRemoved(false)
+                setPreview(null)
             }
-            setUploadProgress(0)
             setIsSubmitting(false)
+            setIsImageUploading(false)
         }
     }, [open, mode, initialValues, reset, loadSubcategories])
 
 
     // Effect for Image Preview
     useEffect(() => {
-        if (selectedImage instanceof File) {
-            const objectUrl = URL.createObjectURL(selectedImage)
-            setPreview(objectUrl)
-            return () => URL.revokeObjectURL(objectUrl)
-        } else if (imageRemoved) {
-            setPreview(null)
-        } else if (initialValues?.imageUrl && !selectedImage) {
+        let mounted = true
+        if (initialValues?.imageKey && !preview && !initialValues?.imageUrl && !imageRemoved) {
+            getOrFetchSignedUrl(initialValues.imageKey).then(url => {
+                if (mounted && url) setPreview(url)
+            })
+        } else if (initialValues?.imageUrl && !preview && !imageRemoved) {
             setPreview(initialValues.imageUrl)
-        } else {
-            setPreview(null)
         }
-    }, [selectedImage, initialValues, imageRemoved])
+        return () => { mounted = false }
+    }, [initialValues, preview, imageRemoved])
+
+    const uploadFile = async (file) => {
+        if (!canManageImage) return
+        const { valid, error } = validateImageFile(file)
+        if (!valid) {
+            toast.push(<Notification title="Error de archivo" type="danger">{error}</Notification>)
+            if (fileInputRef.current) fileInputRef.current.value = ''
+            return
+        }
+
+        try {
+            setIsImageUploading(true)
+            const presignRes = await presignProductImage({
+                fileName: file.name,
+                contentType: file.type
+            })
+            const resData = presignRes.data?.data || presignRes.data
+            const { uploadUrl, key } = resData
+
+            const localUrl = URL.createObjectURL(file)
+            setPreview(localUrl)
+
+            const uploadRes = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': file.type },
+                body: file
+            })
+
+            if (uploadRes.ok) {
+                setValue('imageKey', key)
+                setImageRemoved(false)
+                toast.push(<Notification title="Éxito" type="success">Imagen subida con éxito</Notification>)
+            } else {
+                throw new Error('Error al subir a S3')
+            }
+        } catch (error) {
+            console.error(error)
+            toast.push(<Notification title="Error" type="danger">Error al subir la imagen</Notification>)
+            setValue('imageKey', null)
+            setPreview(null)
+        } finally {
+            setIsImageUploading(false)
+            if (fileInputRef.current) fileInputRef.current.value = ''
+        }
+    }
 
     const handleFileChange = (e) => {
         const file = e.target.files[0]
-        if (file) {
-            const { valid, error } = validateImageFile(file)
-            if (!valid) {
-                toast.push(
-                    <Notification title="Error de archivo" type="danger">
-                        {error}
-                    </Notification>
-                )
-                e.target.value = ''
-                return
-            }
-            setValue('image', file)
-            setImageRemoved(false)
-        }
+        if (file) uploadFile(file)
     }
 
     const handleRemoveImage = () => {
-        setValue('image', null)
+        if (!canManageImage) return
+        setValue('imageKey', null)
         setImageRemoved(true)
         setPreview(null)
-        // Reset file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ''
-        }
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
     const handleChangeImageClick = () => {
+        if (!canManageImage) return
         if (fileInputRef.current) {
             fileInputRef.current.value = ''
             fileInputRef.current.click()
@@ -248,17 +285,7 @@ const ProductFormModal = ({
     const handleDrop = (e) => {
         e.preventDefault(); e.stopPropagation(); setIsDragging(false)
         const file = e.dataTransfer.files[0]
-        if (file) {
-            const { valid, error } = validateImageFile(file)
-            if (!valid) {
-                toast.push(
-                    <Notification title="Error de archivo" type="danger">{error}</Notification>
-                )
-                return
-            }
-            setValue('image', file)
-            setImageRemoved(false)
-        }
+        if (file) uploadFile(file)
     }
 
     // ── Handle stock adjustment (edit mode) ──
@@ -315,9 +342,8 @@ const ProductFormModal = ({
 
     const onSubmit = async (values) => {
         setIsSubmitting(true)
-        setUploadProgress(0)
 
-        const formData = new FormData()
+        const payload = {}
 
         // Append basic fields (excluding categoryId since backend does not expect it)
         // In edit mode, exclude 'stock' — stock only changes via inventory movements
@@ -326,36 +352,31 @@ const ProductFormModal = ({
             : ['name', 'sku', 'price', 'cost', 'stockMin', 'description', 'subcategoryId', 'brandId', 'unitId', 'initialStock', 'warehouseId', 'stockDescription']
         fields.forEach(field => {
             if (values[field] !== null && values[field] !== undefined && values[field] !== '') {
-                formData.append(field, values[field])
+                payload[field] = values[field]
             }
         })
 
         // Handle Expiration Date
         if (values.expirationDate) {
-            formData.append('expirationDate', values.expirationDate)
+            payload.expirationDate = values.expirationDate
         }
 
         // Handle Image
-        if (values.image instanceof File) {
-            // New image selected → send file
-            formData.append('image', values.image)
-        } else if (imageRemoved) {
-            // User explicitly removed image → tell backend to clear it
-            formData.append('imageUrl', '')
-            formData.append('removeImage', 'true')
+        if (values.imageKey) {
+            payload.imageKey = values.imageKey
+        }
+
+        // Always send removeImage/imageKey:null when removed.
+        if (imageRemoved) {
+            payload.imageKey = null
         }
 
         try {
-            const onProgress = (progressEvent) => {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                setUploadProgress(percentCompleted)
-            }
-
             let response
             if (mode === 'create') {
-                response = await ProductsApi.createProduct(formData, onProgress)
+                response = await ProductsApi.createProduct(payload)
             } else {
-                response = await ProductsApi.updateProduct(initialValues.id, formData, onProgress)
+                response = await ProductsApi.updateProduct(initialValues.id, payload)
             }
 
             const { data } = response
@@ -389,7 +410,6 @@ const ProductFormModal = ({
             )
         } finally {
             setIsSubmitting(false)
-            setUploadProgress(0)
         }
     }
 
@@ -757,6 +777,9 @@ const ProductFormModal = ({
                             )}
 
                             <FormItem label="Imagen del Producto">
+                                {!canManageImage && (
+                                    <p className="text-xs text-red-500 mb-2">No tienes permisos para modificar imágenes.</p>
+                                )}
                                 {/* Hidden file input for programmatic trigger */}
                                 <input
                                     ref={fileInputRef}
@@ -764,65 +787,66 @@ const ProductFormModal = ({
                                     accept="image/jpeg,image/png,image/webp"
                                     className="hidden"
                                     onChange={handleFileChange}
+                                    disabled={!canManageImage || isImageUploading}
                                 />
                                 <div
-                                    className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center min-h-[160px] relative transition-colors ${isDragging ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300 bg-gray-50'
+                                    className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center min-h-[160px] relative transition-colors ${canManageImage && !isImageUploading ? (isDragging ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300 bg-gray-50 hover:bg-slate-50 cursor-pointer') : 'opacity-70 cursor-not-allowed bg-slate-50 border-gray-200'
                                         }`}
                                     onDragOver={handleDragOver}
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
+                                    onClick={(e) => {
+                                        if (canManageImage && !isImageUploading && e.target === e.currentTarget && !preview) handleChangeImageClick()
+                                    }}
                                 >
-                                    {preview ? (
+                                    {isImageUploading ? (
+                                        <div className="flex flex-col items-center">
+                                            <span className="block h-8 w-8 border-4 border-slate-200 border-t-indigo-500 rounded-full animate-spin"></span>
+                                            <p className="mt-2 text-xs text-slate-500">Subiendo...</p>
+                                        </div>
+                                    ) : preview ? (
                                         <div className="relative group w-full h-full flex flex-col items-center">
                                             <img
                                                 src={preview}
                                                 alt="Preview"
                                                 className="max-h-[120px] object-contain rounded"
                                             />
-                                            <div className="flex items-center gap-2 mt-3">
-                                                <Button
-                                                    size="xs"
-                                                    variant="solid"
-                                                    icon={<HiPhotograph />}
-                                                    onClick={handleChangeImageClick}
-                                                    type="button"
-                                                >
-                                                    Cambiar
-                                                </Button>
-                                                <Button
-                                                    size="xs"
-                                                    variant="solid"
-                                                    color="red-600"
-                                                    icon={<HiTrash />}
-                                                    onClick={handleRemoveImage}
-                                                    type="button"
-                                                >
-                                                    Eliminar
-                                                </Button>
-                                            </div>
+                                            {canManageImage && (
+                                                <div className="flex items-center gap-2 mt-3">
+                                                    <Button
+                                                        size="xs"
+                                                        variant="solid"
+                                                        icon={<HiPhotograph />}
+                                                        onClick={handleChangeImageClick}
+                                                        type="button"
+                                                    >
+                                                        Cambiar
+                                                    </Button>
+                                                    <Button
+                                                        size="xs"
+                                                        variant="solid"
+                                                        color="red-600"
+                                                        icon={<HiTrash />}
+                                                        onClick={handleRemoveImage}
+                                                        type="button"
+                                                    >
+                                                        Eliminar
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <div
-                                            className="text-center cursor-pointer w-full h-full"
+                                            className="text-center w-full h-full flex flex-col items-center justify-center"
                                             onClick={handleChangeImageClick}
                                         >
                                             <HiOutlineCloudUpload className="text-4xl text-gray-400 mx-auto mb-2" />
-                                            <p className="text-xs text-gray-500 mb-1">Arrastra o haz clic para subir</p>
-                                            <p className="text-xs text-gray-400">JPG, PNG, WEBP — Máx 2MB</p>
+                                            <p className="text-xs text-gray-500 mb-1">{canManageImage ? 'Arrastra o haz clic para subir' : 'Sin imagen'}</p>
+                                            {canManageImage && <p className="text-xs text-gray-400">JPG, PNG, WEBP — Máx 2MB</p>}
                                         </div>
                                     )}
                                 </div>
                             </FormItem>
-
-                            {isSubmitting && uploadProgress > 0 && (
-                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-2">
-                                    <div
-                                        className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
-                                        style={{ width: `${uploadProgress}%` }}
-                                    ></div>
-                                    <p className="text-xs text-center mt-1 text-indigo-600 font-semibold">{uploadProgress}% Subido</p>
-                                </div>
-                            )}
                         </div>
                     </div>
 

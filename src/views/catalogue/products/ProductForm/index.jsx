@@ -45,7 +45,8 @@ const validationSchema = Yup.object().shape({
     stockMin: Yup.number()
         .required('Stock mínimo es requerido')
         .integer('Por favor ingrese un número entero'),
-    imageUrl: Yup.string().nullable().notRequired(),
+    imageKey: Yup.string().nullable().notRequired(),
+    imageUrl: Yup.string().nullable().notRequired(), // Keep it so form doesn't crash if it exists
     subcategoryId: Yup.string()
         .required('Por favor seleccione subcategoría'),
     brandId: Yup.string()
@@ -103,23 +104,12 @@ const ProductForm = forwardRef((props, ref) => {
                 enableReinitialize={true}
                 validationSchema={validationSchema}
                 onSubmit={(values, { setSubmitting }) => {
-                    // Si se seleccionó una imagen nueva (en imgList), actualizar imageUrl
-                    // Nota: ProductImages suele manejar imgList. Si se sube archivo real, el backend lo maneja.
-                    // Si es solo URL visual, aquí asignamos.
-                    // Adaptamos para que el backend reciba lo correcto.
+                    const payload = { ...values }
 
-                    const payload = { ...values };
-
-                    // Si hay imagen en la lista de upload (nueva), usar esa.
-                    // Pero `ProductImages` componente suele operar con `imgList`.
-                    // El backend espera multipart si hay archivo. 
-                    // Aquí asumimos que `onFormSubmit` maneja la transformación a FormData si hay archivo `file`.
-
-                    if (values.imgList && values.imgList.length > 0) {
-                        // Si el componente de imágenes devuelve un objeto con `img` (url) y `file` (blob)
-                        // values.image = values.imgList[0].file 
-                        // values.imageUrl = values.imgList[0].img
-                    }
+                    // We now rely purely on imageKey from ProductImages directly inserted in form state
+                    // The API doesn't need imageUrl or imgList.
+                    delete payload.imageUrl
+                    delete payload.imgList
 
                     if (typeAction === 'create') {
                         // Limpiezas si es create
@@ -227,6 +217,7 @@ ProductForm.defaultProps = {
         subcategoryId: '',
         brandId: '',
         unitId: '',
+        imageKey: null,
         imageUrl: '',
         hasExpiration: false,
         expirationDate: '',

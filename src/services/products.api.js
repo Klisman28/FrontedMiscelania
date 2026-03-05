@@ -2,20 +2,14 @@ import BaseService from './BaseService'
 import { cleanParams } from '../utils/cleanParams'
 
 const ProductsApi = {
-    createProduct: (formData, onUploadProgress) => {
-        return BaseService.post('/products', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+    createProduct: (data, onUploadProgress) => {
+        return BaseService.post('/products', data, {
             onUploadProgress
         })
     },
 
-    updateProduct: (id, formData, onUploadProgress) => {
-        return BaseService.put(`/products/${id}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+    updateProduct: (id, data, onUploadProgress) => {
+        return BaseService.put(`/products/${id}`, data, {
             onUploadProgress
         })
     },

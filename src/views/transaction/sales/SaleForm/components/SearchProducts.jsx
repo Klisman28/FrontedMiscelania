@@ -9,6 +9,24 @@ import Highlighter from 'react-highlight-words'
 import { useDispatch, useSelector } from 'react-redux'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { toast, Notification } from 'components/ui'
+import useProductImage from 'hooks/useProductImage'
+
+// Sub-component to use hooks inside .map()
+const SearchProductImage = ({ product }) => {
+    const imageSrc = useProductImage(product)
+    return imageSrc ? (
+        <img
+            src={imageSrc}
+            alt={product.name}
+            className="h-12 w-12 object-contain rounded-md bg-slate-50"
+            onError={(e) => { e.target.style.display = 'none' }}
+        />
+    ) : (
+        <div className="h-12 w-12 rounded-md bg-slate-100 flex items-center justify-center">
+            <span className="text-slate-300 text-lg">📦</span>
+        </div>
+    )
+}
 
 export const SearchProducts = ({ handleAppendProduct, children }) => {
 
@@ -128,11 +146,7 @@ export const SearchProducts = ({ handleAppendProduct, children }) => {
                                 onClick={() => handleClick(product)}
                             >
                                 {/* Imagen del producto */}
-                                <img
-                                    src={product.imageUrl}
-                                    alt={product.name}
-                                    className="h-12 w-12 object-contain rounded-md"
-                                />
+                                <SearchProductImage product={product} />
 
                                 {/* Información del producto */}
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">

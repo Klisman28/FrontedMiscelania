@@ -49,9 +49,26 @@ const getStockBadge = (stock, stockMin) => {
 const CategoryColumn = ({ row }) => {
 	const status = row.status || 'ACTIVE'
 	const isInactive = status !== 'ACTIVE'
-	const avatar = row.imageUrl ?
-		<Avatar src={row.imageUrl} className={`rounded-lg h-10 w-10 shadow-sm border border-gray-100 ${isInactive ? 'opacity-50 grayscale' : ''}`} /> :
+	const [signedUrl, setSignedUrl] = useState(row.imageUrl || '')
+
+	useEffect(() => {
+		let mounted = true
+		if (row.imageKey && !row.imageUrl) {
+			import('services/uploadsService').then(srv => {
+				srv.getOrFetchSignedUrl(row.imageKey).then(url => {
+					if (mounted && url) {
+						setSignedUrl(url)
+					}
+				})
+			})
+		}
+		return () => { mounted = false }
+	}, [row.imageKey, row.imageUrl])
+
+	const avatar = signedUrl ?
+		<Avatar src={signedUrl} className={`rounded-lg h-10 w-10 shadow-sm border border-gray-100 ${isInactive ? 'opacity-50 grayscale' : ''}`} /> :
 		<Avatar icon={<FiPackage />} className={`rounded-lg h-10 w-10 bg-gray-100 text-gray-400 ${isInactive ? 'opacity-50' : ''}`} />
+
 	return (
 		<div className="flex items-center gap-3">
 			<div className="flex-shrink-0 w-10 h-10">{avatar}</div>
