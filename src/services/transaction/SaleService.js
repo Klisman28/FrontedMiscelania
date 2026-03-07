@@ -31,8 +31,8 @@ export async function apiPutSale(id, data) {
 
 export async function apiReturnSale(id) {
     const res = ApiService.fetchData({
-        url: `sales/devolucion/${id}`,
-        method: 'put',
+        url: `/sales/${id}/return`,
+        method: 'patch',
 
     })
     return res

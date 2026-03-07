@@ -4,6 +4,7 @@ import { Avatar, toast, Notification } from 'components/ui'
 import ProductDataTable from './ProductDataTable'
 import { HiOutlinePencil, HiOutlineTrash, HiDotsVertical, HiOutlineBan, HiOutlineRefresh, HiOutlineArchive } from 'react-icons/hi'
 import { FiPackage } from 'react-icons/fi'
+import StockLevelBadge from 'components/shared/StockLevelBadge'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts, updateProductStatus } from '../store/dataSlice'
 import { toggleDeleteConfirmation, setSelectedProduct } from '../store/stateSlice'
@@ -35,15 +36,7 @@ const productStatusConfig = {
 	},
 }
 
-const getStockBadge = (stock, stockMin) => {
-	if (stock === 0) {
-		return { label: `0`, className: 'bg-red-100 text-red-600' }
-	}
-	if (stock < stockMin) {
-		return { label: ` (${stock}/${stockMin})`, className: 'bg-amber-100 text-amber-600' }
-	}
-	return { label: ` (${stock}/${stockMin})`, className: 'bg-emerald-100 text-emerald-600' }
-}
+
 
 // ── Product column ──
 const CategoryColumn = ({ row }) => {
@@ -275,7 +268,7 @@ const ProductTable = ({ onEdit, onAdd }) => {
 	useEffect(() => {
 		dispatch(getProducts())
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [filters.status])
+	}, [filters.status, filters.stockLevel])
 
 	const tableData = useMemo(() =>
 		({ initialPageIndex, initialPageSize, total }),
@@ -363,12 +356,9 @@ const ProductTable = ({ onEdit, onAdd }) => {
 			alignRight: true,
 			Cell: (props) => {
 				const { stock, stockMin } = props.row.original
-				const stockBadge = getStockBadge(stock, stockMin)
 				return (
 					<div className="flex justify-end">
-						<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${stockBadge.className}`}>
-							{stockBadge.label}
-						</span>
+						<StockLevelBadge stock={stock} stockMin={stockMin} showIcon />
 					</div>
 				)
 			},

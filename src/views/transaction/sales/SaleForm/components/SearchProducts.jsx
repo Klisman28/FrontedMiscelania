@@ -181,19 +181,30 @@ export const SearchProducts = ({ handleAppendProduct, children }) => {
                                             Q {product.price}
                                         </span>
 
-                                        {/* Etiqueta de Stock o Agotado */}
-                                        {product.stock > 0 ? (
-                                            <Tag className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100 rounded-md border-0">
-                                                Stock: {product.stock} {product.unit.symbol}
-                                            </Tag>
-                                        ) : (
-                                            <Tag className="bg-red-200 text-red-600 dark:bg-red-500/20 dark:text-red-100 rounded-md border-0">
-                                                Agotado
-                                            </Tag>
-                                        )}
-                                        <span className="text-gray-900 dark:text-gray-100 font-medium">
-                                            Q {product.description}
-                                        </span>
+                                        {/* Etiqueta de Stock con niveles */}
+                                        {(() => {
+                                            const qty = product.stock ?? 0
+                                            const min = product.stockMin ?? 0
+                                            if (qty <= 0) {
+                                                return (
+                                                    <Tag className="bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-100 rounded-md border-0 font-semibold">
+                                                        ⛔ Agotado
+                                                    </Tag>
+                                                )
+                                            }
+                                            if (min > 0 && qty <= min) {
+                                                return (
+                                                    <Tag className="bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100 rounded-md border-0 font-semibold">
+                                                        ⚠ {qty} {product.unit?.symbol || 'uds'} (mín: {min})
+                                                    </Tag>
+                                                )
+                                            }
+                                            return (
+                                                <Tag className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100 rounded-md border-0">
+                                                    Stock: {qty} {product.unit?.symbol || 'uds'}
+                                                </Tag>
+                                            )
+                                        })()}
                                     </div>
 
                                 </div>

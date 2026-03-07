@@ -1,24 +1,22 @@
 import React, { forwardRef } from 'react'
 import { FormContainer, Button } from 'components/ui'
-import { StickyFooter } from 'components/shared'
 import { Form, Formik } from 'formik'
+import GeneralConfigFields from './GeneralConfigFields'
 import TicketConfigFields from './TicketConfigFields'
 import InvoceFields from './InvoceFields'
 import BoletaFields from './BoletaFields'
 import { AiOutlineSave } from 'react-icons/ai'
+import { HiOutlineCog, HiOutlineArrowLeft } from 'react-icons/hi'
 import * as Yup from 'yup'
 
-// Validations remain the same
 const validationSchema = Yup.object().shape({
-    invoceSerie: Yup.number()
-        .required('Serie es requerido')
-        .integer('Por favor ingrese un número entero'),
+    invoceSerie: Yup.string()
+        .required('Serie es requerido'),
     invoceNum: Yup.number()
         .required('Número es requerido')
         .integer('Por favor ingrese un número entero'),
-    boletaSerie: Yup.number()
-        .required('Serie es requerido')
-        .integer('Por favor ingrese un número entero'),
+    boletaSerie: Yup.string()
+        .required('Serie es requerido'),
     boletaNum: Yup.number()
         .required('Número es requerido')
         .integer('Por favor ingrese un número entero'),
@@ -27,17 +25,13 @@ const validationSchema = Yup.object().shape({
         .integer('Por favor ingrese un número entero'),
 })
 
-const ProductForm = forwardRef((props, ref) => {
-
+const ConfigForm = forwardRef((props, ref) => {
     const { typeAction, initialData, onFormSubmit, onDiscard } = props
 
     return (
         <Formik
             innerRef={ref}
-            initialValues={{
-                ...initialData
-            }}
-
+            initialValues={{ ...initialData }}
             validationSchema={validationSchema}
             onSubmit={(values, { setSubmitting }) => {
                 if (typeAction === 'edit') {
@@ -46,71 +40,72 @@ const ProductForm = forwardRef((props, ref) => {
                 onFormSubmit?.(values, setSubmitting)
             }}
         >
-            {({ touched, errors }) => (
+            {({ touched, errors, values, isSubmitting }) => (
                 <Form>
                     <FormContainer>
-                        <div className="max-w-5xl mx-auto px-6 py-6">
-                            {/* Header */}
-                            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="max-w-4xl mx-auto">
+                            {/* ─── Premium Hero Header ─── */}
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 px-8 py-8 mb-8 shadow-xl">
+                                {/* Decorative circles */}
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl"></div>
+
+                                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center ring-1 ring-white/20">
+                                            <HiOutlineCog className="w-6 h-6 text-indigo-300 animate-[spin_8s_linear_infinite]" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-white tracking-tight">
+                                                Configuración
+                                            </h2>
+                                            <p className="text-indigo-200/70 text-sm mt-0.5">
+                                                Personaliza tu empresa y la numeración de comprobantes
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="hidden md:flex items-center gap-3">
+                                        <Button
+                                            size="sm"
+                                            className="!bg-white/10 !text-white !border-white/20 hover:!bg-white/20 rounded-xl h-10 px-5 backdrop-blur-sm transition-all"
+                                            onClick={() => onDiscard?.()}
+                                            type="button"
+                                            icon={<HiOutlineArrowLeft />}
+                                        >
+                                            Descartar
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="solid"
+                                            className="!bg-indigo-500 hover:!bg-indigo-400 !border-indigo-400 rounded-xl h-10 px-6 font-semibold shadow-lg shadow-indigo-500/25 transition-all"
+                                            loading={isSubmitting}
+                                            icon={<AiOutlineSave className="text-lg" />}
+                                            type="submit"
+                                        >
+                                            {typeAction === 'create' ? 'Guardar' : 'Guardar Cambios'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ─── Content Sections ─── */}
+                            <div className="space-y-6">
+                                {/* Datos Generales */}
+                                <GeneralConfigFields touched={touched} errors={errors} values={values} />
+
+                                {/* Comprobantes Grid */}
                                 <div>
-                                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Configuración de Ventas</h3>
-                                    <p className="text-slate-500 text-sm mt-1">Define la numeración inicial para Ticket, Factura y Boleta</p>
-                                </div>
-                                <div className="hidden md:flex items-center gap-3">
-                                    <Button
-                                        size="sm"
-                                        className="rounded-lg h-10 px-4"
-                                        onClick={() => onDiscard?.()}
-                                        type="button"
-                                    >
-                                        Descartar
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="solid"
-                                        className="rounded-lg h-10 px-6 font-semibold shadow-sm"
-                                        loading={false}
-                                        icon={<AiOutlineSave className="text-lg" />}
-                                        type="submit"
-                                    >
-                                        {(typeAction === 'create') ? 'Guardar' : 'Actualizar'}
-                                    </Button>
+                                    <div className="flex items-center gap-2 mb-4 px-1">
+                                        <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-cyan-400"></div>
+                                        <h3 className="text-lg font-bold text-slate-800">Numeración de Comprobantes</h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                                        <TicketConfigFields touched={touched} errors={errors} />
+                                        <InvoceFields touched={touched} errors={errors} />
+                                        <BoletaFields touched={touched} errors={errors} />
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Content grid */}
-                            <div className="grid grid-cols-1 gap-6">
-                                <TicketConfigFields touched={touched} errors={errors} />
-                                <InvoceFields touched={touched} errors={errors} />
-                                <BoletaFields touched={touched} errors={errors} />
-                            </div>
-
-                            {/* Sticky Footer for Mobile/Desktop */}
-                            <StickyFooter
-                                className="-mx-8 px-8 flex items-center justify-end py-4"
-                                stickyClass="border-t border-slate-200 bg-white/90 backdrop-blur-sm"
-                            >
-                                <div className="flex w-full md:w-auto gap-3">
-                                    <Button
-                                        size="sm"
-                                        className="rounded-lg h-10 flex-1 md:flex-none border-slate-300"
-                                        onClick={() => onDiscard?.()}
-                                        type="button"
-                                    >
-                                        Descartar
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="solid"
-                                        className="rounded-lg h-10 flex-1 md:flex-none font-semibold shadow-sm"
-                                        loading={false}
-                                        icon={<AiOutlineSave className="text-lg" />}
-                                        type="submit"
-                                    >
-                                        {(typeAction === 'create') ? 'Guardar' : 'Actualizar'}
-                                    </Button>
-                                </div>
-                            </StickyFooter>
                         </div>
                     </FormContainer>
                 </Form>
@@ -119,8 +114,11 @@ const ProductForm = forwardRef((props, ref) => {
     )
 })
 
-ProductForm.defaultProps = {
+ConfigForm.defaultProps = {
     initialData: {
+        companyName: '',
+        logoKey: null,
+        logoUrl: '',
         invoceSerie: '',
         invoceNum: '',
         boletaSerie: '',
@@ -130,4 +128,4 @@ ProductForm.defaultProps = {
     typeAction: 'create'
 }
 
-export default ProductForm
+export default ConfigForm

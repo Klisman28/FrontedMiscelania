@@ -85,3 +85,22 @@ export async function apiUpdateProductStatus(id, data) {
 
     return res
 }
+
+// ── Low-Stock Alerts ──
+
+export async function apiGetLowStockProducts(params = {}) {
+    const res = ApiService.fetchData({
+        url: '/products/low-stock',
+        method: 'get',
+        params,
+    })
+    return res
+}
+
+export async function apiGetStockAlertsSummary() {
+    const res = ApiService.fetchData({
+        url: '/products/stock-alerts/summary',
+        method: 'get',
+    })
+    return res
+}

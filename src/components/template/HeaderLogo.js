@@ -7,7 +7,12 @@ const HeaderLogo = () => {
 	const mode = useSelector(state => state.theme.mode)
 
 	return (
-		<Logo mode={mode} className="hidden md:block" />
+		<Logo
+			mode={mode}
+			type="full"
+			className="hidden md:block"
+			logoHeight="44px"
+		/>
 	)
 }
 

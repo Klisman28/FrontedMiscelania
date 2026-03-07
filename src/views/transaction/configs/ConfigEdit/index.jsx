@@ -6,6 +6,7 @@ import reducer from './store'
 import { injectReducer } from 'store/index'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getConfig, putConfig } from './store/editSlice'
+import { fetchCompanyConfig } from 'store/base/companySlice'
 import ConfigForm from '../ConfigForm'
 import isEmpty from 'lodash/isEmpty'
 
@@ -28,14 +29,16 @@ const ConfigEdit = () => {
 
 	const handleFormSubmit = async (values, setSubmitting) => {
 		setSubmitting(true)
-		const res = await dispatch(putConfig({id:configId, data:values}))
+		const res = await dispatch(putConfig({ id: configId, data: values }))
 		setSubmitting(false)
 
 		const { message, type } = res.payload
 
 		if (type === 'success') {
+			// Refresh global company store (sidebar logo + browser tab title)
+			dispatch(fetchCompanyConfig())
 			toast.push(
-				<Notification title={'¡Actualización Exitoso!'} type="success" duration={3000}>
+				<Notification title={'¡Actualización Exitosa!'} type="success" duration={3000}>
 					{message}
 				</Notification>
 				, {

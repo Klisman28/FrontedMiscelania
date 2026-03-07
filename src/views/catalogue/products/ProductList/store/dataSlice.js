@@ -3,6 +3,7 @@ import {
     apiGetProducts,
     apiDeleteProduct,
     apiUpdateProductStatus,
+    apiGetLowStockProducts,
 } from 'services/catalogue/ProductService'
 import { toast, Notification } from 'components/ui'
 
@@ -10,9 +11,21 @@ export const getProducts = createAsyncThunk(
     'catalogue/products/getProducts',
     async (_, { getState, rejectWithValue }) => {
         try {
-            const { status } = getState().productList.data.filters
-            const params = { status }
+            const { status, stockLevel } = getState().productList.data.filters
 
+            // If stock-level filter is active, use the dedicated low-stock endpoint
+            if (stockLevel) {
+                const response = await apiGetLowStockProducts({ level: stockLevel, limit: 200 })
+                const result = response.data?.data || { data: [], total: 0 }
+                return {
+                    data: {
+                        products: result.data,
+                        total: result.total,
+                    }
+                }
+            }
+
+            const params = { status }
             const response = await apiGetProducts(params)
             return response.data
         } catch (error) {
@@ -65,6 +78,7 @@ const dataSlice = createSlice({
         tableData: initialTableData,
         filters: {
             status: 'ACTIVE',
+            stockLevel: null,
         },
     },
     reducers: {

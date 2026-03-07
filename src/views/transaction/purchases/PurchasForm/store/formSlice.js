@@ -35,8 +35,8 @@ export const getAllProducts = createAsyncThunk(
 // Devuelve los productos que tienen stock en esa bodega
 export const getProductsByWarehouse = createAsyncThunk(
     'transaction/purchases/getProductsByWarehouse',
-    async (warehouseId) => {
-        const response = await warehouseService.fetchWarehouseStock(warehouseId, {})
+    async ({ warehouseId, params }) => {
+        const response = await warehouseService.fetchWarehouseStock(warehouseId, params)
         return response.data
     }
 )
@@ -76,6 +76,7 @@ const newSlice = createSlice({
             subcategories: [],
             brands: [],
             products: [],
+            totalProducts: 0,
             loading: false,
         }
     },
@@ -128,6 +129,7 @@ const newSlice = createSlice({
                     stock: item.quantity ?? item.stock ?? product.stock ?? 0,
                 }
             })
+            state.catalogue.totalProducts = payload?.total || 0
             state.catalogue.loading = false
         },
         [getProductsByWarehouse.rejected]: (state) => {

@@ -11,6 +11,7 @@ import {
 } from 'constants/theme.constant'
 import useAuth from 'utils/hooks/useAuth'
 import useDirection from 'utils/hooks/useDirection'
+import { fetchCompanyConfig } from 'store/base/companySlice'
 
 const layouts = {
 	// [LAYOUT_TYPE_CLASSIC]: lazy(() => import('./ClassicLayout')),
@@ -68,6 +69,21 @@ const Layout = () => {
 			}
 		}
 	}, [authenticated, token, user.activeCompanyId, user.tenantRole, dispatch])
+
+	// Fetch company config (logo + name) on auth
+	const companyLoaded = useSelector((state) => state.base.company.loaded)
+	const companyName = useSelector((state) => state.base.company.companyName)
+
+	useEffect(() => {
+		if (authenticated && !companyLoaded) {
+			dispatch(fetchCompanyConfig())
+		}
+	}, [authenticated, companyLoaded, dispatch])
+
+	// Update browser tab title
+	useEffect(() => {
+		document.title = companyName || 'POS'
+	}, [companyName])
 
 	useDirection()
 

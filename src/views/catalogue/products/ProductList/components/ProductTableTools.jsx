@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Switcher, Tooltip } from 'components/ui'
-import { HiDownload, HiPlusCircle } from 'react-icons/hi'
+import { HiDownload, HiPlusCircle, HiExclamationCircle, HiXCircle } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { setFilters } from '../store/dataSlice'
@@ -11,13 +11,21 @@ const ProductTableTools = ({ onAdd }) => {
 
 	const isInactive = filters.status === 'INACTIVE'
 	const isArchived = filters.status === 'ARCHIVED'
+	const stockLevel = filters.stockLevel || null
 
 	const handleToggleInactive = () => {
-		dispatch(setFilters({ status: isInactive ? 'ACTIVE' : 'INACTIVE' }))
+		dispatch(setFilters({ status: isInactive ? 'ACTIVE' : 'INACTIVE', stockLevel: null }))
 	}
 
 	const handleToggleArchived = () => {
-		dispatch(setFilters({ status: isArchived ? 'ACTIVE' : 'ARCHIVED' }))
+		dispatch(setFilters({ status: isArchived ? 'ACTIVE' : 'ARCHIVED', stockLevel: null }))
+	}
+
+	const handleStockFilter = (level) => {
+		dispatch(setFilters({
+			stockLevel: stockLevel === level ? null : level,
+			status: 'ACTIVE',
+		}))
 	}
 
 	return (
@@ -48,6 +56,39 @@ const ProductTableTools = ({ onAdd }) => {
 							Archivados
 						</span>
 					</label>
+				</Tooltip>
+			</div>
+
+			{/* ── Stock level quick filters ── */}
+			<div className="hidden sm:block w-px h-6 bg-gray-200" />
+			<div className="flex items-center gap-1.5">
+				<Tooltip title="Filtrar productos con stock bajo">
+					<button
+						type="button"
+						onClick={() => handleStockFilter('low_stock')}
+						className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
+							${stockLevel === 'low_stock'
+								? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
+								: 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+							}`}
+					>
+						<HiExclamationCircle className="w-3.5 h-3.5" />
+						Stock Bajo
+					</button>
+				</Tooltip>
+				<Tooltip title="Filtrar productos agotados">
+					<button
+						type="button"
+						onClick={() => handleStockFilter('out_of_stock')}
+						className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
+							${stockLevel === 'out_of_stock'
+								? 'bg-red-100 text-red-700 ring-1 ring-red-300'
+								: 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+							}`}
+					>
+						<HiXCircle className="w-3.5 h-3.5" />
+						Agotados
+					</button>
 				</Tooltip>
 			</div>
 

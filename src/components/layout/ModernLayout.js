@@ -7,6 +7,7 @@ import MobileNav from 'components/template/MobileNav'
 import SideNav from 'components/template/SideNav'
 import View from 'views'
 import ModeSwitcher from 'components/template/ThemeConfigurator/ModeSwitcher'
+import StockAlertIndicator from 'components/template/StockAlertIndicator'
 
 const HeaderActionsStart = () => {
 	return (
@@ -22,6 +23,7 @@ const HeaderActionsEnd = () => {
 		<>
 			{/* panel de configuration de theme disabilitado */}
 			{/* <SidePanel /> */}
+			<StockAlertIndicator />
 			<ModeSwitcher />
 			<UserDropdown hoverable={true} />
 		</>

@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import NoteFields from './notes/AddNotes';
 import { apiGetSales } from '../services/transaction/SaleService';
+import { apiGetStockAlertsSummary } from '../services/catalogue/ProductService';
 import { Card } from 'components/ui';
-import { HiCurrencyDollar, HiShoppingCart, HiTrendingUp, HiClock } from 'react-icons/hi';
+import { HiCurrencyDollar, HiShoppingCart, HiTrendingUp, HiClock, HiExclamationCircle, HiXCircle } from 'react-icons/hi';
 
 const Home = () => {
   const salesData = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
   const [salesList, setSalesList] = useState([]);
+  const [stockAlerts, setStockAlerts] = useState(null);
   const [kpis, setKpis] = useState({
     todaySales: 0,
     monthSales: 0,
@@ -88,7 +92,7 @@ const Home = () => {
     }
   });
 
-  // Cargar ventas
+  // Cargar ventas y alertas de stock
   useEffect(() => {
     const fetchSales = async () => {
       try {
@@ -101,7 +105,17 @@ const Home = () => {
       }
     };
 
+    const fetchStockAlerts = async () => {
+      try {
+        const response = await apiGetStockAlertsSummary();
+        setStockAlerts(response.data?.data || null);
+      } catch (error) {
+        // Non-critical
+      }
+    };
+
     fetchSales();
+    fetchStockAlerts();
   }, []);
 
   const processData = (sales) => {
@@ -211,7 +225,7 @@ const Home = () => {
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
         <StatCard
           icon={HiCurrencyDollar}
           title="Ventas Hoy"
@@ -237,6 +251,43 @@ const Home = () => {
           value={`Q ${kpis.avgTicket.toFixed(2)}`}
           color="bg-orange-500"
         />
+
+        {/* ── Stock Alert Cards ── */}
+        <Card
+          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-red-500"
+          onClick={() => navigate('/catalogo/productos')}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Agotados</p>
+              <h3 className="text-2xl font-bold text-red-600">
+                {stockAlerts?.outOfStock ?? '—'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">Productos sin stock</p>
+            </div>
+            <div className="p-3 rounded-full bg-red-500">
+              <HiXCircle className="text-2xl text-white" />
+            </div>
+          </div>
+        </Card>
+
+        <Card
+          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-amber-500"
+          onClick={() => navigate('/catalogo/productos')}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Stock Bajo</p>
+              <h3 className="text-2xl font-bold text-amber-600">
+                {stockAlerts?.lowStock ?? '—'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">Necesitan reabastecimiento</p>
+            </div>
+            <div className="p-3 rounded-full bg-amber-500">
+              <HiExclamationCircle className="text-2xl text-white" />
+            </div>
+          </div>
+        </Card>
       </div>
 
       {/* Main Content */}

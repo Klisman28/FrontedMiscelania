@@ -122,7 +122,8 @@ const newSlice = createSlice({
             categories: [],
             subcategories: [],
             brands: [],
-            products: []
+            products: [],
+            totalProducts: 0
         }
     },
     reducers: {
@@ -186,6 +187,7 @@ const newSlice = createSlice({
         [getStoreProducts.fulfilled]: (state, action) => {
             const payload = action.payload
             const items = payload?.data || []
+            state.catalogue.totalProducts = payload?.total || 0
             // Normalize: extract product and enrich with storeStock
             state.catalogue.products = items.map(item => ({
                 ...item.product,

@@ -89,7 +89,7 @@ const SideNav = () => {
 						)
 					}
 				>
-					<div className="side-nav-header py-2">
+					<div className={`side-nav-header ${sideNavCollapse ? 'py-3' : 'py-4'} border-b border-white/10`}>
 						<Logo
 							mode={logoMode()}
 							type={sideNavCollapse ? 'streamline' : 'full'}

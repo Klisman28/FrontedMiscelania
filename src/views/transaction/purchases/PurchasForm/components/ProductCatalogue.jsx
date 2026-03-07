@@ -8,10 +8,10 @@ import {
     getBrands,
     getCategories,
 } from '../store/formSlice'
-import { HiPlus, HiOutlineCube, HiOutlineOfficeBuilding } from 'react-icons/hi'
-import { NumericFormat } from 'react-number-format'
+import { HiOutlineCube, HiOutlineOfficeBuilding } from 'react-icons/hi'
 import classNames from 'classnames'
-import useProductImage from 'hooks/useProductImage'
+import PosProductCard from 'components/shared/PosProductCard'
+import PosProductSkeleton from 'components/shared/PosProductSkeleton'
 
 /**
  * ProductCatalogue — Compras
@@ -19,81 +19,6 @@ import useProductImage from 'hooks/useProductImage'
  * Si no hay bodega seleccionada, muestra un estado de "selecciona bodega".
  * Si la bodega no tiene productos, muestra estado vacío.
  */
-// Sub-component para usar hooks dentro del .map()
-const PurchaseCardItem = ({ product, onProductSelect }) => {
-    const imageSrc = useProductImage(product)
-    const hasImage = !!imageSrc
-
-    const stock = product.stock || 0
-    const minStock = product.minStock || 5
-    let stockColor = "text-emerald-700 bg-emerald-50 border-emerald-200"
-    if (stock <= 0) stockColor = "text-rose-700 bg-rose-50 border-rose-200"
-    else if (stock <= minStock) stockColor = "text-amber-700 bg-amber-50 border-amber-200"
-
-    return (
-        <div
-            className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-300 group relative flex flex-col"
-            onClick={() => onProductSelect(product)}
-        >
-            {/* Stock Badge */}
-            <div className="absolute top-2 right-2 z-10">
-                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-sm whitespace-nowrap ${stockColor}`}>
-                    {stock} uds
-                </div>
-            </div>
-
-            {/* Imagen — aspect-square + object-contain para ver completa */}
-            <div className="relative w-full aspect-square bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden shrink-0 flex items-center justify-center p-3">
-                {hasImage ? (
-                    <img
-                        src={imageSrc}
-                        alt={product.name}
-                        className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-sm"
-                        onError={(e) => {
-                            e.target.style.display = 'none'
-                            if (e.target.nextSibling) {
-                                e.target.nextSibling.classList.remove('hidden')
-                                e.target.nextSibling.classList.add('flex')
-                            }
-                        }}
-                    />
-                ) : null}
-                <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-slate-300 ${hasImage ? 'hidden' : 'flex'}`}>
-                    <HiOutlineCube className="text-3xl" />
-                </div>
-            </div>
-
-            {/* Info */}
-            <div className="p-3 flex flex-col gap-1 flex-1 border-t border-slate-100">
-                <div className="text-[10px] uppercase tracking-wider text-slate-400 truncate font-semibold">
-                    {product.brand?.name || 'GEN\u00c9RICO'}
-                </div>
-                <h6 className="text-[13px] font-semibold leading-[1.3] line-clamp-2 text-slate-800 min-h-[34px]">
-                    {product.name}
-                </h6>
-                <div className="flex items-center justify-between mt-auto pt-1.5">
-                    <span className="text-sm font-bold text-indigo-600 tabular-nums">
-                        <NumericFormat
-                            displayType="text"
-                            value={product.price ?? product.cost ?? 0}
-                            thousandSeparator
-                            prefix="Q"
-                            decimalScale={2}
-                            fixedDecimalScale
-                        />
-                    </span>
-                    <button
-                        type="button"
-                        className="h-8 w-8 rounded-full flex items-center justify-center bg-indigo-600 text-white hover:bg-indigo-700 active:scale-90 shadow-sm shadow-indigo-200 transition-all"
-                    >
-                        <HiPlus className="text-sm" />
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
 const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
     const dispatch = useDispatch()
 
@@ -129,6 +54,16 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
         return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
     }, [rawSubcategories, products])
 
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm)
+
+    // Debounce the searchTerm from Redux before querying the backend
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm)
+        }, 300)
+        return () => clearTimeout(handler)
+    }, [searchTerm])
+
     // Cargar subcategorías, marcas y categorías una sola vez
     useEffect(() => {
         dispatch(getSubcategories())
@@ -136,36 +71,28 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
         dispatch(getBrands())
     }, [dispatch])
 
-    // Recargar productos cuando cambia la bodega
+    // Recargar productos cuando cambia la bodega o los filtros
     useEffect(() => {
-        setSelectedSubcategoryId(null) // reset filtro al cambiar bodega
         if (warehouseId) {
-            dispatch(getProductsByWarehouse(warehouseId))
+            dispatch(getProductsByWarehouse({
+                warehouseId,
+                params: {
+                    search: debouncedSearchTerm,
+                    subcategoryId: selectedSubcategoryId,
+                    pageSize: 50 // Traemos suficientes para la grilla y el contador
+                }
+            }))
         } else {
-            dispatch(getAllProducts())
+            // Nota: El getAllProducts podría también beneficiarse de paginación
+            // pero si no hay bodega, la pantalla pide seleccionar una bodega
         }
-    }, [dispatch, warehouseId])
+    }, [dispatch, warehouseId, debouncedSearchTerm, selectedSubcategoryId])
 
-    // Filtro por búsqueda + subcategoría
-    const filteredProducts = useMemo(() => {
-        return products.filter(product => {
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase()
-                const nameMatch = product.name?.toLowerCase().includes(term)
-                const codeMatch = product.code?.toLowerCase().includes(term)
-                const skuMatch = product.sku?.toLowerCase().includes(term)
-                if (!nameMatch && !codeMatch && !skuMatch) return false
-            }
-            if (selectedSubcategoryId !== null) {
-                const prodSubId = product.subcategoryId || product.subcategory?.id
-                if (String(prodSubId) !== String(selectedSubcategoryId)) return false
-            }
-            return true
-        })
-    }, [products, searchTerm, selectedSubcategoryId])
-
-    const visibleProducts = filteredProducts.slice(0, 8)
-    const remainingCount = Math.max(0, filteredProducts.length - 8)
+    // Filter Logic removed from client-side
+    // The visible products are now driven by the server's response
+    // We limit display to a certain number and show remaining
+    const visibleProducts = products.slice(0, 8)
+    const remainingCount = Math.max(0, products.length - 8)
 
     // ── Estado: sin bodega seleccionada ──────────────────────
     if (!warehouseId) {
@@ -183,11 +110,14 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
     }
 
     // ── Estado: cargando ──────────────────────────────────────
-    if (loading) {
+    if (loading && products.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16">
-                <Spinner size="40px" />
-                <p className="text-xs text-slate-400 mt-3">Cargando productos...</p>
+            <div className="flex-1 overflow-y-hidden pt-4 px-1 pb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 content-start">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                        <PosProductSkeleton key={i} />
+                    ))}
+                </div>
             </div>
         )
     }
@@ -238,7 +168,11 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 animate-fade-in content-start">
 
                     {visibleProducts.map((product) => (
-                        <PurchaseCardItem key={product.id} product={product} onProductSelect={onProductSelect} />
+                        <PosProductCard
+                            key={product.id}
+                            product={product}
+                            onSelect={onProductSelect}
+                        />
                     ))}
 
                     {/* Estado vacío */}
