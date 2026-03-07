@@ -4,7 +4,7 @@ import { StickyFooter } from 'components/shared'
 import BasicInfoFields from './BasicInfoFields'
 import OrderProducts from './OrderProducts'
 import { AiOutlineSave } from 'react-icons/ai'
-import { HiOutlineTrash, HiOutlineShoppingCart } from 'react-icons/hi'
+import { HiOutlineTrash, HiOutlineShoppingCart, HiChevronDown } from 'react-icons/hi'
 import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { injectReducer } from 'store/index'
@@ -170,7 +170,7 @@ const PurchasForm = forwardRef((props, ref) => {
         <form onSubmit={handleSubmit(handleSaveAndReset)} ref={formRef}>
             <FormContainer className="purchase-form">
                 {/* Grid principal: 2 columnas (igual a Ventas) */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-28 lg:pb-0">
 
                     {/* ═══════════════════════════════════════════
                         PANEL IZQUIERDO: Búsqueda + Atajos
@@ -238,15 +238,23 @@ const PurchasForm = forwardRef((props, ref) => {
                                 </div>
                             </div>
 
-                            {/* 1. Información de Compra */}
-                            <div className="p-4 sm:p-5">
-                                <BasicInfoFields
-                                    control={control}
-                                    errors={errors}
-                                    setValue={setValue}
-                                    watch={watch}
-                                />
-                            </div>
+                            {/* 1. Información de Compra (Acordeón Nativo) */}
+                            <details className="group" open>
+                                <summary className="bg-slate-50/50 px-5 py-3 flex items-center justify-between cursor-pointer list-none select-none border-b border-slate-100 focus:outline-none">
+                                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                        Detalles del Proveedor
+                                    </span>
+                                    <HiChevronDown className="text-slate-400 text-lg transition-transform group-open:rotate-180" />
+                                </summary>
+                                <div className="p-4 sm:p-5">
+                                    <BasicInfoFields
+                                        control={control}
+                                        errors={errors}
+                                        setValue={setValue}
+                                        watch={watch}
+                                    />
+                                </div>
+                            </details>
 
                             {/* Divisor */}
                             <div className="border-t border-slate-100" />
@@ -282,41 +290,38 @@ const PurchasForm = forwardRef((props, ref) => {
                     (equivalente al botón COBRAR de Ventas)
                 ═══════════════════════════════════════════ */}
                 <StickyFooter
-                    className="-mx-8 px-8 flex items-center justify-between py-4 bg-white border-t border-gray-200 shadow-upper"
-                    stickyClass="border-t bg-white border-gray-200 shadow-upper"
+                    className="-mx-4 px-4 sm:-mx-8 sm:px-8 flex items-center justify-between py-3 sm:py-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-50 fixed bottom-0 left-0 w-full lg:sticky lg:w-auto"
+                    stickyClass="border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-upper z-50"
                 >
-                    {/* Izquierda: contador + descartar */}
-                    <div className="flex items-center">
-                        <div className="md:flex items-center gap-4">
-                            <div className="hidden md:block text-gray-500 text-sm">
-                                {watchedProducts.length} productos en compra
+                    <div className="flex items-center w-full lg:w-auto justify-between gap-2 sm:gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4 lg:w-auto">
+                            <div className="hidden md:block text-gray-500 text-sm font-medium">
+                                {watchedProducts.length} items
                             </div>
                             <Button
                                 size="sm"
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                icon={<HiOutlineTrash />}
+                                className="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border-transparent w-10 sm:w-auto flex justify-center px-0 sm:px-4"
+                                icon={<HiOutlineTrash className="text-lg" />}
                                 onClick={() => onDiscard?.()}
                                 type="button"
+                                title="Descartar"
                             >
-                                Descartar
+                                <span className="hidden sm:inline font-semibold">Descartar</span>
                             </Button>
                         </div>
-                    </div>
 
-                    {/* Derecha: botón GUARDAR COMPRA grande con total */}
-                    <div className="md:flex items-center gap-4">
                         <Button
                             size="lg"
                             variant="solid"
                             loading={isSubmitting}
-                            icon={<HiOutlineShoppingCart className="text-xl" />}
-                            className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white min-w-[200px] shadow-lg hover:shadow-indigo-500/50 transition-all transform hover:-translate-y-0.5 rounded-xl text-lg font-bold tracking-wide"
+                            icon={<HiOutlineShoppingCart className="text-xl hidden sm:block" />}
+                            className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white min-w-[150px] sm:min-w-[200px] shadow-lg shadow-indigo-200 flex-1 lg:flex-none transition-all transform hover:-translate-y-0.5 rounded-xl text-sm sm:text-lg font-bold tracking-wide flex justify-between items-center px-3 sm:px-6 h-12 sm:h-auto"
                             type="submit"
                         >
-                            <span className="mr-2">
-                                {typeAction === 'create' ? 'GUARDAR COMPRA' : 'ACTUALIZAR'}
+                            <span className="mr-1 sm:mr-2">
+                                {typeAction === 'create' ? 'GUARDAR' : 'ACTUALIZAR'}
                             </span>
-                            <span className="bg-white/20 px-2 py-0.5 rounded text-white font-mono text-base tabular-nums">
+                            <span className="bg-white/20 px-2 py-1 rounded text-white font-mono text-sm sm:text-base whitespace-nowrap tabular-nums">
                                 Q{totalAmount.toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         </Button>

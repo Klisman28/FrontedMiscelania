@@ -142,13 +142,13 @@ const OrderProducts = ({ errors, fields, remove, control, watch, handleChangeQua
 								<p className="text-[10px] text-slate-400">{item.unit}</p>
 							</div>
 
-							{/* Botón eliminar — visible en hover */}
+							{/* Botón eliminar — siempre visible en móvil */}
 							<button
 								type="button"
 								onClick={() => remove(index)}
-								className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+								className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-100 lg:opacity-50 lg:hover:opacity-100"
 							>
-								<HiX className="w-3.5 h-3.5" />
+								<HiX className="w-5 h-5 text-red-500 lg:text-slate-300 lg:hover:text-red-500" />
 							</button>
 						</div>
 

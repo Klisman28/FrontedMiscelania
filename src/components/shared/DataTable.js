@@ -164,59 +164,61 @@ const DataTable = (props) => {
 
 	return (
 		<Loading loading={loading && data.length !== 0} type="cover">
-			<Table {...getTableProps()}>
-				<THead>
-					{headerGroups.map(headerGroup => (
-						<Tr {...headerGroup.getHeaderGroupProps()}>
-							{headerGroup.headers.map(column => (
-								<Th {...column.getHeaderProps()}>
-									{column.render('Header') && (
-										column.sortable ? (
-											<div className="cursor-pointer" onClick={() => handleSort(column)}>
-												{column.render('Header')}
-												<span>
-													<Sorter sort={column.isSortedDesc} />
-												</span>
-											</div>
-										)
-											:
-											(
-												<div>{column.render('Header')}</div>
+			<div className="overflow-x-auto">
+				<Table {...getTableProps()}>
+					<THead>
+						{headerGroups.map(headerGroup => (
+							<Tr {...headerGroup.getHeaderGroupProps()}>
+								{headerGroup.headers.map(column => (
+									<Th {...column.getHeaderProps()}>
+										{column.render('Header') && (
+											column.sortable ? (
+												<div className="cursor-pointer" onClick={() => handleSort(column)}>
+													{column.render('Header')}
+													<span>
+														<Sorter sort={column.isSortedDesc} />
+													</span>
+												</div>
 											)
-									)}
-								</Th>
-							))}
-						</Tr>
-					))}
-				</THead>
-				{
-					loading && data.length === 0 ?
-						(
-							<TableRowSkeleton
-								columns={columns.length}
-								rows={uiPageSize}
-								avatarInColumns={skeletonAvatarColumns}
-								avatarProps={skeletonAvatarProps}
-							/>
-						)
-						:
-						(
-							<TBody {...getTableBodyProps()}>
-								{page.map((row, i) => {
-									prepareRow(row)
-									return (
-										<Tr {...row.getRowProps()}>
-											{row.cells.map(cell => {
-												return <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-											})}
-										</Tr>
-									)
-								})}
-							</TBody>
-						)
-				}
-			</Table>
-			<div className="flex items-center justify-between mt-4">
+												:
+												(
+													<div>{column.render('Header')}</div>
+												)
+										)}
+									</Th>
+								))}
+							</Tr>
+						))}
+					</THead>
+					{
+						loading && data.length === 0 ?
+							(
+								<TableRowSkeleton
+									columns={columns.length}
+									rows={uiPageSize}
+									avatarInColumns={skeletonAvatarColumns}
+									avatarProps={skeletonAvatarProps}
+								/>
+							)
+							:
+							(
+								<TBody {...getTableBodyProps()}>
+									{page.map((row, i) => {
+										prepareRow(row)
+										return (
+											<Tr {...row.getRowProps()}>
+												{row.cells.map(cell => {
+													return <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
+												})}
+											</Tr>
+										)
+									})}
+								</TBody>
+							)
+					}
+				</Table>
+			</div>
+			<div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
 				<Pagination
 					pageSize={uiPageSize}
 					currentPage={uiPageIndex}

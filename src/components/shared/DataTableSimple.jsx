@@ -49,7 +49,8 @@ const DataTableSimple = props => {
 		skeletonAvatarProps,
 		pagingData,
 		tableTools,
-		title
+		title,
+		renderMobileCards
 	} = props
 
 	const { initialPageIndex, initialPageSize } = pagingData
@@ -111,76 +112,85 @@ const DataTableSimple = props => {
 	return (
 		<>
 			<div className='flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4'>
-				<h3 className='mb-2 lg:mb-0'>{ title }</h3>
+				<h3 className='mb-2 lg:mb-0'>{title}</h3>
 				<div className="lg:flex items-center justify-between">
 					<FilterInput
 						globalFilter={globalFilter}
 						setGlobalFilter={setGlobalFilter}
 					/>
-					{ tableTools }
-					
+					{tableTools}
+
 				</div>
 			</div>
 			<Loading loading={loading && data.length !== 0} type="cover">
-				<Table {...getTableProps()}>
-					<THead>
-						{headerGroups.map(headerGroup => (
-							<Tr {...headerGroup.getHeaderGroupProps()}>
-								{headerGroup.headers.map(column => (
-									column.sortable ? (
-										<Th {...column.getHeaderProps(column.getSortByToggleProps())}>
-											{column.render('Header')}
-											<span className='cursor-default'>
-												<Sorter sort={column.isSortedDesc} />
-											</span>
-										</Th>
-									) : (
-										<Th {...column.getHeaderProps()}>
-											{column.render('Header')}
-										</Th>
-									)
-								))}
-							</Tr>
-						))}
-					</THead>
-					{
-						loading && data.length === 0 ?
-							(
-								<TableRowSkeleton
-									columns={columns.length}
-									rows={pagingData.pageSize}
-									avatarInColumns={skeletonAvatarColumns}
-									avatarProps={skeletonAvatarProps}
-								/>
-							)
-							:
-							(
-								<TBody {...getTableBodyProps()}>
-									{page.map((row, i) => {
-										prepareRow(row)
-										return (
-											<Tr {...row.getRowProps()}>
-												{row.cells.map(cell => {
-													return <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-												})}
-											</Tr>
+				<div className={renderMobileCards ? "hidden md:block overflow-x-auto" : "overflow-x-auto"}>
+					<Table {...getTableProps()}>
+						<THead>
+							{headerGroups.map(headerGroup => (
+								<Tr {...headerGroup.getHeaderGroupProps()}>
+									{headerGroup.headers.map(column => (
+										column.sortable ? (
+											<Th {...column.getHeaderProps(column.getSortByToggleProps())}>
+												{column.render('Header')}
+												<span className='cursor-default'>
+													<Sorter sort={column.isSortedDesc} />
+												</span>
+											</Th>
+										) : (
+											<Th {...column.getHeaderProps()}>
+												{column.render('Header')}
+											</Th>
 										)
-									})}
-									{page.length === 0 && (
-										<Tr>
-											<Td className="text-center" colSpan={allColumns.length}>
-												<div className='flex items-center justify-center space-x-2'>
-													<HiExclamation className='text-orange-600 w-5 h-5' />
-													No se encontró ningún registro
-												</div>
-											</Td>
-										</Tr>
-									)}
-								</TBody>
-							)
-					}
-				</Table>
-				<div className="flex items-center justify-between mt-4">
+									))}
+								</Tr>
+							))}
+						</THead>
+						{
+							loading && data.length === 0 ?
+								(
+									<TableRowSkeleton
+										columns={columns.length}
+										rows={pagingData.pageSize}
+										avatarInColumns={skeletonAvatarColumns}
+										avatarProps={skeletonAvatarProps}
+									/>
+								)
+								:
+								(
+									<TBody {...getTableBodyProps()}>
+										{page.map((row, i) => {
+											prepareRow(row)
+											return (
+												<Tr {...row.getRowProps()}>
+													{row.cells.map(cell => {
+														return <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
+													})}
+												</Tr>
+											)
+										})}
+										{page.length === 0 && (
+											<Tr>
+												<Td className="text-center" colSpan={allColumns.length}>
+													<div className='flex items-center justify-center space-x-2'>
+														<HiExclamation className='text-orange-600 w-5 h-5' />
+														No se encontró ningún registro
+													</div>
+												</Td>
+											</Tr>
+										)}
+									</TBody>
+								)
+						}
+					</Table>
+				</div>
+
+				{renderMobileCards && (
+					<div className="block md:hidden">
+						{renderMobileCards(page, prepareRow)}
+					</div>
+				)}
+
+				<div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
 					<Pagination
 						pageSize={pageSize}
 						currentPage={pageIndex + 1}
@@ -222,7 +232,8 @@ DataTableSimple.propTypes = {
 		initialPageSize: PropTypes.number,
 	}),
 	tableTools: PropTypes.element,
-	title: PropTypes.string
+	title: PropTypes.string,
+	renderMobileCards: PropTypes.func
 }
 
 DataTableSimple.defaultProps = {

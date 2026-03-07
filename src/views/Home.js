@@ -200,15 +200,15 @@ const Home = () => {
   };
 
   const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-    <Card className="hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <h3 className="text-2xl font-bold">{value}</h3>
-          {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+    <Card className="hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-700" bodyClass="p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 truncate">{title}</p>
+          <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white truncate">{value}</h3>
+          {subtitle && <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">{subtitle}</p>}
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          <Icon className="text-2xl text-white" />
+        <div className={`p-2 sm:p-3 rounded-xl shrink-0 ${color} shadow-sm`}>
+          <Icon className="text-xl sm:text-2xl text-white" />
         </div>
       </div>
     </Card>
@@ -225,7 +225,7 @@ const Home = () => {
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
         <StatCard
           icon={HiCurrencyDollar}
           title="Ventas Hoy"
@@ -254,37 +254,39 @@ const Home = () => {
 
         {/* ── Stock Alert Cards ── */}
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-red-500"
+          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-red-500 bg-white"
+          bodyClass="p-4 sm:p-5"
           onClick={() => navigate('/catalogo/productos')}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Agotados</p>
-              <h3 className="text-2xl font-bold text-red-600">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1 truncate">Agotados</p>
+              <h3 className="text-lg sm:text-2xl font-bold text-red-600 truncate">
                 {stockAlerts?.outOfStock ?? '—'}
               </h3>
-              <p className="text-xs text-gray-500 mt-1">Productos sin stock</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">Sin stock</p>
             </div>
-            <div className="p-3 rounded-full bg-red-500">
-              <HiXCircle className="text-2xl text-white" />
+            <div className="p-2 sm:p-3 rounded-xl bg-red-50 shadow-sm shrink-0">
+              <HiXCircle className="text-xl sm:text-2xl text-red-500" />
             </div>
           </div>
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-amber-500"
+          className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-amber-500 bg-white"
+          bodyClass="p-4 sm:p-5"
           onClick={() => navigate('/catalogo/productos')}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Stock Bajo</p>
-              <h3 className="text-2xl font-bold text-amber-600">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1 truncate">Stock Bajo</p>
+              <h3 className="text-lg sm:text-2xl font-bold text-amber-600 truncate">
                 {stockAlerts?.lowStock ?? '—'}
               </h3>
-              <p className="text-xs text-gray-500 mt-1">Necesitan reabastecimiento</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">Reabastecer</p>
             </div>
-            <div className="p-3 rounded-full bg-amber-500">
-              <HiExclamationCircle className="text-2xl text-white" />
+            <div className="p-2 sm:p-3 rounded-xl bg-amber-50 shadow-sm shrink-0">
+              <HiExclamationCircle className="text-xl sm:text-2xl text-amber-500" />
             </div>
           </div>
         </Card>
@@ -294,13 +296,15 @@ const Home = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Gráfico de Ventas */}
         <Card className="lg:col-span-2">
-          <h2 className="text-xl font-semibold mb-4">Tendencia de Ventas (Últimos 30 días)</h2>
-          <Chart
-            options={salesChart.options}
-            series={salesChart.series}
-            type="area"
-            height={350}
-          />
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Tendencia de Ventas (Últimos 30 días)</h2>
+          <div className="h-[250px] sm:h-[350px]">
+            <Chart
+              options={{ ...salesChart.options, chart: { ...salesChart.options.chart, height: '100%' } }}
+              series={salesChart.series}
+              type="area"
+              height="100%"
+            />
+          </div>
         </Card>
 
         {/* Sticky Notes */}
@@ -311,27 +315,31 @@ const Home = () => {
       </div>
 
       {/* Bottom Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Top Productos */}
         <Card>
-          <h2 className="text-xl font-semibold mb-4">Top 5 Productos Más Vendidos</h2>
-          <Chart
-            options={topProductsChart.options}
-            series={topProductsChart.series}
-            type="bar"
-            height={350}
-          />
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Top 5 Productos</h2>
+          <div className="h-[250px] sm:h-[350px]">
+            <Chart
+              options={{ ...topProductsChart.options, chart: { ...topProductsChart.options.chart, height: '100%' } }}
+              series={topProductsChart.series}
+              type="bar"
+              height="100%"
+            />
+          </div>
         </Card>
 
         {/* Ventas por Hora */}
         <Card>
-          <h2 className="text-xl font-semibold mb-4">Ventas por Hora (Hoy)</h2>
-          <Chart
-            options={hourlyChart.options}
-            series={hourlyChart.series}
-            type="line"
-            height={300}
-          />
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Ventas por Hora (Hoy)</h2>
+          <div className="h-[250px] sm:h-[300px]">
+            <Chart
+              options={{ ...hourlyChart.options, chart: { ...hourlyChart.options.chart, height: '100%' } }}
+              series={hourlyChart.series}
+              type="line"
+              height="100%"
+            />
+          </div>
         </Card>
       </div>
     </div>

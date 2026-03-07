@@ -211,7 +211,7 @@ const PurchasTable = () => {
 
 			{/* 2) CARD CONTENEDOR */}
 			<div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-				<div className="overflow-x-auto">
+				<div className="hidden md:block overflow-x-auto">
 					<Table {...getTableProps()} className="w-full">
 						<THead className="bg-slate-50 border-b border-slate-200">
 							{headerGroups.map(headerGroup => (
@@ -267,6 +267,46 @@ const PurchasTable = () => {
 							)}
 						</TBody>
 					</Table>
+				</div>
+
+				{/* MOBILE CARDS VIEW */}
+				<div className="block md:hidden p-4 space-y-4 bg-slate-50">
+					{page.map((row) => {
+						prepareRow(row)
+						const item = row.original
+						return (
+							<div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
+								<div className="flex justify-between items-start">
+									<div>
+										<div className="font-bold text-slate-800">
+											{item.supplier?.name || 'Proveedor'}
+										</div>
+										<div className="text-xs text-slate-500 mt-0.5">
+											{item.dateIssue}
+										</div>
+									</div>
+									<div className="text-right">
+										<div className="font-bold text-slate-900 text-base">
+											<NumericFormat displayType="text" value={item.total} prefix="Q " thousandSeparator />
+										</div>
+									</div>
+								</div>
+								<div className="flex justify-between items-center pt-2 mt-1 border-t border-slate-100">
+									<div className="text-xs text-slate-500 font-medium">
+										SAT: <NumericFormat displayType="text" value={item.igv} prefix="Q " thousandSeparator />
+									</div>
+									<div>
+										<ActionColumn row={item} />
+									</div>
+								</div>
+							</div>
+						)
+					})}
+					{page.length === 0 && (
+						<div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-300">
+							<span className="text-sm text-slate-400 font-medium">No se encontraron compras</span>
+						</div>
+					)}
 				</div>
 
 				{/* 6) FOOTER / PAGINACIÓN */}

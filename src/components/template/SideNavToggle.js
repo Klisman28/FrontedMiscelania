@@ -19,7 +19,7 @@ export const SideNavToggle = ({ className }) => {
 	return (
 		<>
 			{larger.md && (
-				<div 
+				<div
 					className={className}
 					onClick={onCollapse}
 				>

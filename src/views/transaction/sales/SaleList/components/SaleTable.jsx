@@ -202,6 +202,46 @@ const SaleTable = ({ openingId }) => {
 		}
 	], [])
 
+	const renderMobileCards = (page, prepareRow) => {
+		return (
+			<div className="grid grid-cols-1 gap-4">
+				{page.map((row) => {
+					prepareRow(row)
+					const sale = row.original
+					return (
+						<div key={sale.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-3">
+							<div className="flex justify-between items-start">
+								<div>
+									<MainColumn row={sale} />
+								</div>
+								<div className="text-right">
+									<CurrencyColumn value={sale.total} />
+								</div>
+							</div>
+							<div className="flex justify-between items-center text-sm">
+								<div className="bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded-lg">
+									<ClientColumn row={sale} />
+								</div>
+								<StatusColumn status={getSaleStatus(sale)} />
+							</div>
+							<div className="flex justify-between items-center pt-2 mt-1 border-t border-gray-100 dark:border-gray-700">
+								<div className="flex items-center gap-1.5">
+									<Badge className={inventoryTypeColor[sale.type]?.dotClass || 'bg-gray-400'} />
+									<span className={`capitalize font-semibold text-xs ${inventoryTypeColor[sale.type]?.textClass || 'text-gray-500'}`}>
+										{inventoryTypeColor[sale.type]?.label || sale.type || '-'}
+									</span>
+								</div>
+								<div>
+									<SaleRowActions row={sale} />
+								</div>
+							</div>
+						</div>
+					)
+				})}
+			</div>
+		)
+	}
+
 	return (
 		<>
 			<DataTableSimple
@@ -213,6 +253,7 @@ const SaleTable = ({ openingId }) => {
 				pagingData={tableData}
 				tableTools={<SaleTableTools />}
 				title="Ventas"
+				renderMobileCards={renderMobileCards}
 			/>
 			<CancelSaleModal />
 			<SaleShowDialog />
