@@ -218,7 +218,7 @@ const ProductCreateModal = ({ isOpen, onClose, onProductCreated }) => {
                             />
                         </FormItem>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormItem
                                 label="Costo"
                                 invalid={!!errors.cost}
@@ -272,7 +272,7 @@ const ProductCreateModal = ({ isOpen, onClose, onProductCreated }) => {
                             />
                         </FormItem>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormItem
                                 label="Unidad"
                                 invalid={!!errors.unitId}

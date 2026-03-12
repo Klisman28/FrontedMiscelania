@@ -279,7 +279,7 @@ const DropdownToastDemo = () => {
                     Diferentes tipos de notificaciones para diferentes situaciones.
                 </p>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <Button
                         variant="solid"
                         className="bg-green-500 hover:bg-green-600"

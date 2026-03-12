@@ -1,15 +1,17 @@
-import React from 'react'
-import { Avatar, Dropdown } from 'components/ui'
+import React, { useState } from 'react'
+import { Avatar, Dropdown, Dialog } from 'components/ui'
 import withHeaderItem from 'utils/hoc/withHeaderItem'
 import useAuth from 'utils/hooks/useAuth'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import classNames from 'classnames'
-import { HiOutlineUser, HiOutlineLogout } from 'react-icons/hi'
+import { HiOutlineUser, HiOutlineLogout, HiOutlineCog } from 'react-icons/hi'
+import WhatsappConfig from 'views/profile/components/WhatsappConfig'
 
 const UserDropdown = ({ className }) => {
 	const userInfo = useSelector((state) => state.auth.user)
 	const { signOut } = useAuth()
+	const [profileOpen, setProfileOpen] = useState(false)
 
 	const handleSignOut = () => {
 		signOut()
@@ -68,6 +70,19 @@ const UserDropdown = ({ className }) => {
 				{/* Separator */}
 				<div className="my-2 border-t border-slate-100" />
 
+				<Dropdown.Item
+					onClick={() => setProfileOpen(true)}
+					eventKey="Profile"
+					className="p-0 hover:bg-transparent focus:bg-transparent active:bg-transparent mb-1"
+				>
+					<div className="flex items-center gap-3 h-11 px-3 rounded-xl text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-all duration-200 cursor-pointer group">
+						<span className="text-xl text-slate-400 group-hover:text-indigo-500 transition-colors">
+							<HiOutlineCog />
+						</span>
+						<span className="font-medium text-sm">Configuración de Perfil</span>
+					</div>
+				</Dropdown.Item>
+
 				{/* Sign Out Item */}
 				<Dropdown.Item
 					onClick={handleSignOut}
@@ -82,6 +97,28 @@ const UserDropdown = ({ className }) => {
 					</div>
 				</Dropdown.Item>
 			</Dropdown>
+
+			<Dialog
+				isOpen={profileOpen}
+				onClose={() => setProfileOpen(false)}
+				onRequestClose={() => setProfileOpen(false)}
+				width={450}
+			>
+				<div>
+					<h4 className="font-bold text-slate-900 text-lg mb-2">Mi Perfil</h4>
+					{/* Tarjeta de Resumen Base */}
+					<div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+						<Avatar size={56} shape="circle" className="bg-indigo-50 text-indigo-600" icon={<HiOutlineUser />} />
+						<div>
+							<div className="text-base font-bold text-slate-800">{userInfo.username}</div>
+							<div className="text-sm text-slate-500">{userInfo.email || 'Usuario de Sistema'}</div>
+						</div>
+					</div>
+
+					{/* Módulo Especial de Settings: WhatsApp */}
+					<WhatsappConfig user={userInfo} />
+				</div>
+			</Dialog>
 		</div>
 	)
 }

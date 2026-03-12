@@ -113,7 +113,7 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
     if (loading && products.length === 0) {
         return (
             <div className="flex-1 overflow-y-hidden pt-4 px-1 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 content-start">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 content-start">
                     {Array.from({ length: 10 }).map((_, i) => (
                         <PosProductSkeleton key={i} />
                     ))}
@@ -165,7 +165,7 @@ const ProductCatalogue = ({ onProductSelect, warehouseId }) => {
 
             {/* Grid de productos */}
             <div className="flex-1 overflow-y-auto pr-1 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 animate-fade-in content-start">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 animate-fade-in content-start">
 
                     {visibleProducts.map((product) => (
                         <PosProductCard

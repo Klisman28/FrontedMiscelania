@@ -1,6 +1,9 @@
 .dialog {
     outline: none;
-    @apply mx-auto;
+    max-height: calc(100vh - 2rem);
+    display: flex;
+    flex-direction: column;
+    @apply w-full mx-auto sm:max-h-[85vh] md:max-h-[90vh];
 }
 
 @screen sm {
@@ -28,12 +31,24 @@
 }
 
 .dialog-content {
-    @apply p-6 rounded-lg shadow-xl sm:my-16 relative h-full bg-white dark:bg-gray-800;
+    @apply p-4 sm:p-6 rounded-lg shadow-xl relative bg-white dark:bg-gray-800 w-full flex-grow;
+    overflow-y: auto;
+    max-height: 100%;
+    /* Customized scrollbar for cleaner look */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.dialog-content::-webkit-scrollbar {
+    width: 6px;
+}
+.dialog-content::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
 }
 
 .dialog-overlay {
     transition: all 0.15s ease-in-out;
-    @apply bg-opacity-60 inset-0 fixed z-30 bg-black dark:bg-opacity-80;
+    @apply bg-opacity-60 inset-0 fixed z-[100] bg-black dark:bg-opacity-80 flex items-center justify-center p-4 sm:p-0;
 }
 
 .dialog-overlay-after-open {
@@ -42,4 +57,9 @@
 
 .dialog-overlay-before-close {
     opacity: 0;
+}
+
+/* Modifiers for body scroll block */
+.dialog-open {
+    overflow: hidden !important;
 }

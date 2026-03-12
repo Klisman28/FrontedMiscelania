@@ -44,7 +44,7 @@ const PurchasShowDialog = () => {
                 <div className="xl:flex gap-4">
                     <div className="w-full">
                         <OrderProducts data={selectedPurchas.products} />
-                        <div className="xl:grid grid-cols-2 gap-4 mt-4">
+                        <div className="xl:grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                             {/* <ShippingInfo data={data.shipping} /> */}
                             <PaymentSummary
                                 data={{

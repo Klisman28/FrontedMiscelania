@@ -89,7 +89,7 @@ const BasicInfoFields = ({ control, errors, setValue, watch, resetField }) => {
             </FormItem>
 
             {/* 2) Serie/Num y Fecha en Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Serie/Num - Grupo compacto */}
                 <FormItem
                     label={watchType !== 'Ticket' ? 'Serie/Num' : 'Número'}

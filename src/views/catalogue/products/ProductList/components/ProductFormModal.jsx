@@ -441,7 +441,7 @@ const ProductFormModal = ({
                                 <Input {...register('sku')} placeholder="Ej: 75010553000" />
                             </FormItem>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormItem label="Precio Venta" invalid={errors.price} errorMessage={errors.price?.message} asterisk>
                                     <Input {...register('price')} type="number" step="0.01" prefix="Q" />
                                 </FormItem>
@@ -450,7 +450,7 @@ const ProductFormModal = ({
                                 </FormItem>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormItem label="Stock Mínimo" invalid={errors.stockMin} errorMessage={errors.stockMin?.message}>
                                     <Input {...register('stockMin')} type="number" />
                                 </FormItem>
