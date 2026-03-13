@@ -1,13 +1,24 @@
 .card {
-    @apply bg-white rounded-lg dark:bg-gray-800;
+    @apply bg-white rounded-lg;
+}
+
+.dark .card {
+    background-color: #1a1d2e;
+    border: 1px solid rgba(99, 102, 241, 0.08);
 }
 
 .card-border {
-    @apply border border-gray-200 dark:border-gray-600;
+    @apply border border-gray-200 dark:border-gray-700/50;
 }
 
 .card-shadow {
-    @apply shadow border-b border-gray-200 dark:border-gray-600 dark:border-none;
+    @apply shadow border-b border-gray-200;
+}
+
+.dark .card-shadow {
+    border-color: rgba(99, 102, 241, 0.1);
+    border-style: solid;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.04);
 }
 
 .card-header-border {

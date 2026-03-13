@@ -4,8 +4,17 @@
 
 @layer base {
     body {
-        @apply text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-900 leading-normal;
+        @apply text-gray-500 text-sm bg-gray-100 leading-normal;
         -webkit-font-smoothing: antialiased;
+    }
+
+    body.dark {
+        @apply bg-[#0f1117] text-gray-400;
+    }
+
+    /* Only set text color globally, NOT background — let components own their bg */
+    .dark * {
+        color: inherit;
     }
 
     h1, .h1 {

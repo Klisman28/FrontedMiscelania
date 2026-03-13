@@ -31,7 +31,7 @@
 }
 
 .dialog-content {
-    @apply p-4 sm:p-6 rounded-lg shadow-xl relative bg-white dark:bg-gray-800 w-full flex-grow;
+    @apply p-4 sm:p-6 rounded-lg shadow-xl relative bg-white w-full flex-grow;
     overflow-y: auto;
     max-height: 100%;
     /* Customized scrollbar for cleaner look */
@@ -44,6 +44,16 @@
 .dialog-content::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 4px;
+}
+
+.dark .dialog-content {
+    background-color: #1a1d2e;
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    scrollbar-color: #4b5563 transparent;
+}
+
+.dark .dialog-content::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
 }
 
 .dialog-overlay {

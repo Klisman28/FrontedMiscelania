@@ -16,7 +16,8 @@
 }
 
 .side-nav-dark {
-    @apply bg-gray-800 border-r border-gray-600;
+    background-color: #111328;
+    border-right: 1px solid rgba(99, 102, 241, 0.1);
 }
 
 .side-nav-transparent {

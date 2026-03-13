@@ -1,5 +1,5 @@
 .drawer-content {
-    @apply bg-white dark:bg-gray-800 shadow-xl absolute flex flex-col;
+    @apply bg-white shadow-xl absolute flex flex-col;
 
     &.vertical {
         @apply h-full;
@@ -8,6 +8,11 @@
     &.horizontal {
         @apply w-full;
     }
+}
+
+.dark .drawer-content {
+    background-color: #1a1d2e;
+    border-left: 1px solid rgba(99, 102, 241, 0.12);
 }
 
 .drawer-header {

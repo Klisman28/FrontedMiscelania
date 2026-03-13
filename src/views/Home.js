@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
-import NoteFields from './notes/AddNotes';
+
 import { apiGetSales } from '../services/transaction/SaleService';
 import { apiGetStockAlertsSummary } from '../services/catalogue/ProductService';
 import { Card } from 'components/ui';
@@ -293,9 +293,9 @@ const Home = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 gap-6 mb-6">
         {/* Gráfico de Ventas */}
-        <Card className="lg:col-span-2">
+        <Card>
           <h2 className="text-lg sm:text-xl font-semibold mb-4">Tendencia de Ventas (Últimos 30 días)</h2>
           <div className="h-[250px] sm:h-[350px]">
             <Chart
@@ -305,12 +305,6 @@ const Home = () => {
               height="100%"
             />
           </div>
-        </Card>
-
-        {/* Sticky Notes */}
-        <Card>
-          <h2 className="text-xl font-semibold mb-4">Sticky Notes</h2>
-          <NoteFields />
         </Card>
       </div>
 

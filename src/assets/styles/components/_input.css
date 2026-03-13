@@ -2,8 +2,6 @@
     @apply 
     border 
     border-gray-300 
-    dark:border-gray-600 
-    dark:bg-transparent 
     rounded-md 
     w-full 
     py-2 px-3 
@@ -13,7 +11,6 @@
     appearance-none 
     transition 
     duration-150 
-    dark:text-gray-100
     ease-in-out;
 
     &::placeholder {
@@ -29,8 +26,25 @@
     }
 }
 
+.dark .input {
+    background-color: #13152a;
+    border-color: rgba(99, 102, 241, 0.2);
+    color: #f3f4f6;
+}
+
+.dark .input:focus,
+.dark .input:focus-within {
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.5);
+}
+
 .input-addon {
-    @apply flex items-center px-4 rounded-md border border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700;
+    @apply flex items-center px-4 rounded-md border border-gray-300 bg-gray-50;
+}
+
+.dark .input-addon {
+    background-color: #111328;
+    border-color: rgba(99, 102, 241, 0.2);
 }
 
 .input-textarea {
@@ -42,11 +56,17 @@
 }
 
 .input-disabled {
-    @apply bg-gray-100 dark:bg-gray-700  text-gray-400 cursor-not-allowed;
+    @apply bg-gray-100 text-gray-400 cursor-not-allowed;
 
     &::placeholder {
         @apply opacity-70;
     }
+}
+
+.dark .input-disabled {
+    background-color: rgba(19, 21, 42, 0.5);
+    color: #6b7280;
+    border-color: rgba(99, 102, 241, 0.1);
 }
 
 .input-suffix-start {

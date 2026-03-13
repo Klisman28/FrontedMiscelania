@@ -1,5 +1,10 @@
 .header {
-    @apply bg-white flex z-20 sticky top-0 w-full dark:bg-gray-800;
+    @apply bg-white flex z-20 sticky top-0 w-full;
+}
+
+.dark .header {
+    background-color: #13152a;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.08);
 }
 
 .header-wrapper {
