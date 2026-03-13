@@ -33,7 +33,7 @@ const KanbanColumn = ({
 
     return (
         <div
-            className="flex flex-col flex-1 min-w-[320px] max-w-[360px] bg-slate-50/80 dark:bg-gray-800/60 rounded-2xl border border-slate-200 dark:border-gray-700 h-full overflow-hidden shrink-0"
+            className="flex flex-col w-[280px] sm:w-[320px] shrink-0 bg-slate-50/80 dark:bg-gray-800/60 rounded-2xl border border-slate-200 dark:border-gray-700 h-full overflow-hidden"
             onDragOver={handleDragOverLocal}
             onDragLeave={handleDragLeaveLocal}
             onDrop={handleDropLocal}

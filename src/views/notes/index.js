@@ -114,13 +114,13 @@ const NotesPage = () => {
     return (
         <div className="h-full flex flex-col">
             {/* Header + Toolbar */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 shrink-0">
-                <div>
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 shrink-0">
+                <div className="shrink-0 w-full xl:w-auto">
                     <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">Tablero de Pedidos</h3>
                     <p className="text-gray-500 text-sm">Gestiona el flujo Scrum (To Do, In Progress, Done)</p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row flex-wrap xl:flex-nowrap gap-3 w-full xl:w-auto">
                     <div className="w-full sm:w-60">
                         <Input
                             prefix={<HiOutlineSearch />}
@@ -142,7 +142,7 @@ const NotesPage = () => {
                         variant="solid"
                         icon={<HiOutlinePlus />}
                         onClick={handleCreateClick}
-                        className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-md font-semibold"
+                        className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-md font-semibold w-full sm:w-auto"
                     >
                         Nueva Nota
                     </Button>
