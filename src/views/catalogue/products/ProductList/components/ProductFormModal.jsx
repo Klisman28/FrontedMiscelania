@@ -68,7 +68,7 @@ const ProductFormModal = ({
     // Roles
     const user = useSelector((state) => state.auth.user)
     const authority = user?.authority || []
-    const canManageImage = user?.isSuperAdmin || authority.includes('admin') || authority.includes('almacenero')
+    const canManageImage = user?.isSuperAdmin || authority.includes('ADMIN') || authority.includes('ADMINISTRADOR') || authority.includes('ALMACENERO') || authority.includes('VENTAS')
     const [warehouses, setWarehouses] = useState([])
     const [warehousesLoading, setWarehousesLoading] = useState(false)
     const fileInputRef = useRef(null)

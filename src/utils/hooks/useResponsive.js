@@ -22,7 +22,7 @@ const useResponsive = () => {
 		const currentWindowWidth = window.innerWidth
 		return Object.fromEntries(
 			Object.entries(breakpoint).map(
-				([key, value]) => [key, comparator === 'larger' ? (currentWindowWidth > value) : (currentWindowWidth < value)]
+				([key, value]) => [key, comparator === 'larger' ? (currentWindowWidth >= value) : (currentWindowWidth < value)]
 			)
 		)
 	}

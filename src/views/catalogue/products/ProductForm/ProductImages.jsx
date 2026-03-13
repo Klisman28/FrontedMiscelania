@@ -20,7 +20,7 @@ const ProductImages = (props) => {
     const isSuperAdmin = user?.isSuperAdmin
 
     // Authorization logic
-    const canManageImage = isSuperAdmin || authority.includes('admin') || authority.includes('almacenero')
+    const canManageImage = isSuperAdmin || authority.includes('ADMIN') || authority.includes('ADMINISTRADOR') || authority.includes('ALMACENERO') || authority.includes('VENTAS')
 
     useEffect(() => {
         let mounted = true
