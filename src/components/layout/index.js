@@ -73,6 +73,7 @@ const Layout = () => {
 	// Fetch company config (logo + name) on auth
 	const companyLoaded = useSelector((state) => state.base.company.loaded)
 	const companyName = useSelector((state) => state.base.company.companyName)
+	const logoSignedUrl = useSelector((state) => state.base.company.logoSignedUrl)
 
 	useEffect(() => {
 		if (authenticated && !companyLoaded) {
@@ -80,10 +81,19 @@ const Layout = () => {
 		}
 	}, [authenticated, companyLoaded, dispatch])
 
-	// Update browser tab title
+	// Update browser tab title and Favicon
 	useEffect(() => {
 		document.title = companyName || 'POS'
-	}, [companyName])
+		if (logoSignedUrl) {
+			let link = document.querySelector("link[rel~='icon']");
+			if (!link) {
+				link = document.createElement('link');
+				link.rel = 'icon';
+				document.getElementsByTagName('head')[0].appendChild(link);
+			}
+			link.href = logoSignedUrl;
+		}
+	}, [companyName, logoSignedUrl])
 
 	useDirection()
 
